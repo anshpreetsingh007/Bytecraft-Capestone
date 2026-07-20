@@ -1,0 +1,118 @@
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+    padding: 24px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 36px;
+}
+
+.auth-logo {
+    display: block;
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 24px;
+}
+
+.auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 6px;
+    text-align: center;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin: 0 0 28px;
+    text-align: center;
+}
+
+.auth-field {
+    margin-bottom: 18px;
+}
+
+.auth-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+}
+
+.auth-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+}
+
+.auth-field input:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    background: var(--color-surface);
+}
+
+.auth-error {
+    background: rgba(179, 49, 31, 0.1);
+    border: 1px solid rgba(179, 49, 31, 0.3);
+    color: #b3311f;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 11px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-surface);
+    background: var(--color-navy);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.auth-submit:hover {
+    background: #1a2e3a;
+}
+
+.auth-submit:disabled {
+    background: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.auth-switch {
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-muted);
+    margin-top: 22px;
+}
+
+.auth-switch a {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
