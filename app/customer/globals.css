@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/*
+  Markit Roofing — design tokens
+  Palette: light base #EAECF0, ink #000000, navy secondary #233D4D, CTA orange #FE7F2D.
+*/
+
+:root {
+  --background: #eaecf0; /* light base */
+  --foreground: #000000; /* primary text */
+  --ink-soft: #4b5a63; /* secondary text */
+  --paper-dim: #dee1e7; /* card / section background */
+  --line: #cbcfd7; /* hairline borders */
+  --navy: #233d4d; /* secondary backgrounds — dark sections */
+  --navy-soft: #c7cdd2; /* body text on navy */
+  --navy-faint: #899299; /* muted text on navy */
+  --copper: #fe7f2d; /* CTA buttons / highlights */
+  --copper-dark: #e36a1b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink-soft: var(--ink-soft);
+  --color-paper-dim: var(--paper-dim);
+  --color-line: var(--line);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-faint: var(--navy-faint);
+  --color-copper: var(--copper);
+  --color-copper-dark: var(--copper-dark);
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+}
+
+/* Roofline signature divider — repeating shingle-pitch pattern */
+.roofline {
+  width: 100%;
+  height: 16px;
+  background-image: linear-gradient(135deg, var(--line) 25%, transparent 25.5%),
+    linear-gradient(225deg, var(--line) 25%, transparent 25.5%);
+  background-position: 0 0;
+  background-size: 24px 16px;
+  background-repeat: repeat-x;
+}
+.roofline.on-dark {
+  background-image: linear-gradient(135deg, rgba(234, 236, 240, 0.16) 25%, transparent 25.5%),
+    linear-gradient(225deg, rgba(234, 236, 240, 0.16) 25%, transparent 25.5%);
+}
