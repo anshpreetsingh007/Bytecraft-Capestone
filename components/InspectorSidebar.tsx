@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "../Context/AuthContext.tsx";
+import { useAuth } from "../Context/AuthContext";
 import {
   User,
   Home,

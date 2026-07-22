@@ -3,9 +3,9 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../Context/AuthContext";
-import { Logo } from "../../components/Logo";
-import "auth-form.css";
+import { useAuth } from "../Context/AuthContext";
+import { Logo } from "../components/Logo";
+import "../styles/auth-form.css";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
