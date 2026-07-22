@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, UserRole } from "../Context/AuthContext.tsx";
+import { useAuth, UserRole } from "../Context/AuthContext";
 
 export function RoleGuard({
   allowedRoles,
