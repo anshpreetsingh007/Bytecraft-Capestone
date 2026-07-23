@@ -1,3 +1,3 @@
 export function Logo() {
-  return <img src="/markit-logo-black.jpg" alt="Markit Roofing" className="auth-logo" />;
+  return <img src="/images/markit-logo-white.png" alt="Markit Roofing" className="auth-logo" />;
 }
