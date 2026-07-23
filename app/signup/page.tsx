@@ -36,9 +36,10 @@ export default function Signup() {
           Sign Up
         </button>
 
+
         <p>
           Already have an account?{" "}
-          <Link href="/">
+          <Link href="/signin">
             Sign In
           </Link>
         </p>
