@@ -1,9 +1,7 @@
-# Markit Roofing Database Connection Test
-# ByteCraft Capstone Project
+# ByteCraft Capstone 
 
 import getpass
 import psycopg2
-
 
 # Database information
 database_name = "markit_roofing"
@@ -11,9 +9,8 @@ database_user = "postgres"
 database_host = "localhost"
 database_port = "5432"
 
-# Ask for the PostgreSQL password
+# PostgreSQL password
 database_password = getpass.getpass("Enter your PostgreSQL password: ")
-
 
 try:
     # Connect to PostgreSQL
@@ -31,21 +28,20 @@ try:
     cursor = connection.cursor()
 
     # Test query
-    cursor.execute("SELECT * FROM client;")
+    cursor.execute("SELECT * FROM inspector;")
 
-    clients = cursor.fetchall()
+    inspectors = cursor.fetchall()
 
-    print("\nClients found:")
+    print("\nInspectors found:")
 
-    for client in clients:
-        print(client)
+    for inspector in inspectors:
+        print(inspector)
 
     # Close cursor and connection
     cursor.close()
     connection.close()
 
     print("\nDatabase connection closed.")
-
 
 except psycopg2.Error as error:
     print("Database connection failed.")
