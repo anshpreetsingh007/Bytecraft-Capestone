@@ -1,0 +1,84 @@
+.dashboard-container {
+    min-height: 100vh;
+    background: #EAECF0;
+    padding: 40px;
+    color: #000000;
+}
+
+.dashboard-header {
+    background: #233D4D;
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+}
+
+.dashboard-card h2 {
+    color: #233D4D;
+}
+
+.dashboard-button {
+    background: #FE7F2D;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.dashboard-button:hover {
+    background: #233D4D;
+    color: white;
+}
+
+.table {
+    width: 100%;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    border-collapse: collapse;
+}
+
+.table th {
+    background: #233D4D;
+    color: white;
+    padding: 15px;
+}
+
+.table td {
+    padding: 15px;
+    border-bottom: 1px solid #EAECF0;
+}
+
+.form-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 700px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #233D4D;
+}

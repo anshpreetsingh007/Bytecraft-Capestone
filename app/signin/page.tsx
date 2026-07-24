@@ -14,7 +14,7 @@ export default function SignInPage() {
       <div className="signin-card">
 
         <img
-          src="/images/markit-logo-white.jpg"
+          src="markit-logo-white.png"
           alt="Markit Roofing"
           className="logo"
         />

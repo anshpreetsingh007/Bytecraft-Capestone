@@ -1,0 +1,251 @@
+.inventory-page {
+    max-width: 900px;
+}
+
+.inventory-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 4px;
+}
+
+.page-subtitle {
+    font-size: 13px;
+    color: var(--color-muted);
+    margin: 0;
+}
+
+.search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    margin-bottom: 20px;
+}
+
+.search-input:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+}
+
+/* --- Add/Edit form card --- */
+
+.item-form-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 16px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 5px;
+}
+
+.form-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+}
+
+.form-field input:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    background: var(--color-surface);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* --- Buttons (shared with cost estimate page's naming) --- */
+
+.btn-primary,
+.btn-secondary {
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--color-navy);
+    color: var(--color-surface);
+}
+
+.btn-primary:hover {
+    background: #1a2e3a;
+}
+
+.btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+/* --- Table --- */
+
+.inventory-table {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-header-row,
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 1.3fr 1.2fr 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+}
+
+.table-header-row {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: var(--color-bg);
+}
+
+.table-row {
+    font-size: 14px;
+    color: var(--color-ink);
+    border-top: 1px solid var(--color-border);
+}
+
+.item-name {
+    font-weight: 600;
+}
+
+.item-category,
+.item-quantity {
+    color: var(--color-muted);
+}
+
+.status-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-in-stock {
+    background: rgba(47, 122, 65, 0.12);
+    color: #2f7a41;
+}
+
+.status-low {
+    background: var(--color-accent-tint);
+    color: var(--color-accent);
+}
+
+.status-out {
+    background: rgba(179, 49, 31, 0.12);
+    color: #b3311f;
+}
+
+.row-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: var(--color-navy);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.link-btn:hover {
+    color: var(--color-accent);
+}
+
+.link-btn-danger {
+    color: #b3311f;
+}
+
+.link-btn-danger:hover {
+    color: #8c2517;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--color-muted);
+    font-size: 14px;
+}
+
+@media (max-width: 700px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-header-row {
+        display: none;
+    }
+
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 14px 18px;
+    }
+
+    .row-actions {
+        justify-content: flex-start;
+        margin-top: 6px;
+    }
+}

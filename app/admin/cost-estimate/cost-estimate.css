@@ -1,0 +1,207 @@
+.estimate-page {
+    max-width: 720px;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+.page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 24px;
+
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 4px;
+}
+
+.section-subtitle {
+    font-size: 13px;
+    color: var(--color-muted);
+    margin: 0 0 20px;
+}
+
+.calc-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.calc-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+}
+
+.calc-field input,
+.calc-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+}
+
+.calc-field input:focus,
+.calc-field select:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    background: var(--color-surface);
+}
+
+
+.calc-results {
+    background: var(--color-bg);
+    border-radius: 8px;
+    padding: 4px 16px;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 14px;
+}
+
+.result-row:last-child {
+    border-bottom: none;
+}
+
+.result-label {
+    color: var(--color-muted);
+    font-weight: 500;
+}
+
+.result-value {
+    color: var(--color-ink);
+    font-weight: 600;
+}
+
+.result-row-total .result-label,
+.result-row-total .result-value {
+    color: var(--color-accent);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.info-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-field-wide {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.info-value {
+    font-size: 14px;
+    color: var(--color-ink);
+}
+
+.submit-banner {
+    background: var(--color-accent-tint);
+    border: 1px solid var(--color-accent);
+    color: var(--color-navy);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.estimate-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--color-navy);
+    color: var(--color-surface);
+}
+
+.btn-primary:hover {
+    background: #1a2e3a;
+}
+
+.btn-primary:disabled {
+    background: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+
+    .calc-grid,
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
