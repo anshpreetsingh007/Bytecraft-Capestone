@@ -1,15 +1,27 @@
 "use client";
-import { createContext, useContext, useState, ReactNode } from "react";
 
-export type UserRole = "customer" | "inspector" | "admin";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
-interface MockUser {
-  uid: string;
-  email: string;
-}
+import {
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+
+import { auth } from "@/lib/firebase";
+
+export type UserRole = "client" | "inspector" | "admin";
 
 interface AuthContextType {
-  currentUser: MockUser | null;
+  currentUser: User | null;
   role: UserRole | null;
   loading: boolean;
   signUp: (email: string, password: string) => Promise<void>;
@@ -20,7 +32,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   role: null,
-  loading: false,
+  loading: true,
   signUp: async () => {},
   logIn: async () => {},
   logOut: async () => {},
@@ -31,24 +43,45 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<MockUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   async function signUp(email: string, password: string) {
-    setCurrentUser({ uid: "mock-" + email, email });
-    setRole("customer");
+    await createUserWithEmailAndPassword(auth, email, password);
+
+    // New users are clients by default
+    setRole("client");
   }
 
   async function logIn(email: string, password: string) {
-    setCurrentUser({ uid: "mock-" + email, email });
-    setRole("customer");
+    await signInWithEmailAndPassword(auth, email, password);
+
+    // Temporary role until PostgreSQL integration is completed
+    setRole("client");
   }
 
   async function logOut() {
-    setCurrentUser(null);
+    await signOut(auth);
     setRole(null);
   }
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+
+      if (user) {
+        // Temporary role until PostgreSQL integration is completed
+        setRole("client");
+      } else {
+        setRole(null);
+      }
+
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   const value: AuthContextType = {
     currentUser,
@@ -59,5 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logOut,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 }
