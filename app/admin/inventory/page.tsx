@@ -1,6 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
-import { mockInventory } from "../mockdata/mockInventory";
+import { useState, useMemo, useEffect } from "react";
 import { InventoryItem, getStockStatus } from "../types/inventory";
 import "./inventory.css";
 
@@ -19,11 +18,27 @@ const statusClassMap: Record<string, string> = {
 };
 
 export default function InventoryPage() {
-  const [items, setItems] = useState<InventoryItem[]>(mockInventory);
+  const [items, setItems] = useState<InventoryItem[]>([]);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  async function fetchInventory() {
+    try {
+      const res = await fetch("http://localhost:3003/api/inventory");
+      if (res.ok) {
+        const data = await res.json();
+        setItems(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch inventory:", err);
+    }
+  }
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -59,7 +74,7 @@ export default function InventoryPage() {
     setForm(emptyForm);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.name.trim() || !form.category.trim() || !form.unit.trim()) {
       return;
     }
@@ -67,38 +82,54 @@ export default function InventoryPage() {
     const quantityNum = parseInt(form.quantity, 10) || 0;
     const thresholdNum = parseInt(form.reorderThreshold, 10) || 0;
 
-    if (editingId) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                name: form.name,
-                category: form.category,
-                quantity: quantityNum,
-                unit: form.unit,
-                reorderThreshold: thresholdNum,
-              }
-            : item
-        )
-      );
-    } else {
-      const newItem: InventoryItem = {
-        id: "inv-" + Date.now(),
-        name: form.name,
-        category: form.category,
-        quantity: quantityNum,
-        unit: form.unit,
-        reorderThreshold: thresholdNum,
-      };
-      setItems((prev) => [newItem, ...prev]);
+    const payload = {
+      name: form.name,
+      category: form.category,
+      quantity: quantityNum,
+      unit: form.unit,
+      reorderThreshold: thresholdNum,
+    };
+
+    try {
+      if (editingId) {
+        const res = await fetch(`http://localhost:3003/api/inventory/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setItems((prev) => prev.map((item) => (item.id === editingId ? updated : item)));
+        }
+      } else {
+        const res = await fetch("http://localhost:3003/api/inventory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const newItem = await res.json();
+          setItems((prev) => [newItem, ...prev]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to save item:", err);
     }
 
     closeForm();
   }
 
-  function handleDelete(id: string) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  async function handleDelete(id: string) {
+    try {
+      const res = await fetch(`http://localhost:3003/api/inventory/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
   }
 
   return (

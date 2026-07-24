@@ -37,6 +37,8 @@ export default function CostEstimatePage() {
   const [height, setHeight] = useState("");
   const [materialId, setMaterialId] = useState<MaterialType>("asphalt-shingle");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const lengthNum = parseFloat(length) || 0;
   const widthNum = parseFloat(width) || 0;
@@ -49,8 +51,39 @@ export default function CostEstimatePage() {
 
   const hasValidInput = lengthNum > 0 && widthNum > 0;
 
-  function handleSubmitEstimate() {
-    setSubmitted(true);
+  async function handleSubmitEstimate() {
+    setIsSubmitting(true);
+    setError(null);
+    setSubmitted(false);
+
+    try {
+      // We stringify the results into the details column, as defined by backend expectations
+      const details = `Square Footage: ${result.squareFootage}, Material Cost: ${formatCurrency(result.materialCost)}, Labor Cost: ${formatCurrency(result.laborCost)}, Total: ${formatCurrency(result.total)}`;
+
+      const response = await fetch("http://localhost:3002/api/estimates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: 1, // Mock data: In a real flow, this would come from the selected request
+          inspector_id: 1, // Mock data
+          admin_id: 2, // Mock data
+          details: details,
+          estimate_date: new Date().toISOString(),
+          status: "submitted",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${await response.text()}`);
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Failed to submit estimate:", err);
+      setError(err.message || "Failed to submit estimate");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -185,6 +218,12 @@ export default function CostEstimatePage() {
         </div>
       </section>
 
+      {error && (
+        <div className="submit-banner" style={{ backgroundColor: "#ffcccc", color: "#990000", borderColor: "#cc0000" }}>
+          Error: {error}
+        </div>
+      )}
+
       {submitted && (
         <div className="submit-banner">
           Estimate submitted for {mockCustomerRequest.customerName} — total{" "}
@@ -199,10 +238,10 @@ export default function CostEstimatePage() {
         <button
           className="btn-primary"
           onClick={handleSubmitEstimate}
-          disabled={!hasValidInput}
+          disabled={!hasValidInput || isSubmitting}
           type="button"
         >
-          Submit Estimate
+          {isSubmitting ? "Submitting..." : "Submit Estimate"}
         </button>
       </div>
     </div>
