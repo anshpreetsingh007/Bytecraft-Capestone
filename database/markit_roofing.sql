@@ -1,13 +1,14 @@
--- Markit Roofing Database
 -- ByteCraft Capstone Project
 -- Database: PostgreSQL
--- Firebase Authentication is handled by the backend team.
--- PostgreSQL only stores the Firebase UID.
+-- PostgreSQL stores the Firebase UID and user profile information.
+-- Passwords are handled only by Firebase Authentication.
 -- =====================================================
 -- 1. DELETE EXISTING TABLES
 -- =====================================================
--- The child tables are deleted first because they depend
--- on the parent tables.
+-- WARNING:
+-- This section deletes all existing tables and data.
+-- Use only during local development and testing.
+-- Do not run this section after real users are registered.
 DROP TABLE IF EXISTS report CASCADE;
 DROP TABLE IF EXISTS invoice CASCADE;
 DROP TABLE IF EXISTS cost_estimate CASCADE;
@@ -23,8 +24,11 @@ DROP TABLE IF EXISTS client CASCADE;
 -- =====================================================
 CREATE TABLE client (
     client_id SERIAL PRIMARY KEY,
-    firebase_uid VARCHAR(128) UNIQUE,
-    role_client VARCHAR(30),
+    firebase_uid VARCHAR(128) UNIQUE NOT NULL,
+    first_name VARCHAR(60) NOT NULL,
+    last_name VARCHAR(60) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    role_client VARCHAR(30) DEFAULT 'client',
     phone VARCHAR(20),
     address VARCHAR(200)
 );
@@ -33,8 +37,11 @@ CREATE TABLE client (
 -- =====================================================
 CREATE TABLE inspector (
     inspector_id SERIAL PRIMARY KEY,
-    firebase_uid VARCHAR(128) UNIQUE,
-    role_inspector VARCHAR(30),
+    firebase_uid VARCHAR(128) UNIQUE NOT NULL,
+    first_name VARCHAR(60) NOT NULL,
+    last_name VARCHAR(60) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    role_inspector VARCHAR(30) DEFAULT 'inspector',
     phone VARCHAR(20)
 );
 -- =====================================================
@@ -42,8 +49,11 @@ CREATE TABLE inspector (
 -- =====================================================
 CREATE TABLE admin (
     admin_id SERIAL PRIMARY KEY,
-    firebase_uid VARCHAR(128) UNIQUE,
-    role_admin VARCHAR(30),
+    firebase_uid VARCHAR(128) UNIQUE NOT NULL,
+    first_name VARCHAR(60) NOT NULL,
+    last_name VARCHAR(60) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    role_admin VARCHAR(30) DEFAULT 'admin',
     department VARCHAR(100)
 );
 -- =====================================================
@@ -151,12 +161,18 @@ CREATE TABLE report (
 -- Create one client
 INSERT INTO client (
         firebase_uid,
+        first_name,
+        last_name,
+        email,
         role_client,
         phone,
         address
     )
 VALUES (
         'test-client-uid-001',
+        'Diego',
+        'Galvis',
+        'diego.client@example.com',
         'client',
         '403-555-0101',
         '123 Calgary Street'
@@ -164,22 +180,34 @@ VALUES (
 -- Create one inspector
 INSERT INTO inspector (
         firebase_uid,
+        first_name,
+        last_name,
+        email,
         role_inspector,
         phone
     )
 VALUES (
         'test-inspector-uid-001',
+        'Michael',
+        'Smith',
+        'michael.inspector@example.com',
         'inspector',
         '403-555-0201'
     );
 -- Create one administrator
 INSERT INTO admin (
         firebase_uid,
+        first_name,
+        last_name,
+        email,
         role_admin,
         department
     )
 VALUES (
         'test-admin-uid-001',
+        'Sarah',
+        'Johnson',
+        'sarah.admin@example.com',
         'admin',
         'Operations'
     );
@@ -261,7 +289,7 @@ VALUES (
         1,
         1,
         1,
-        'Materials: shingles and nails. Labour cost: 1200 dollars.',
+        'Materials: shingles and nails. Estimated service total: 2000 dollars.',
         CURRENT_DATE,
         'approved'
     );

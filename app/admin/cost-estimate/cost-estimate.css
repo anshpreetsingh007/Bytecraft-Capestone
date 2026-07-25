@@ -1,14 +1,11 @@
 .estimate-page {
     max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-}
 .page-title {
     font-size: 26px;
     font-weight: 700;
