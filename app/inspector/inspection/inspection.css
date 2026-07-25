@@ -1,0 +1,177 @@
+.inspection-page {
+
+    min-height: 100vh;
+
+    background: #EAECF0;
+
+    display: flex;
+
+    justify-content: center;
+
+    padding: 40px 20px;
+
+}
+
+
+
+.inspection-card {
+
+    width: 100%;
+
+    max-width: 700px;
+
+    background: white;
+
+    padding: 40px;
+
+    border-radius: 16px;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+}
+
+
+
+.inspection-card h1 {
+
+    color: #233D4D;
+
+    text-align: center;
+
+    margin-bottom: 8px;
+
+}
+
+
+
+.subtitle {
+
+    text-align: center;
+
+    color: #6b7280;
+
+    margin-bottom: 30px;
+
+}
+
+
+
+
+.inspection-section {
+
+    margin-bottom: 30px;
+
+}
+
+
+
+.inspection-section h2 {
+
+    color: #233D4D;
+
+    font-size: 20px;
+
+    margin-bottom: 15px;
+
+    border-bottom: 2px solid #EAECF0;
+
+    padding-bottom: 8px;
+
+}
+
+
+
+.form-group,
+.check-item {
+
+    margin-bottom: 18px;
+
+}
+
+
+
+label {
+
+    display: block;
+
+    font-weight: 600;
+
+    color: #000000;
+
+    margin-bottom: 7px;
+
+}
+
+
+
+input,
+select,
+textarea {
+
+    width: 100%;
+
+    padding: 13px;
+
+    border: 2px solid #233D4D;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    background: white;
+
+}
+
+
+
+input:focus,
+select:focus,
+textarea:focus {
+
+    outline: none;
+
+    border-color: #FE7F2D;
+
+}
+
+
+
+textarea {
+
+    min-height: 120px;
+
+    resize: vertical;
+
+}
+
+
+
+.submit-button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    background: #FE7F2D;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+
+.submit-button:hover {
+
+    background: #e96f1f;
+
+}

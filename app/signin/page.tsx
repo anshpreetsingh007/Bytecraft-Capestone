@@ -1,50 +1,86 @@
 "use client";
 
-import { useState, FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "../../Context/AuthContext";
-import { Logo } from "../../components/Logo";
 import "../auth-form.css";
-
 
 export default function SignInPage() {
   return (
-    <main className="signin-container">
-      <div className="signin-card">
+    <main className="auth-page">
 
-        <img
-          src="markit-logo-white.png"
-          alt="Markit Roofing"
-          className="logo"
-        />
+      <div className="auth-card">
 
-        <h1>Sign In</h1>
+        <div className="logo-container">
+          <img
+           src="/images/markit-roofing-white.jpg"
+            alt="Markit Roofing"
+            className="auth-logo"
+          />
+        </div>
 
-        <p>Welcome back! Please sign in to continue.</p>
 
-        <input
-          type="email"
-          placeholder="Email"
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-        />
-
-        <button>
+        <h1 className="auth-title">
           Sign In
-        </button>
+        </h1>
 
-        <p>
+
+        <p className="auth-subtitle">
+          Welcome back! Please sign in to continue.
+        </p>
+
+
+        <form>
+
+          <div className="auth-field">
+
+            <label htmlFor="email">
+              Email
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+            />
+
+          </div>
+
+
+          <div className="auth-field">
+
+            <label htmlFor="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+            />
+
+          </div>
+
+
+          <button
+            type="submit"
+            className="auth-submit"
+          >
+            Sign In
+          </button>
+
+
+        </form>
+
+
+        <p className="auth-switch">
           Don't have an account?{" "}
           <Link href="/signup">
-            Sign up
+            Sign Up
           </Link>
         </p>
 
+
       </div>
+
     </main>
   );
 }

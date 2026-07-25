@@ -23,7 +23,7 @@ export default function AdminHomePage() {
       {/* Header Section */}
       <div className="bg-[#233d4d] p-[26px_24px_22px] rounded-b-[16px] mb-5">
         <h1 className="text-[21px] font-extrabold text-white m-0">Admin Dashboard</h1>
-        <p className="text-[12px] font-medium text-white/65 mt-[3px] mb-0">Inventory and estimate overview</p>
+        <p className="text-[12px] font-medium text-white/65 mt-[3px] mb-0r">Inventory and estimate overview</p>
       </div>
 
       <div className="px-6 pb-6">
