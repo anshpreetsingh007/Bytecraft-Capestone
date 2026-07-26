@@ -1,0 +1,37 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Next.js build output
+.next
+out
+
+# Git
+.git
+.gitignore
+
+# IDE / OS
+.vscode
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.docker
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+database/
+
+# Build output
+**/dist
+**/build
+
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Misc
+*.pem

@@ -1,0 +1,161 @@
+# =============================================
+# Markit Roofing — Docker Compose
+# =============================================
+# Usage:
+#   docker compose up --build        (first time / after code changes)
+#   docker compose up                (subsequent runs)
+#   docker compose down              (stop all)
+#   docker compose down -v           (stop all + delete database volume)
+# =============================================
+
+services:
+  # ─── PostgreSQL Database ────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file: .env.docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./database/markit_roofing.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d markit_roofing"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - markit-network
+
+  # ─── AI Chatbot Service (port 3001) ─────────
+  ai-chatbot-service:
+    build:
+      context: ./microservices/ai-chatbot-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3001
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY_CHATBOT:-}
+      - AZURE_OPENAI_RESOURCE_NAME=week8-workflow-ansh-resource
+      - AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4.1
+    ports:
+      - "3001:3001"
+    networks:
+      - markit-network
+
+  # ─── Estimate Service (port 3002) ───────────
+  estimate-service:
+    build:
+      context: ./microservices/estimate-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - markit-network
+
+  # ─── Inventory Service (port 3003) ──────────
+  inventory-service:
+    build:
+      context: ./microservices/inventory-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3003
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - markit-network
+
+  # ─── Next.js Frontend (port 3000) ───────────
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ai-chatbot-service
+      - estimate-service
+      - inventory-service
+    networks:
+      - markit-network
+
+  # ═══════════════════════════════════════════════
+  # UNCOMMENT THESE ONCE THEIR index.ts IS IMPLEMENTED
+  # ═══════════════════════════════════════════════
+
+  # auth-service:
+  #   build:
+  #     context: ./microservices/auth-service
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   env_file: .env.docker
+  #   environment:
+  #     - PORT=3004
+  #   ports:
+  #     - "3004:3004"
+  #   networks:
+  #     - markit-network
+
+  # notification-service:
+  #   build:
+  #     context: ./microservices/notification-service
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   env_file: .env.docker
+  #   environment:
+  #     - PORT=3005
+  #   ports:
+  #     - "3005:3005"
+  #   networks:
+  #     - markit-network
+
+  # report-service:
+  #   build:
+  #     context: ./microservices/report-service
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   env_file: .env.docker
+  #   environment:
+  #     - PORT=3006
+  #   ports:
+  #     - "3006:3006"
+  #   networks:
+  #     - markit-network
+
+  # submission-service:
+  #   build:
+  #     context: ./microservices/submission-service
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   env_file: .env.docker
+  #   environment:
+  #     - PORT=3007
+  #   ports:
+  #     - "3007:3007"
+  #   networks:
+  #     - markit-network
+
+networks:
+  markit-network:
+    driver: bridge
+
+volumes:
+  pg_data:

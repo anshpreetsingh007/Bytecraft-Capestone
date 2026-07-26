@@ -1,10 +1,10 @@
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
 
-dotenv.config({ path: '../../.env.local' });
 
-console.log('db.ts sees DB_PASSWORD as:', process.env.DB_PASSWORD ? 'SET' : 'UNDEFINED');
-console.log('db.ts sees DB_USER as:', process.env.DB_USER);
+if (!process.env.DB_HOST) {
+    dotenv.config({ path: '../../.env.local' });
+}
 
 const pool = new Pool({
     host: process.env.DB_HOST,
@@ -15,3 +15,4 @@ const pool = new Pool({
 });
 
 export default pool;
+

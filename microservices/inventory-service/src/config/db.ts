@@ -1,7 +1,10 @@
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
 
-dotenv.config({ path: '../../.env.local' });
+// In Docker, env vars are injected by compose. Only load .env.local for local dev.
+if (!process.env.DB_HOST) {
+    dotenv.config({ path: '../../.env.local' });
+}
 
 export const pool = new Pool({
     host: process.env.DB_HOST,

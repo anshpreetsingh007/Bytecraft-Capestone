@@ -340,25 +340,5 @@ VALUES (
         CURRENT_DATE
     );
 -- =====================================================
--- 13. SIMPLE TEST QUERIES
--- =====================================================
-SELECT *
-FROM client;
-SELECT *
-FROM inspector;
-SELECT *
-FROM admin;
-SELECT *
-FROM stock;
-SELECT *
-FROM items;
-SELECT *
-FROM inspection_request;
-SELECT *
-FROM orders;
-SELECT *
-FROM cost_estimate;
-SELECT *
-FROM invoice;
-SELECT *
-FROM report;
+-- END OF SCHEMA + SEED DATA
+-- =====================================================
