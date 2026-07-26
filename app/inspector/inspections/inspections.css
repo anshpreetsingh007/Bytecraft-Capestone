@@ -1,0 +1,100 @@
+.inspection-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    background: #EAECF0;
+
+}
+
+
+.inspection-content {
+
+    flex: 1;
+
+    padding: 40px;
+
+}
+
+
+.inspection-content h1 {
+
+    color: #233D4D;
+
+    font-size: 32px;
+
+}
+
+
+.subtitle {
+
+    color: #6b7280;
+
+    margin-bottom: 30px;
+
+}
+
+
+
+.inspection-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 25px;
+
+}
+
+
+
+.inspection-card {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 16px;
+
+}
+
+
+
+.inspection-card h2 {
+
+    color: #233D4D;
+
+}
+
+
+
+.inspection-card p {
+
+    color: #000;
+
+}
+
+
+
+.inspection-button {
+
+    display: block;
+
+    margin-top: 20px;
+
+    text-align: center;
+
+    padding: 12px;
+
+    background: #FE7F2D;
+
+    color: white;
+
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+}

@@ -3,6 +3,7 @@
 import "./inspection.css";
 
 export default function InspectionPage() {
+
   return (
     <main className="inspection-page">
 
@@ -17,8 +18,6 @@ export default function InspectionPage() {
         </p>
 
 
-        {/* Customer Information */}
-
         <section className="inspection-section">
 
           <h2>
@@ -26,46 +25,25 @@ export default function InspectionPage() {
           </h2>
 
 
-          <div className="form-group">
-            <label>
-              Customer Name
-            </label>
+          <div className="customer-summary">
 
-            <input 
-              type="text"
-              placeholder="Enter customer name"
-            />
-          </div>
+            <p>
+              <strong>Name:</strong> John Smith
+            </p>
 
+            <p>
+              <strong>Address:</strong> 123 Calgary Avenue
+            </p>
 
-          <div className="form-group">
-            <label>
-              Property Address
-            </label>
+            <p>
+              <strong>Issue:</strong> Roof leaking after rainfall
+            </p>
 
-            <input
-              type="text"
-              placeholder="Enter property address"
-            />
-          </div>
-
-
-          <div className="form-group">
-            <label>
-              Contact Number
-            </label>
-
-            <input
-              type="text"
-              placeholder="Enter phone number"
-            />
           </div>
 
         </section>
 
 
-
-        {/* Inspection Checklist */}
 
         <section className="inspection-section">
 
@@ -74,88 +52,49 @@ export default function InspectionPage() {
           </h2>
 
 
-          <div className="check-item">
+          <label>
+            Roof Condition
+          </label>
 
-            <label>
-              Roof Condition
-            </label>
+          <select>
+            <option>Select condition</option>
+            <option>Good</option>
+            <option>Needs Repair</option>
+            <option>Critical</option>
+          </select>
 
-            <select>
-              <option>
-                Select condition
-              </option>
 
-              <option>
-                Good
-              </option>
+          <label>
+            Leaks Found
+          </label>
 
-              <option>
-                Needs Repair
-              </option>
-
-              <option>
-                Critical
-              </option>
-
-            </select>
-
-          </div>
+          <select>
+            <option>Select option</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
 
 
 
-          <div className="check-item">
+          <label>
+            Roof Material
+          </label>
 
-            <label>
-              Leaks Found
-            </label>
-
-            <select>
-
-              <option>
-                Select option
-              </option>
-
-              <option>
-                Yes
-              </option>
-
-              <option>
-                No
-              </option>
-
-            </select>
-
-          </div>
-
-
-
-          <div className="check-item">
-
-            <label>
-              Roof Material
-            </label>
-
-            <input
-              type="text"
-              placeholder="Example: Asphalt shingles"
-            />
-
-          </div>
+          <input
+            type="text"
+            placeholder="Example: Asphalt shingles"
+          />
 
 
         </section>
 
 
 
-
-        {/* Notes */}
-
         <section className="inspection-section">
 
           <h2>
             Additional Notes
           </h2>
-
 
           <textarea
             placeholder="Enter inspection notes..."
@@ -171,7 +110,6 @@ export default function InspectionPage() {
 
 
       </div>
-
 
     </main>
   );
