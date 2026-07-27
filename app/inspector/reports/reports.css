@@ -103,3 +103,21 @@
     opacity: 0.85;
 
 }
+
+main {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: #EAECF0;
+
+    
+padding: 80px 40px;
+
+
+}

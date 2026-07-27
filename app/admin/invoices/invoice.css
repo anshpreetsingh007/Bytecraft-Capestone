@@ -78,22 +78,23 @@
 
 .invoice-button {
 
-    width: 100%;
-    margin-top: 25px;
+    margin-top: 20px;
 
-    padding: 12px;
+    padding: 12px 25px;
 
     background: #FE7F2D;
+
     color: white;
 
     border: none;
-    border-radius: 8px;
+
+    border-radius: 10px;
 
     font-weight: 600;
+
     cursor: pointer;
 
 }
-
 
 
 .invoice-button:hover {

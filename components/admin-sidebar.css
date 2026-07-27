@@ -1,0 +1,191 @@
+.sidebar-toggle {
+
+    position: fixed;
+
+    top: 20px;
+    left: 20px;
+
+    z-index: 1001;
+
+    background: #233D4D;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 10px;
+
+    cursor: pointer;
+
+}
+
+
+
+.sidebar-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.35);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 999;
+
+}
+
+
+
+.admin-sidebar {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 270px;
+
+    height: 100vh;
+
+    background: #233D4D;
+
+    color: white;
+
+    padding: 80px 25px 25px;
+
+    transform: translateX(-100%);
+
+    transition: 0.3s ease;
+
+    z-index: 1000;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+
+.admin-sidebar.show {
+
+    transform: translateX(0);
+
+}
+
+
+
+.admin-sidebar h2 {
+
+    font-size: 22px;
+
+}
+
+
+
+.role {
+
+    color: #FE7F2D;
+
+    margin-bottom: 30px;
+
+    font-weight: 600;
+
+}
+
+
+
+.admin-sidebar nav {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+
+.admin-sidebar a {
+
+    color: white;
+
+    text-decoration: none;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+}
+
+
+
+.admin-sidebar a:hover,
+.admin-sidebar .active {
+
+    background: #FE7F2D;
+
+}
+
+
+
+.logout {
+
+    margin-top: auto;
+
+    background: none;
+
+    border: none;
+
+    color: white;
+
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+    cursor: pointer;
+
+    padding: 12px;
+
+}
+
+.ladder-icon {
+
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-around;
+
+}
+
+
+.ladder-icon span {
+
+    display: block;
+
+    height: 3px;
+
+    width: 24px;
+
+    background: white;
+
+    border-radius: 5px;
+
+}

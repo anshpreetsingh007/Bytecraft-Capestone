@@ -1,6 +1,6 @@
 "use client";
 
-import { InspectorSidebar } from "@/components/InspectorSidebar";
+import InspectorSidebar from "@/components/InspectorSidebar";
 import "./reports.css"
 
 

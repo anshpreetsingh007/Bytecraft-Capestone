@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Package, AlertTriangle, Calculator, ClipboardList } from "lucide-react";
 import { mockInventory } from "../admin/mockdata/mockInventory";
 import { getStockStatus } from "../admin/types/inventory";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../../Context/AuthContext";
 
 const recentActivity = [
   { id: "1", text: "Estimate submitted for Dana Whitfield — $10,400.00", time: "12 min ago" },
@@ -86,7 +88,6 @@ export default function AdminHomePage() {
           </Link>
         </div>
 
-        {/* Recent Activity Section */}
         <h2 className="text-[15px] font-bold text-black mb-2.5 mt-0">Recent Activity</h2>
         <div className="bg-white border border-[#233d4d]/12 rounded-xl overflow-hidden">
           {recentActivity.map((item, index) => (

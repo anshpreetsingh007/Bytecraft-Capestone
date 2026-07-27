@@ -51,8 +51,8 @@ Total: $2500
 </h2>
 
 
-<button>
-Generate Invoice
+<button className="invoice-button">
+    Generate Invoice
 </button>
 
 

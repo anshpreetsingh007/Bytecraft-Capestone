@@ -36,3 +36,81 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
+
+.page-container {
+
+  min-height: 100vh;
+
+  background: #EAECF0;
+
+  padding: 40px;
+
+}
+
+
+.page-content {
+
+  max-width: 900px;
+
+  margin: auto;
+
+}
+
+
+.page-title {
+
+  color: #233D4D;
+
+  text-align: center;
+
+  font-size: 36px;
+
+  margin-bottom: 15px;
+
+}
+
+
+.page-subtitle {
+
+  text-align: center;
+
+  color: #555;
+
+  margin-bottom: 35px;
+
+}
+
+
+.card {
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 35px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+}
+
+.role-badge {
+
+  position: fixed;
+
+  top: 20px;
+
+  right: 30px;
+
+  background: #233D4D;
+
+  color: white;
+
+  padding: 10px 22px;
+
+  border-radius: 20px;
+
+  font-weight: 600;
+
+  z-index: 50;
+
+}

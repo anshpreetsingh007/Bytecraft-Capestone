@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "../Context/AuthContext";
+
 import {
   User,
   Home,
@@ -10,66 +11,191 @@ import {
   ClipboardList,
   FileText,
   LogOut,
-  Bell,
+  X,
 } from "lucide-react";
+
+import { useAuth } from "../Context/AuthContext";
 import "./inspector-sidebar.css";
 
-const navItems = [
-  { label: "Profile", href: "/inspector/profile", icon: User },
-  { label: "Home", href: "/inspector/dashboard", icon: Home },
-  { label: "Cost Estimate", href: "/inspector/cost-estimate", icon: DollarSign },
-  { label: "Reports", href: "/inspector/reports", icon: ClipboardList },
-  { label: "Inspections", href: "/inspector/inspections", icon: FileText },
-];
 
-export function InspectorSidebar() {
-  const pathname = usePathname();
-  const { currentUser, logOut } = useAuth();
-  const router = useRouter();
-
-  async function handleLogout() {
-    await logOut();
-    router.push("/signin");
-  }
+function LadderIcon() {
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-top">
-        <div className="sidebar-logo">
-          {/* Simple abstract mark in the two brand darks — swap for your
-              real logo file whenever you have one exported. */}
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <rect x="4" y="2" width="6" height="24" rx="1.5" fill="var(--color-accent)" />
-            <rect x="14" y="8" width="6" height="18" rx="1.5" fill="var(--color-surface)" />
-          </svg>
-        </div>
-        <button className="sidebar-bell" aria-label="Notifications">
-          <Bell size={18} />
-        </button>
-      </div>
 
-      <p className="sidebar-username">{currentUser?.email?.split("@")[0] ?? "Inspector"}</p>
+    <div className="ladder-icon">
 
-      <nav className="sidebar-nav">
-        {navItems.map(({ label, href, icon: Icon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
-            >
-              <Icon size={18} />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      <span></span>
+      <span></span>
+      <span></span>
 
-      <button className="sidebar-logout" onClick={handleLogout}>
-        <LogOut size={18} />
-        <span>Logout</span>
-      </button>
-    </aside>
+    </div>
+
   );
+
+}
+
+
+
+export default function InspectorSidebar() {
+
+
+  const [open, setOpen] = useState(false);
+
+  const pathname = usePathname();
+
+  const router = useRouter();
+
+  const { logOut } = useAuth();
+
+
+
+  async function handleLogout() {
+
+    await logOut();
+
+    router.push("/signin");
+
+  }
+
+
+
+  const links = [
+
+    {
+      name: "Dashboard",
+      href: "/inspector/dashboard",
+      icon: Home,
+    },
+
+    {
+      name: "Inspections",
+      href: "/inspector/inspections",
+      icon: FileText,
+    },
+
+    {
+      name: "Cost Estimate",
+      href: "/inspector/cost-estimate",
+      icon: DollarSign,
+    },
+
+    {
+      name: "Reports",
+      href: "/inspector/reports",
+      icon: ClipboardList,
+    },
+
+    {
+      name: "Profile",
+      href: "/inspector/profile",
+      icon: User,
+    },
+
+  ];
+
+
+
+  return (
+
+    <>
+
+
+      <button
+        className="sidebar-toggle"
+        onClick={() => setOpen(!open)}
+      >
+
+        {open ? <X size={28}/> : <LadderIcon />}
+
+      </button>
+
+
+
+      {open && (
+
+        <div
+          className="sidebar-overlay"
+          onClick={() => setOpen(false)}
+        />
+
+      )}
+
+
+
+
+      <aside
+        className={`inspector-sidebar ${open ? "show" : ""}`}
+      >
+
+
+        <h2>
+          MARKIT ROOFING
+        </h2>
+
+
+        <p className="role">
+          INSPECTOR
+        </p>
+
+
+
+        <nav>
+
+          {links.map((link)=>{
+
+            const Icon = link.icon;
+
+
+            return (
+
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className={
+                  pathname === link.href
+                  ? "active"
+                  : ""
+                }
+              >
+
+                <Icon size={20}/>
+
+                <span>
+                  {link.name}
+                </span>
+
+              </Link>
+
+            );
+
+          })}
+
+
+        </nav>
+
+
+
+
+        <button
+          className="logout"
+          onClick={handleLogout}
+        >
+
+          <LogOut size={20}/>
+
+          <span>
+            Logout
+          </span>
+
+        </button>
+
+
+      </aside>
+
+
+    </>
+
+  );
+
 }

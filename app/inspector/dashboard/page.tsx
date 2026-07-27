@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { InspectorSidebar } from "@/components/InspectorSidebar";
+import InspectorSidebar from "@/components/InspectorSidebar";
 import "./dash.css";
 
 export default function InspectorDashboard() {

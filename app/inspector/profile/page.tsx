@@ -1,43 +1,51 @@
 "use client";
 
-import { InspectorSidebar } from "@/components/InspectorSidebar";
+import "./profile.css";
 
-
-export default function ProfilePage(){
+export default function ProfilePage() {
 
 return (
 
 <main className="profile-page">
 
-<InspectorSidebar />
-
-
-<section>
-
-<h1>
+<h1 className="page-title">
 Inspector Profile
 </h1>
 
 
 <div className="profile-card">
 
-<p>
-Name: Inspector User
-</p>
+<div className="profile-avatar">
+I
+</div>
+
+
+<h2>
+Inspector Account
+</h2>
+
 
 <p>
 Role: Inspector
 </p>
 
+
 <p>
-Email: inspector@markit.com
+Email: inspector@markitroofing.com
 </p>
 
 
+<p>
+Department: Roofing Inspection
+</p>
+
+
+<button className="profile-button">
+Edit Profile
+</button>
+
+
 </div>
-
-
-</section>
 
 
 </main>
