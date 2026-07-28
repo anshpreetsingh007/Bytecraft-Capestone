@@ -36,9 +36,7 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3001
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY_CHATBOT:-}
-      - AZURE_OPENAI_RESOURCE_NAME=week8-workflow-ansh-resource
-      - AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4.1
+
     ports:
       - "3001:3001"
     networks:
