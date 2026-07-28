@@ -1,23 +1,44 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Package, AlertTriangle, Calculator, ClipboardList } from "lucide-react";
-import { mockInventory } from "../admin/mockdata/mockInventory";
-import { getStockStatus } from "../admin/types/inventory";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../Context/AuthContext";
 
-const recentActivity = [
-  { id: "1", text: "Estimate submitted for Dana Whitfield — $10,400.00", time: "12 min ago" },
-  { id: "2", text: "Ridge Cap Shingles marked Out of Stock", time: "1 hour ago" },
-  { id: "3", text: "Added 40 units of Metal Roofing Panels", time: "3 hours ago" },
-  { id: "4", text: "Estimate submitted for Marcus Ferreira — $7,120.00", time: "Yesterday" },
-];
-
 export default function AdminHomePage() {
-  const totalItems = mockInventory.reduce((sum, item) => sum + item.quantity, 0);
-  const lowStockCount = mockInventory.filter((item) => {
-    const status = getStockStatus(item);
-    return status === "Low Stock" || status === "Out of Stock";
+  const [inventory, setInventory] = useState<any[]>([]);
+  const [recentEstimates, setRecentEstimates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [invRes, estRes] = await Promise.all([
+          fetch("http://localhost:3003/api/inventory"),
+          fetch("http://localhost:3007/api/estimates")
+        ]);
+        
+        if (invRes.ok) {
+          const invData = await invRes.json();
+          setInventory(invData);
+        }
+        
+        if (estRes.ok) {
+          const estData = await estRes.json();
+          setRecentEstimates(estData.slice(0, 4)); // Get latest 4
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard data", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const totalItems = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const lowStockCount = inventory.filter((item) => {
+    return item.quantity <= (item.reorderThreshold || 0);
   }).length;
 
   return (
@@ -37,7 +58,7 @@ export default function AdminHomePage() {
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#233d4d]/60 m-0">Total Stock</p>
-              <p className="text-[19px] font-extrabold text-black m-0">{totalItems.toLocaleString()}</p>
+              <p className="text-[19px] font-extrabold text-black m-0">{loading ? "..." : totalItems.toLocaleString()}</p>
             </div>
           </div>
 
@@ -47,7 +68,7 @@ export default function AdminHomePage() {
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#233d4d]/60 m-0">Low / Out of Stock</p>
-              <p className="text-[19px] font-extrabold text-black m-0">{lowStockCount}</p>
+              <p className="text-[19px] font-extrabold text-black m-0">{loading ? "..." : lowStockCount}</p>
             </div>
           </div>
 
@@ -57,7 +78,7 @@ export default function AdminHomePage() {
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#233d4d]/60 m-0">Items Tracked</p>
-              <p className="text-[19px] font-extrabold text-black m-0">{mockInventory.length}</p>
+              <p className="text-[19px] font-extrabold text-black m-0">{loading ? "..." : inventory.length}</p>
             </div>
           </div>
         </div>
@@ -77,30 +98,40 @@ export default function AdminHomePage() {
             </div>
           </Link>
 
-          <Link href="/admin/cost-estimate" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3 hover:border-[#fe7f2d]/50 transition-all">
+          <Link href="/admin/cost-estimate/select" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3 hover:border-[#fe7f2d]/50 transition-all">
             <div className="w-10 h-10 rounded-[9px] bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
               <Calculator size={19} />
             </div>
             <div>
               <p className="text-[13px] font-bold text-black m-0">Create Estimate</p>
-              <p className="text-[11px] text-[#233d4d]/60 m-0">Material &amp; labor cost</p>
+              <p className="text-[11px] text-[#233d4d]/60 m-0">Select inspection &amp; calculate</p>
             </div>
           </Link>
         </div>
 
-        <h2 className="text-[15px] font-bold text-black mb-2.5 mt-0">Recent Activity</h2>
+        <h2 className="text-[15px] font-bold text-black mb-2.5 mt-0">Recent Estimates</h2>
         <div className="bg-white border border-[#233d4d]/12 rounded-xl overflow-hidden">
-          {recentActivity.map((item, index) => (
-            <div 
-              key={item.id} 
-              className={`p-3 text-[13px] flex items-center justify-between ${
-                index !== recentActivity.length - 1 ? 'border-b border-[#233d4d]/10' : ''
-              }`}
-            >
-              <span className="text-[#233d4d] font-medium">{item.text}</span>
-              <span className="text-[11px] text-[#233d4d]/60">{item.time}</span>
-            </div>
-          ))}
+          {loading ? (
+             <div className="p-3 text-[13px] text-gray-500">Loading...</div>
+          ) : recentEstimates.length === 0 ? (
+             <div className="p-3 text-[13px] text-gray-500">No recent estimates.</div>
+          ) : (
+            recentEstimates.map((item, index) => (
+              <div 
+                key={item.estimate_id} 
+                className={`p-3 text-[13px] flex items-center justify-between ${
+                  index !== recentEstimates.length - 1 ? 'border-b border-[#233d4d]/10' : ''
+                }`}
+              >
+                <span className="text-[#233d4d] font-medium">
+                  Estimate submitted for {item.first_name} {item.last_name} — {item.status}
+                </span>
+                <span className="text-[11px] text-[#233d4d]/60">
+                  {new Date(item.estimate_date).toLocaleDateString()}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

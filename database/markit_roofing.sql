@@ -77,6 +77,9 @@ CREATE TABLE items (
     description VARCHAR(250),
     qty_on_hand INTEGER,
     unit_cost NUMERIC(10, 2),
+    category VARCHAR(100),
+    unit VARCHAR(30),
+    reorder_threshold INTEGER,
     FOREIGN KEY (stock_id) REFERENCES stock(stock_id)
 );
 -- =====================================================
@@ -232,21 +235,30 @@ INSERT INTO items (
         name,
         description,
         qty_on_hand,
-        unit_cost
+        unit_cost,
+        category,
+        unit,
+        reorder_threshold
     )
 VALUES (
         1,
         'Roofing Shingles',
         'Standard asphalt roofing shingles',
         100,
-        35.00
+        35.00,
+        'Materials',
+        'bundles',
+        20
     ),
     (
         1,
         'Roofing Nails',
         'Box of roofing nails',
         50,
-        15.00
+        15.00,
+        'Hardware',
+        'boxes',
+        10
     );
 -- Create one inspection request
 INSERT INTO inspection_request (

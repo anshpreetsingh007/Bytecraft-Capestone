@@ -138,18 +138,18 @@ services:
   #   networks:
   #     - markit-network
 
-  # submission-service:
-  #   build:
-  #     context: ./microservices/submission-service
-  #     dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   env_file: .env.docker
-  #   environment:
-  #     - PORT=3007
-  #   ports:
-  #     - "3007:3007"
-  #   networks:
-  #     - markit-network
+  submission-service:
+    build:
+      context: ./microservices/submission-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3007
+    ports:
+      - "3007:3007"
+    networks:
+      - markit-network
 
 networks:
   markit-network:

@@ -23,7 +23,16 @@ app.post('/api/chat', async (req, res) => {
     const { messages } = req.body;
 
     // Map standard client messages to CoreMessages for streamText
-    const coreMessages = messages.map((m: any) => ({ role: m.role, content: m.content }));
+    const coreMessages = messages.map((m: any) => {
+      let content = m.content;
+      if (m.parts) {
+        content = m.parts
+          .filter((p: any) => p.type === 'text')
+          .map((p: any) => p.text)
+          .join('');
+      }
+      return { role: m.role, content: content || '' };
+    });
 
     const result = streamText({
       model: azure(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
