@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:all": "npx concurrently \"npm run dev\" \"npm run dev --prefix microservices/ai-chatbot-service\" \"npm run dev --prefix microservices/estimate-service\" \"npm run dev --prefix microservices/inventory-service\"",
+    "dev:all": "npx concurrently \"npm run dev\" \"npm run dev --prefix microservices/ai-chatbot-service\" \"npm run dev --prefix microservices/estimate-service\" \"npm run dev --prefix microservices/inventory-service\" \"npm run dev --prefix microservices/submission-service\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
