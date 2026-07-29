@@ -19,6 +19,8 @@ DROP TABLE IF EXISTS stock CASCADE;
 DROP TABLE IF EXISTS admin CASCADE;
 DROP TABLE IF EXISTS inspector CASCADE;
 DROP TABLE IF EXISTS client CASCADE;
+DROP TABLE IF EXISTS notification CASCADE;
+
 -- =====================================================
 -- 2. CLIENT TABLE
 -- =====================================================
@@ -155,8 +157,59 @@ CREATE TABLE report (
     FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id),
     FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
 );
+
 -- =====================================================
--- 12. SAMPLE DATA
+-- 12. NOTIFICATION TABLE
+-- =====================================================
+ 
+CREATE TABLE notification (
+    notification_id    SERIAL PRIMARY KEY,
+ 
+    -- Who the notification is for. We store recipient_type +
+    -- recipient_id instead of a single FK because recipients can
+    -- be an admin OR a client (two different tables).
+    recipient_type      VARCHAR(20) NOT NULL
+                         CHECK (recipient_type IN ('admin', 'client', 'inspector')),
+    recipient_id        INTEGER NOT NULL,
+ 
+    -- Machine-readable category, used by the frontend to pick an
+    -- icon/route and by the backend to avoid duplicate alerts.
+    type                VARCHAR(50) NOT NULL
+                         CHECK (type IN (
+                             'estimate_approved',
+                             'low_stock',
+                             'inspection_request_submitted'
+                         )),
+ 
+    title                VARCHAR(150) NOT NULL,
+    message              TEXT,
+ 
+    -- Optional pointer back to the record that triggered this
+    -- notification (e.g. cost_estimate.estimate_id, items.item_id,
+    -- inspection_request.request_id), so the UI can deep-link to it.
+    related_entity_type  VARCHAR(30),
+    related_entity_id    INTEGER,
+ 
+    is_read              BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at              TIMESTAMP
+);
+ 
+-- Speeds up the most common query: "give me this recipient's
+-- unread notifications, newest first"
+CREATE INDEX idx_notification_recipient_unread
+    ON notification (recipient_type, recipient_id, is_read, created_at DESC);
+ 
+-- Prevents the low-stock alert from being re-inserted every time
+-- someone polls the inventory endpoint while an item is still low,
+-- since we only want ONE open (unread) low-stock alert per item at a time.
+CREATE UNIQUE INDEX idx_notification_low_stock_unique
+    ON notification (related_entity_type, related_entity_id)
+    WHERE type = 'low_stock' AND is_read = FALSE;
+
+
+-- =====================================================
+-- 13. SAMPLE DATA
 -- =====================================================
 -- Create one client
 INSERT INTO client (
@@ -339,6 +392,8 @@ VALUES (
         'The roof repair was completed successfully.',
         CURRENT_DATE
     );
+
+
 -- =====================================================
 -- END OF SCHEMA + SEED DATA
--- =====================================================
+-- =====================================================

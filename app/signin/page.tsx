@@ -1,9 +1,36 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../../Context/AuthContext";
 import "../auth-form.css";
 
 export default function SignInPage() {
+  const { logIn } = useAuth();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      await logIn(email, password);
+      // RoleGuard/redirecting page route by role — send everyone through
+      // there so the role lookup decides the final destination.
+      router.push("/redirecting");
+    } catch (err: any) {
+      setError(err?.message || "Failed to sign in. Check your email and password.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <main className="auth-page">
 
@@ -27,8 +54,13 @@ export default function SignInPage() {
           Welcome back! Please sign in to continue.
         </p>
 
+        {error && (
+          <p style={{ color: "#c0392b", fontSize: "13px", marginBottom: "12px" }}>
+            {error}
+          </p>
+        )}
 
-        <form>
+        <form onSubmit={handleSubmit}>
 
           <div className="auth-field">
 
@@ -40,6 +72,9 @@ export default function SignInPage() {
               id="email"
               type="email"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
           </div>
@@ -55,6 +90,9 @@ export default function SignInPage() {
               id="password"
               type="password"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
           </div>
@@ -63,8 +101,9 @@ export default function SignInPage() {
           <button
             type="submit"
             className="auth-submit"
+            disabled={submitting}
           >
-            Sign In
+            {submitting ? "Signing In…" : "Sign In"}
           </button>
 
 

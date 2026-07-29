@@ -53,6 +53,7 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3002
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
     ports:
       - "3002:3002"
     depends_on:
@@ -70,8 +71,78 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
     ports:
       - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - markit-network
+
+  # ─── Auth Service (port 3004) ────────────────
+  auth-service:
+    build:
+      context: ./microservices/auth-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3004
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - markit-network
+
+  # ─── Notification Service (port 3005) ───────
+  notification-service:
+    build:
+      context: ./microservices/notification-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3005
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - markit-network
+
+  # ─── Report Service (port 3006) ─────────────
+  report-service:
+    build:
+      context: ./microservices/report-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3006
+    ports:
+      - "3006:3006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - markit-network
+
+  # ─── Submission Service (port 3007) ─────────
+  submission-service:
+    build:
+      context: ./microservices/submission-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      - PORT=3007
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+    ports:
+      - "3007:3007"
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,64 +165,12 @@ services:
       - ai-chatbot-service
       - estimate-service
       - inventory-service
+      - auth-service
+      - notification-service
+      - report-service
+      - submission-service
     networks:
       - markit-network
-
-  # ═══════════════════════════════════════════════
-  # UNCOMMENT THESE ONCE THEIR index.ts IS IMPLEMENTED
-  # ═══════════════════════════════════════════════
-
-  # auth-service:
-  #   build:
-  #     context: ./microservices/auth-service
-  #     dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   env_file: .env.docker
-  #   environment:
-  #     - PORT=3004
-  #   ports:
-  #     - "3004:3004"
-  #   networks:
-  #     - markit-network
-
-  # notification-service:
-  #   build:
-  #     context: ./microservices/notification-service
-  #     dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   env_file: .env.docker
-  #   environment:
-  #     - PORT=3005
-  #   ports:
-  #     - "3005:3005"
-  #   networks:
-  #     - markit-network
-
-  # report-service:
-  #   build:
-  #     context: ./microservices/report-service
-  #     dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   env_file: .env.docker
-  #   environment:
-  #     - PORT=3006
-  #   ports:
-  #     - "3006:3006"
-  #   networks:
-  #     - markit-network
-
-  # submission-service:
-  #   build:
-  #     context: ./microservices/submission-service
-  #     dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   env_file: .env.docker
-  #   environment:
-  #     - PORT=3007
-  #   ports:
-  #     - "3007:3007"
-  #   networks:
-  #     - markit-network
 
 networks:
   markit-network:
