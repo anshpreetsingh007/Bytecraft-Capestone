@@ -2,28 +2,26 @@
   "name": "markit-roofing",
   "version": "0.1.0",
   "private": true,
- "scripts": {
-  "dev": "next dev",
-  "dev:all": "npx concurrently \"npm run dev\" \"npm run dev --prefix microservices/ai-chatbot-service\" \"npm run dev --prefix microservices/estimate-service\" \"npm run dev --prefix microservices/inventory-service\"",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint"
-},
+  "scripts": {
+    "dev": "next dev",
+    "dev:all": "npx concurrently \"npm run dev\" \"npm run dev --prefix microservices/ai-chatbot-service\" \"npm run dev --prefix microservices/estimate-service\" \"npm run dev --prefix microservices/inventory-service\" \"npm run dev --prefix microservices/submission-service\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
   "dependencies": {
     "@ai-sdk/azure": "^4.0.18",
     "@ai-sdk/react": "^4.0.37",
     "@tabler/icons-react": "^3.45.0",
     "ai": "^7.0.34",
-
     "firebase": "^12.16.0",
     "lucide-react": "^1.25.0",
-
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

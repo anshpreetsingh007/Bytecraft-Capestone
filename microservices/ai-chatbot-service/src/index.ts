@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { streamText, convertToModelMessages } from 'ai';
+import { streamText } from 'ai';
 import { createAzure } from '@ai-sdk/azure';
 import * as dotenv from 'dotenv';
 
@@ -22,12 +22,21 @@ app.post('/api/chat', async (req, res) => {
   try {
     const { messages } = req.body;
 
-    // Convert UIMessages (parts-based, from frontend) to model messages (content-based, for LLM)
-    const modelMessages = await convertToModelMessages(messages);
+    // Map standard client messages to CoreMessages for streamText
+    const coreMessages = messages.map((m: any) => {
+      let content = m.content;
+      if (m.parts) {
+        content = m.parts
+          .filter((p: any) => p.type === 'text')
+          .map((p: any) => p.text)
+          .join('');
+      }
+      return { role: m.role, content: content || '' };
+    });
 
     const result = streamText({
       model: azure(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
-      messages: modelMessages,
+      messages: coreMessages,
       system: "You are a helpful customer service assistant for Markit Roofing. You help customers understand their roofing estimates, the inspection process, and answer general roofing FAQs. Keep your answers friendly, professional, and concise.",
     });
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
-const laborRatePerSqFt = 2.5; 
-import { mockCustomerRequest } from "../mockdata/mockCustomerRequest";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { MaterialType, EstimateResult } from "../types/estimate";
 import "./cost-estimate.css";
 import { materialRates } from "../mockdata/materialRates";
+
+const laborRatePerSqFt = 2.5;
 
 function calculateEstimate(
   length: number,
@@ -14,11 +15,8 @@ function calculateEstimate(
   materialId: MaterialType
 ): EstimateResult {
   const baseArea = length * width;
-
   const pitchAdjustedArea = height > 0 ? baseArea * (1 + height * 0.05) : baseArea;
-
   const squareFootage = Math.round(pitchAdjustedArea * 100) / 100;
-
   const material = materialRates.find((m) => m.id === materialId) ?? materialRates[0];
   const materialCost = Math.round(squareFootage * material.costPerSqFt * 100) / 100;
   const laborCost = Math.round(squareFootage * laborRatePerSqFt * 100) / 100;
@@ -31,7 +29,14 @@ function formatCurrency(value: number): string {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
-export default function CostEstimatePage() {
+function CostEstimateContent() {
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get("requestId");
+  const router = useRouter();
+
+  const [requestData, setRequestData] = useState<any>(null);
+  const [loadingRequest, setLoadingRequest] = useState(true);
+  
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
@@ -39,6 +44,26 @@ export default function CostEstimatePage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!requestId) {
+        setLoadingRequest(false);
+        return;
+    }
+    async function fetchRequest() {
+        try {
+            const res = await fetch(`http://localhost:3007/api/inspection-requests/${requestId}`);
+            if (!res.ok) throw new Error("Failed to fetch request data");
+            const data = await res.json();
+            setRequestData(data);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoadingRequest(false);
+        }
+    }
+    fetchRequest();
+  }, [requestId]);
 
   const lengthNum = parseFloat(length) || 0;
   const widthNum = parseFloat(width) || 0;
@@ -57,19 +82,18 @@ export default function CostEstimatePage() {
     setSubmitted(false);
 
     try {
-      // We stringify the results into the details column, as defined by backend expectations
       const details = `Square Footage: ${result.squareFootage}, Material Cost: ${formatCurrency(result.materialCost)}, Labor Cost: ${formatCurrency(result.laborCost)}, Total: ${formatCurrency(result.total)}`;
 
-      const response = await fetch("http://localhost:3002/api/estimates", {
+      const response = await fetch("http://localhost:3007/api/estimates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          order_id: 1, // Mock data: In a real flow, this would come from the selected request
-          inspector_id: 1, // Mock data
-          admin_id: 2, // Mock data
+          order_id: requestData?.order_id || 1, 
+          inspector_id: 1, 
+          admin_id: 1, 
           details: details,
           estimate_date: new Date().toISOString(),
-          status: "submitted",
+          status: "pending",
         }),
       });
 
@@ -78,6 +102,9 @@ export default function CostEstimatePage() {
       }
 
       setSubmitted(true);
+      setTimeout(() => {
+        router.push("/admin/estimates");
+      }, 2000);
     } catch (err: any) {
       console.error("Failed to submit estimate:", err);
       setError(err.message || "Failed to submit estimate");
@@ -86,9 +113,30 @@ export default function CostEstimatePage() {
     }
   }
 
+  if (!requestId) {
+      return (
+          <div className="p-6">
+              <p>No inspection request selected.</p>
+              <button className="text-blue-500 underline mt-2" onClick={() => router.push("/admin/cost-estimate/select")}>
+                  Select an Inspection Request
+              </button>
+          </div>
+      );
+  }
+
+  if (loadingRequest) return <div className="p-6">Loading customer data...</div>;
+
   return (
     <div className="estimate-page">
-      <h1 className="page-title">Cost Estimate</h1>
+      <div className="flex justify-between items-center mb-6">
+          <h1 className="page-title m-0">Cost Estimate</h1>
+          <button 
+              className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded transition"
+              onClick={() => router.push("/admin/cost-estimate/select")}
+          >
+              Change Inspection
+          </button>
+      </div>
 
       {/* --- Calculation section --- */}
       <section className="calc-card">
@@ -181,42 +229,45 @@ export default function CostEstimatePage() {
           </div>
         </div>
       </section>
-      <section className="info-card">
-        <h2 className="section-title">Customer Information</h2>
+      
+      {requestData && (
+          <section className="info-card">
+            <h2 className="section-title">Customer Information</h2>
 
-        <div className="info-grid">
-          <div className="info-field">
-            <span className="info-label">Name</span>
-            <span className="info-value">{mockCustomerRequest.customerName}</span>
-          </div>
-          <div className="info-field">
-            <span className="info-label">Address</span>
-            <span className="info-value">{mockCustomerRequest.address}</span>
-          </div>
-          <div className="info-field">
-            <span className="info-label">Phone</span>
-            <span className="info-value">{mockCustomerRequest.phone}</span>
-          </div>
-          <div className="info-field">
-            <span className="info-label">Email</span>
-            <span className="info-value">{mockCustomerRequest.email}</span>
-          </div>
-          <div className="info-field">
-            <span className="info-label">Request Date</span>
-            <span className="info-value">
-              {new Date(mockCustomerRequest.requestDate).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-          <div className="info-field info-field-wide">
-            <span className="info-label">Notes</span>
-            <span className="info-value">{mockCustomerRequest.notes}</span>
-          </div>
-        </div>
-      </section>
+            <div className="info-grid">
+              <div className="info-field">
+                <span className="info-label">Name</span>
+                <span className="info-value">{requestData.first_name} {requestData.last_name}</span>
+              </div>
+              <div className="info-field">
+                <span className="info-label">Address</span>
+                <span className="info-value">{requestData.address}</span>
+              </div>
+              <div className="info-field">
+                <span className="info-label">Phone</span>
+                <span className="info-value">{requestData.phone}</span>
+              </div>
+              <div className="info-field">
+                <span className="info-label">Email</span>
+                <span className="info-value">{requestData.email}</span>
+              </div>
+              <div className="info-field">
+                <span className="info-label">Request Date</span>
+                <span className="info-value">
+                  {new Date(requestData.scheduled_date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+              <div className="info-field info-field-wide">
+                <span className="info-label">Notes</span>
+                <span className="info-value">{requestData.details}</span>
+              </div>
+            </div>
+          </section>
+      )}
 
       {error && (
         <div className="submit-banner" style={{ backgroundColor: "#ffcccc", color: "#990000", borderColor: "#cc0000" }}>
@@ -226,8 +277,8 @@ export default function CostEstimatePage() {
 
       {submitted && (
         <div className="submit-banner">
-          Estimate submitted for {mockCustomerRequest.customerName} — total{" "}
-          {formatCurrency(result.total)}.
+          Estimate submitted for {requestData?.first_name} {requestData?.last_name} — total{" "}
+          {formatCurrency(result.total)}. Redirecting...
         </div>
       )}
 
@@ -238,7 +289,7 @@ export default function CostEstimatePage() {
         <button
           className="btn-primary"
           onClick={handleSubmitEstimate}
-          disabled={!hasValidInput || isSubmitting}
+          disabled={!hasValidInput || isSubmitting || !requestData}
           type="button"
         >
           {isSubmitting ? "Submitting..." : "Submit Estimate"}
@@ -246,4 +297,12 @@ export default function CostEstimatePage() {
       </div>
     </div>
   );
+}
+
+export default function CostEstimatePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CostEstimateContent />
+        </Suspense>
+    );
 }
