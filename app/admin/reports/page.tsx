@@ -13,7 +13,7 @@ import {
 
 // TODO: move to NEXT_PUBLIC_REPORT_SERVICE_URL once the rest of the frontend
 // adopts env-based service URLs (currently other pages hardcode localhost too).
-const REPORT_SERVICE_URL = "http://localhost:3006";
+const REPORT_SERVICE_URL = "";
 
 const currency = new Intl.NumberFormat("en-CA", {
   style: "currency",

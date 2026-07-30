@@ -8,7 +8,7 @@ import { MessageCircle, X, Send } from "lucide-react";
 export default function Chatbot() {
   const { messages, status, sendMessage } = useChat({
     transport: new DefaultChatTransport({
-      api: "http://localhost:3001/api/chat",
+      api: "/api/chat",
     }),
   });
   const [isOpen, setIsOpen] = useState(false);

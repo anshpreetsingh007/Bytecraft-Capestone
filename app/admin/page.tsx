@@ -14,8 +14,8 @@ export default function AdminHomePage() {
     async function fetchData() {
       try {
         const [invRes, estRes] = await Promise.all([
-          fetch("http://localhost:3003/api/inventory"),
-          fetch("http://localhost:3007/api/estimates")
+          fetch("/api/inventory"),
+          fetch("/api/estimates")
         ]);
         
         if (invRes.ok) {

@@ -19,6 +19,8 @@ const SUBMISSION_SERVICE_URL = process.env.SUBMISSION_SERVICE_URL || 'http://loc
 const azure = createAzure({
   resourceName: process.env.AZURE_OPENAI_RESOURCE_NAME,
   apiKey: process.env.AZURE_OPENAI_API_KEY,
+  useDeploymentBasedUrls: true,
+  apiVersion: '2024-04-01-preview',
 });
 
 app.post('/api/chat', async (req, res) => {
@@ -38,7 +40,7 @@ app.post('/api/chat', async (req, res) => {
     });
 
     const result = streamText({
-      model: azure(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
+      model: azure.chat(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
       messages: coreMessages,
       system: `You are a customer service assistant for Markit Roofing. Your ONLY purpose is to help with roofing-related topics.
 
@@ -79,6 +81,9 @@ STRICT RULES YOU MUST NEVER BREAK:
         }),
       },
       stopWhen: isStepCount(3),
+      onError: ({ error }) => {
+        console.error("AI SDK Stream Error:", error);
+      }
     });
 
     // Use UIMessageStream format (required by AI SDK v7 DefaultChatTransport)
