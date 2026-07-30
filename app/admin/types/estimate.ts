@@ -3,7 +3,7 @@ export type MaterialType = "asphalt-shingle" | "metal" | "tile" | "flat-membrane
 export interface MaterialRate {
   id: MaterialType;
   label: string;
-  costPerSqFt: number; 
+  costPerSqFt: number;
 }
 
 export interface CustomerRequest {
@@ -12,7 +12,7 @@ export interface CustomerRequest {
   address: string;
   phone: string;
   email: string;
-  requestDate: string; 
+  requestDate: string;
   notes: string;
 }
 
