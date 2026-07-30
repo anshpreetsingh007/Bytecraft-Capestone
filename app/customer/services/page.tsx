@@ -35,18 +35,18 @@ const services = [
     icon: <path d="M4 12L9 17L20 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />,
   },
   {
-    title: "Storm Damage Restoration",
-    body: "Emergency tarping, damage documentation, and insurance-ready estimates so you can file a claim with confidence.",
+    title: "Emergency Roof Repair",
+    body: "24/7 emergency response for storm damage, sudden leaks, and other urgent roofing failures at both our Calgary and Edmonton locations.",
     icon: <path d="M3 15L8 5L13 13L17 6L21 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />,
   },
   {
-    title: "Gutter Installation & Guards",
-    body: "Seamless gutters sized to your roofline, plus guard systems that cut down on ladder-and-bucket cleaning.",
+    title: "Waterproofing & Coatings",
+    body: "Protective coating and waterproofing systems for roofs and building envelopes, extending service life and preventing water intrusion.",
     icon: <path d="M4 6H20M4 6V16C4 17 5 18 6 18H8M20 6V16C20 17 19 18 18 18H16M8 18V21H16V18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />,
   },
   {
-    title: "Commercial Roofing",
-    body: "Low-slope and flat-roof systems — TPO, EPDM, and modified bitumen — with scheduled maintenance plans available.",
+    title: "Commercial Roofing & Insurance Claims",
+    body: "Low-slope and flat-roof systems — TPO, SBS, EPDM, BUR, Mod-Bit, and PVC — plus insurance claim assistance for commercial and residential projects.",
     icon: (
       <>
         <rect x="3" y="8" width="18" height="13" stroke="currentColor" strokeWidth="1.6" />
@@ -57,10 +57,10 @@ const services = [
 ];
 
 const materials = [
-  { title: "Asphalt Shingle", body: "The most common residential choice — wide range of colors, 25 to 30-year manufacturer warranties, and the lowest upfront cost." },
-  { title: "Standing-Seam Metal", body: "40+ year lifespan, strong wind and hail resistance, and a clean, modern profile that holds paint color longer than shingle." },
-  { title: "Tile & Slate", body: "Built for decades of use with minimal upkeep — a heavier system that needs a structural check before installation." },
-  { title: "Flat & Low-Slope Systems", body: "TPO, EPDM, and modified bitumen membranes for commercial buildings, additions, and porch roofs." },
+  { title: "Asphalt Shingle", body: "The most common residential choice — wide range of colors and the lowest upfront cost." },
+  { title: "Metal Roofing", body: "Long-lasting, strong wind and hail resistance, and a clean, modern profile that holds paint color longer than shingle." },
+  { title: "TPO, EPDM & PVC Membranes", body: "Single-ply low-slope systems built for commercial roofs, sized and detailed for long-term waterproofing." },
+  { title: "SBS, BUR & Modified Bitumen", body: "Built-up and modified bitumen systems for flat and low-slope commercial buildings and building envelopes." },
 ];
 
 export default function Services() {
@@ -115,7 +115,7 @@ export default function Services() {
           <p className="text-navy-soft max-w-[50ch] mx-auto mt-4 mb-8">
             Tell us what&apos;s going on and we&apos;ll point you toward the right fix — no obligation.
           </p>
-          <Link href="/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Talk to a Roofer
           </Link>
         </div>

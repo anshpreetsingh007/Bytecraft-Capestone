@@ -18,10 +18,11 @@ export default function Footer() {
               Company
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/" className="hover:text-white">Home</Link></li>
-              <li><Link href="/services" className="hover:text-white">Services</Link></li>
-              <li><Link href="/about" className="hover:text-white">About</Link></li>
-              <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+              <li><Link href="/customer" className="hover:text-white">Home</Link></li>
+              <li><Link href="/customer/services" className="hover:text-white">Services</Link></li>
+              <li><Link href="/customer/about" className="hover:text-white">About</Link></li>
+              <li><Link href="/customer/contact" className="hover:text-white">Contact</Link></li>
+              <li><Link href="/customer/estimate" className="hover:text-white">View Estimate</Link></li>
             </ul>
           </div>
           <div>
@@ -29,10 +30,10 @@ export default function Footer() {
               Services
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/services" className="hover:text-white">Roof Replacement</Link></li>
-              <li><Link href="/services" className="hover:text-white">Roof Repair</Link></li>
-              <li><Link href="/services" className="hover:text-white">Inspections</Link></li>
-              <li><Link href="/services" className="hover:text-white">Storm Restoration</Link></li>
+              <li><Link href="/customer/services" className="hover:text-white">Roof Replacement</Link></li>
+              <li><Link href="/customer/services" className="hover:text-white">Roof Repair</Link></li>
+              <li><Link href="/customer/services" className="hover:text-white">Inspections</Link></li>
+              <li><Link href="/customer/services" className="hover:text-white">Storm Restoration</Link></li>
             </ul>
           </div>
           <div>
@@ -40,15 +41,16 @@ export default function Footer() {
               Contact
             </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="tel:+15551234567" className="hover:text-white">(555) 123-4567</a></li>
-              <li><a href="mailto:hello@markitroofing.com" className="hover:text-white">hello@markitroofing.com</a></li>
-              <li>Mon–Sat, 7am–6pm</li>
+              <li><a href="tel:+14036336300" className="hover:text-white">Calgary: (403) 633-6300</a></li>
+              <li><a href="tel:+17802575220" className="hover:text-white">Edmonton: (780) 257-5220</a></li>
+              <li><a href="mailto:info@markitroofing.ca" className="hover:text-white">info@markitroofing.ca</a></li>
+              <li>Mon–Fri, 8am–4pm · 24/7 emergency service</li>
             </ul>
           </div>
         </div>
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between gap-2 text-[0.82rem] text-navy-faint">
           <span>© 2026 Markit Roofing. All rights reserved.</span>
-          <span>License #RC-004821</span>
+          <span>SeCOR Certified · AARA Member</span>
         </div>
       </div>
     </footer>
