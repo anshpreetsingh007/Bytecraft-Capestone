@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Logo({ dark = false }: { dark?: boolean }) {
   return (
     <Link
-      href="/"
+      href="/customer"
       className={`font-display font-bold text-xl tracking-tight flex items-center gap-2.5 ${
         dark ? "text-white" : "text-foreground"
       }`}

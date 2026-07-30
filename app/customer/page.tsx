@@ -49,7 +49,7 @@ export default function Home() {
       <section className="bg-navy text-white relative overflow-hidden">
         <div className="max-w-[1120px] mx-auto px-7 pt-28 pb-24 relative">
           <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">
-            Licensed &amp; Insured — Serving the Metro Area
+            Licensed &amp; Insured — Serving Calgary &amp; Edmonton
           </span>
           <h1 className="text-white text-[2.4rem] sm:text-5xl lg:text-[4rem] max-w-[14ch]">
             Roofing built to weather everything.
@@ -60,10 +60,10 @@ export default function Home() {
             and crews who show up when they say they will.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link href="/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+            <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
               Get a Free Quote
             </Link>
-            <Link href="/services" className="inline-flex items-center border border-white/35 hover:border-white text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+            <Link href="/customer/services" className="inline-flex items-center border border-white/35 hover:border-white text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
               See Our Services
             </Link>
           </div>
@@ -86,10 +86,10 @@ export default function Home() {
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-y border-line py-9">
             {[
-              ["18+", "Years in business"],
-              ["3,400+", "Roofs completed"],
-              ["4.9/5", "Average rating"],
-              ["25-yr", "Workmanship warranty"],
+              ["13+", "Years in business"],
+              ["50+", "Team members"],
+              ["2", "Alberta offices"],
+              ["24/7", "Emergency response"],
             ].map(([num, label]) => (
               <div key={label} className="text-center">
                 <div className="font-display font-bold text-[2.1rem] text-foreground">{num}</div>
@@ -113,7 +113,7 @@ export default function Home() {
                 <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 mb-[18px] text-copper">{s.icon}</svg>
                 <h3 className="text-[1.15rem] mb-2">{s.title}</h3>
                 <p className="text-ink-soft text-[0.96rem]">{s.body}</p>
-                <Link href="/services" className="inline-block mt-3.5 text-sm font-semibold text-navy hover:text-copper">
+                <Link href="/customer/services" className="inline-block mt-3.5 text-sm font-semibold text-navy hover:text-copper">
                   Learn more →
                 </Link>
               </div>
@@ -174,7 +174,7 @@ export default function Home() {
             Tell us a little about your roof and we&apos;ll get back to you
             within one business day with next steps.
           </p>
-          <Link href="/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Request Your Free Quote
           </Link>
         </div>

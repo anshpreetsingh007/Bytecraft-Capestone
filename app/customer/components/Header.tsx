@@ -6,10 +6,11 @@ import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/customer", label: "Home" },
+  { href: "/customer/services", label: "Services" },
+  { href: "/customer/about", label: "About" },
+  { href: "/customer/contact", label: "Contact" },
+  { href: "/customer/estimate", label: "View Estimate" },
 ];
 
 export default function Header() {
@@ -58,7 +59,7 @@ export default function Header() {
             );
           })}
           <Link
-            href="/contact"
+            href="/customer/contact"
             onClick={() => setOpen(false)}
             className="bg-navy text-white px-5 py-2.5 rounded-[3px] text-sm font-semibold hover:bg-copper transition-colors"
           >

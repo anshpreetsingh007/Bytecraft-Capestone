@@ -5,7 +5,7 @@ import RoofLine from "../components/RoofLine";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Markit Roofing is a locally owned roofing contractor with 18+ years of residential and commercial experience.",
+    "Markit Roofing is a Calgary and Edmonton-based roofing contractor with 13+ years of residential and commercial experience.",
 };
 
 const values = [
@@ -16,10 +16,10 @@ const values = [
 ];
 
 const timeline = [
-  { year: "2008", title: "Founded as a repair business", body: "Started with one truck and a focus on fast, honest leak repairs for local homeowners." },
-  { year: "2013", title: "First full-replacement crew", body: "Brought on a dedicated installation team to handle complete tear-off and re-roof projects." },
-  { year: "2018", title: "Added commercial roofing", body: "Expanded into low-slope and flat-roof systems to serve small businesses and property managers." },
-  { year: "2026", title: "3,400+ roofs and counting", body: "Now a 22-person team still run by the same principle: quote it straight, then do the work right." },
+  { year: "2013", title: "Founded in Calgary", body: "Started as a small three-person crew focused on doing roofing and building envelope work right." },
+  { year: "2019", title: "AARA member, SeCOR certified", body: "Joined the Alberta Allied Roofing Association and passed SeCOR's independently audited safety program." },
+  { year: "2020s", title: "Expanded to Edmonton", body: "Opened a second office to serve as the North Region contractor alongside our South Region base in Calgary." },
+  { year: "2026", title: "50+ person team", body: "Grown from three people to a full crew across two Alberta offices, BBB accredited and WCB-compliant." },
 ];
 
 export default function About() {
@@ -30,7 +30,7 @@ export default function About() {
           <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">About Us</span>
           <h1 className="text-white text-[2rem] sm:text-[2.9rem] max-w-[20ch]">A roofing crew that answers the phone</h1>
           <p className="text-navy-soft max-w-[50ch] mt-4 mb-0">
-            Markit Roofing started as a two-person repair outfit and grew into a full-service roofing contractor — without losing the habit of showing up when we say we will.
+            Markit Roofing started in Calgary as a three-person crew and grew into a 50+ person team serving Calgary, Edmonton, and the surrounding communities — without losing the habit of showing up when we say we will.
           </p>
         </div>
       </section>
@@ -41,10 +41,10 @@ export default function About() {
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-y border-line py-9">
             {[
-              ["18+", "Years in business"],
-              ["3,400+", "Roofs completed"],
-              ["22", "Full-time crew"],
-              ["25-yr", "Workmanship warranty"],
+              ["13+", "Years in business"],
+              ["50+", "Full-time crew"],
+              ["2", "Alberta offices"],
+              ["24/7", "Emergency response"],
             ].map(([num, label]) => (
               <div key={label} className="text-center">
                 <div className="font-display font-bold text-[2.1rem] text-foreground">{num}</div>
@@ -97,7 +97,7 @@ export default function About() {
           <p className="text-navy-soft max-w-[50ch] mx-auto mt-4 mb-8">
             Reach out for a free estimate — we&apos;ll walk the roof with you and explain exactly what we find.
           </p>
-          <Link href="/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Request Your Free Quote
           </Link>
         </div>
