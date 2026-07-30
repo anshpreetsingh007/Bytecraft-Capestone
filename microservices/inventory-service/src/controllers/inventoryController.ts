@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { pool } from '../config/db';
+import { checkAndNotifyLowStock } from '../services/notifyClient';
 
 export async function getAllItems(req: Request, res: Response) {
     try {
@@ -27,7 +28,10 @@ export async function createItem(req: Request, res: Response) {
             [1, name, category, quantity || 0, 0, category, unit, reorderThreshold || 0]
         );
 
-        res.status(201).json(result.rows[0]);
+        const newItem = result.rows[0];
+        await checkAndNotifyLowStock(newItem);
+
+        res.status(201).json(newItem);
     } catch (error) {
         console.error('Error creating item:', error);
         res.status(500).json({ error: 'Failed to create item' });
@@ -52,7 +56,10 @@ export async function updateItem(req: Request, res: Response) {
             return;
         }
 
-        res.json(result.rows[0]);
+        const updatedItem = result.rows[0];
+        await checkAndNotifyLowStock(updatedItem);
+
+        res.json(updatedItem);
     } catch (error) {
         console.error('Error updating item:', error);
         res.status(500).json({ error: 'Failed to update item' });
