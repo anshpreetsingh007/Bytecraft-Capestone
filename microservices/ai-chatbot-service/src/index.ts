@@ -61,7 +61,8 @@ STRICT RULES YOU MUST NEVER BREAK:
             clientId: z.number().describe('The client ID of the customer. Use 1 as default if unknown.'),
             details: z.string().describe('Description of the roofing issue and any relevant details the customer provided.'),
           }),
-          execute: async ({ clientId, details }) => {
+          execute: async (args: { clientId: number, details: string }) => {
+            const { clientId, details } = args;
             const response = await fetch(`${SUBMISSION_SERVICE_URL}/api/inspection-requests`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
