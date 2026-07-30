@@ -113,4 +113,63 @@ body {
 
   z-index: 50;
 
+
 }
+
+.admin-full-page {
+  min-height: 100vh;
+  background: #EAECF0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-header-banner {
+  background: var(--color-navy);
+  color: white;
+  padding: 25px 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.admin-header-banner {
+  background: var(--color-navy);
+  color: white;
+  padding: 25px 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.admin-header-banner h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.admin-header-banner p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+.admin-dashboard-body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 25px 40px 25px;
+  box-sizing: border-box;
+}
+

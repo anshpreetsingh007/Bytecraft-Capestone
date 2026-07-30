@@ -10,6 +10,8 @@ import {
   Calculator,
   FileText,
   ClipboardList,
+  Users,
+  Wrench,
   LogOut,
   X,
 } from "lucide-react";
@@ -17,182 +19,110 @@ import {
 import { useAuth } from "../Context/AuthContext";
 import "./admin-sidebar.css";
 
-
 function LadderIcon() {
-
   return (
-
     <div className="ladder-icon">
       <span></span>
       <span></span>
       <span></span>
     </div>
-
   );
-
 }
 
-
 export default function AdminSidebar() {
-
   const [open, setOpen] = useState(false);
-
   const pathname = usePathname();
-
   const router = useRouter();
-
   const { logOut } = useAuth();
 
-
-
   async function handleLogout() {
-
     await logOut();
-
     router.push("/signin");
-
   }
 
-
-
   const links = [
-
     {
       name: "Dashboard",
       href: "/admin",
       icon: LayoutDashboard,
     },
-
     {
       name: "Inventory",
       href: "/admin/inventory",
       icon: Package,
     },
-
     {
       name: "Estimates",
       href: "/admin/estimates",
       icon: Calculator,
     },
-
+    {
+      name: "Cost Estimate",
+      href: "/admin/cost-estimate",
+      icon: Calculator,
+    },
+    {
+      name: "Assignment",
+      href: "/admin/assignment",
+      icon: Users,
+    },
+   
     {
       name: "Reports",
       href: "/admin/reports",
       icon: ClipboardList,
     },
-
     {
       name: "Invoices",
       href: "/admin/invoices",
       icon: FileText,
     },
-
   ];
 
-
-
   return (
-
     <>
-
-      {/* Sidebar toggle button */}
 
       <button
         className="sidebar-toggle"
         onClick={() => setOpen(!open)}
       >
-
         {open ? <X size={28} /> : <LadderIcon />}
-
       </button>
-
-
-
-      {/* Blurred background */}
-
       {open && (
-
         <div
           className="sidebar-overlay"
           onClick={() => setOpen(false)}
         />
-
       )}
 
-
-
-
-      {/* Sidebar */}
-
-      <aside
-        className={`admin-sidebar ${open ? "show" : ""}`}
-      >
-
-
-        <h2>
-          MARKIT ROOFING
-        </h2>
-
-
-        <p className="role">
-          Admin
-        </p>
-
-
+      <aside className={`admin-sidebar ${open ? "show" : ""}`}>
+        <h2>MARKIT ROOFING</h2>
+        <p className="role">Admin</p>
 
         <nav>
-
           {links.map((link) => {
-
             const Icon = link.icon;
-
             const active = pathname === link.href;
 
-
             return (
-
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className={active ? "active" : ""}
               >
-
                 <Icon size={20} />
-
-                <span>
-                  {link.name}
-                </span>
-
+                <span>{link.name}</span>
               </Link>
-
             );
-
           })}
-
         </nav>
 
-
-
-        <button
-          className="logout"
-          onClick={handleLogout}
-        >
-
+        <button className="logout" onClick={handleLogout}>
           <LogOut size={20} />
-
-          <span>
-            Logout
-          </span>
-
+          <span>Logout</span>
         </button>
-
-
       </aside>
-
-
     </>
-
   );
-
 }
