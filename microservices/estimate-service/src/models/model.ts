@@ -30,3 +30,13 @@ export interface UpdateEstimateInput {
     estimate_date?: string;
     status?: string;
 }
+
+// GET endpoints join in client/inspector names for display purposes.
+// The cost_estimate table itself has no name or dollar-amount columns —
+// only IDs, details text, a date, and a status.
+export interface CostEstimateWithNames extends CostEstimate {
+    client_first_name: string | null;
+    client_last_name: string | null;
+    inspector_first_name: string | null;
+    inspector_last_name: string | null;
+}

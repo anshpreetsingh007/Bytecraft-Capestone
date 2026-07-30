@@ -4,9 +4,7 @@ import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MaterialType, EstimateResult } from "../types/estimate";
 import "./cost-estimate.css";
-import { materialRates } from "../mockdata/materialRates";
-
-const laborRatePerSqFt = 2.5;
+import { materialRates, laborRatePerSqFt } from "../mockdata/materialRates";
 
 function calculateEstimate(
   length: number,

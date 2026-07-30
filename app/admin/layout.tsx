@@ -3,17 +3,23 @@
 import "../globals.css";
 import AdminSidebar from "../../components/admin-sidebar";
 
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-[#EAECF0]">
+
+    <div>
+
       <AdminSidebar />
-      <main className="admin-main flex-1 min-w-0">
+
+      <main style={{ marginLeft: "260px" }}>
         {children}
       </main>
+
     </div>
+
   );
 }
