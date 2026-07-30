@@ -50,7 +50,7 @@ function CostEstimateContent() {
     }
     async function fetchRequest() {
         try {
-            const res = await fetch(`http://localhost:3007/api/inspection-requests/${requestId}`);
+            const res = await fetch(`/api/inspection-requests/${requestId}`);
             if (!res.ok) throw new Error("Failed to fetch request data");
             const data = await res.json();
             setRequestData(data);
@@ -82,7 +82,7 @@ function CostEstimateContent() {
     try {
       const details = `Square Footage: ${result.squareFootage}, Material Cost: ${formatCurrency(result.materialCost)}, Labor Cost: ${formatCurrency(result.laborCost)}, Total: ${formatCurrency(result.total)}`;
 
-      const response = await fetch("http://localhost:3007/api/estimates", {
+      const response = await fetch("/api/estimates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

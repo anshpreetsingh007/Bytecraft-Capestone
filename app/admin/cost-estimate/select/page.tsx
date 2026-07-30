@@ -26,7 +26,7 @@ export default function SelectInspectionPage() {
     useEffect(() => {
         async function fetchRequests() {
             try {
-                const res = await fetch("http://localhost:3007/api/inspection-requests");
+                const res = await fetch("/api/inspection-requests");
                 if (!res.ok) throw new Error("Failed to fetch inspection requests");
                 const data = await res.json();
                 setRequests(data);

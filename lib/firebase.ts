@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "bytecraft-9a520.firebaseapp.com",
   projectId: "bytecraft-9a520",
   storageBucket: "bytecraft-9a520.firebasestorage.app",

@@ -8,7 +8,7 @@ export type UserRole = "client" | "inspector" | "admin";
 
 // TODO: move to NEXT_PUBLIC_AUTH_SERVICE_URL once the rest of the frontend
 // adopts env-based service URLs (currently other pages hardcode localhost too).
-const AUTH_SERVICE_URL = "http://localhost:3004";
+const AUTH_SERVICE_URL = "";
 
 interface SignUpDetails {
   firstName: string;

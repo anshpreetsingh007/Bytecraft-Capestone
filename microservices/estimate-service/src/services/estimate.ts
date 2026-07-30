@@ -63,6 +63,15 @@ export async function getEstimatesByInspector(inspectorId: number): Promise<Cost
     return result.rows;
 }
 
+// ─── GET ESTIMATES BY CLIENT ────────────────────────────────
+export async function getEstimatesByClient(clientId: number): Promise<CostEstimateWithNames[]> {
+    const result = await pool.query(
+        `${ESTIMATE_WITH_NAMES_SELECT} WHERE o.client_id = $1 ORDER BY ce.estimate_date DESC`,
+        [clientId]
+    );
+    return result.rows;
+}
+
 // ─── CREATE ESTIMATE ────────────────────────────────────────
 export async function createEstimate(data: CreateEstimateInput): Promise<CostEstimate> {
     const result = await pool.query(

@@ -57,6 +57,18 @@ export async function getByInspector(req: Request, res: Response) {
     }
 }
 
+// ─── GET BY CLIENT ──────────────────────────────────────────
+export async function getByClient(req: Request, res: Response) {
+    try {
+        const clientId = parseInt(req.params.clientId as string);
+        const estimates = await estimateService.getEstimatesByClient(clientId);
+        res.json(estimates);
+    } catch (error) {
+        console.error('Error fetching estimates by client:', error);
+        res.status(500).json({ error: 'Failed to fetch estimates' });
+    }
+}
+
 // ─── CREATE ─────────────────────────────────────────────────
 export async function create(req: Request, res: Response) {
     try {
