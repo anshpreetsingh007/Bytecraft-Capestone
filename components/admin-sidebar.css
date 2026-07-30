@@ -20,6 +20,19 @@
     transform: scale(0.96);
 }
 
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+}
+
+.inspector-content {
+    margin-left: 260px;
+}
+
+
 .sidebar-overlay {
     position: fixed;
     inset: 0;
@@ -134,3 +147,18 @@
     background: white;
     border-radius: 5px;
 }
+
+.inspector-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+.inspector-content {
+    flex: 1;
+    padding: 30px;
+    background: #EAECF0;
+    overflow-x: hidden;
+}
+
+

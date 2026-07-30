@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import Logo from "./Logo";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "../../../Context/AuthContext";
 
 const links = [
   { href: "/customer", label: "Home" },
@@ -16,6 +17,14 @@ const links = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const router = useRouter();
+const { logOut } = useAuth();
+
+async function handleLogout() {
+  await logOut();
+  router.push("/signin");
+}
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-line">
@@ -65,6 +74,16 @@ export default function Header() {
           >
             Get a Free Quote
           </Link>
+
+    <button
+  onClick={async () => {
+    setOpen(false);
+    await handleLogout();
+  }}
+  className="border border-red-500 text-red-600 px-4 py-2 rounded hover:bg-red-500 hover:text-white transition-colors"
+>
+  Sign Out
+</button>
         </nav>
       </div>
     </header>

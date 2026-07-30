@@ -2,26 +2,17 @@
 
 import InspectorSidebar from "../../components/InspectorSidebar";
 
-
 export default function InspectorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
-
   return (
-
-    <div>
-
+    <div className="inspector-layout">
       <InspectorSidebar />
-
-      <main>
+      <main className="inspector-content">
         {children}
       </main>
-
     </div>
-
   );
-
 }

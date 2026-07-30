@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Package, AlertTriangle, Calculator, ClipboardList } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "../../Context/AuthContext";
 
 export default function AdminHomePage() {
   const [inventory, setInventory] = useState<any[]>([]);
@@ -25,7 +23,7 @@ export default function AdminHomePage() {
         
         if (estRes.ok) {
           const estData = await estRes.json();
-          setRecentEstimates(estData.slice(0, 4)); // Get latest 4
+          setRecentEstimates(estData.slice(0, 4));
         }
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
@@ -42,55 +40,56 @@ export default function AdminHomePage() {
   }).length;
 
   return (
-    <div className="flex-1 min-w-0">
-      {/* Header Section */}
-      <div className="bg-[#233d4d] p-[26px_24px_22px] rounded-b-[16px] mb-5">
-        <h1 className="text-[21px] font-extrabold text-white m-0">Admin Dashboard</h1>
-        <p className="text-[12px] font-medium text-white/65 mt-[3px] mb-0r">Inventory and estimate overview</p>
+    <div className="flex-1 min-w-0 pb-10">
+      {/* 1. BLUE BAR: Stretches edge-to-edge from the left sidebar */}
+      <div className="bg-[#233d4d] px-8 py-7 rounded-b-[16px] mb-8 w-full">
+        <h1 className="text-[22px] font-extrabold text-white m-0">Admin Dashboard</h1>
+        <p className="text-[12px] font-medium text-white/65 mt-1 mb-0">Inventory and estimate overview</p>
       </div>
 
-      <div className="px-6 pb-6">
+      {/* 2. CONTENT AREA: Centered nicely with a max-width */}
+      <div className="max-w-5xl mx-auto px-6">
         {/* Stat Grid */}
-        <div className="grid grid-cols-3 gap-2.5 mb-5">
-          <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-3.5 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
-              <Package size={17} />
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
+              <Package size={18} />
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#233d4d]/60 m-0">Total Stock</p>
-              <p className="text-[19px] font-extrabold text-black m-0">{loading ? "..." : totalItems.toLocaleString()}</p>
+              <p className="text-[20px] font-extrabold text-black m-0">{loading ? "..." : totalItems.toLocaleString()}</p>
             </div>
           </div>
 
-          <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#fe7f2d] rounded-[10px] p-3.5 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
-              <AlertTriangle size={17} />
+          <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#fe7f2d] rounded-[10px] p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
+              <AlertTriangle size={18} />
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#233d4d]/60 m-0">Low / Out of Stock</p>
-              <p className="text-[19px] font-extrabold text-black m-0">{loading ? "..." : lowStockCount}</p>
+              <p className="text-[20px] font-extrabold text-black m-0">{loading ? "..." : lowStockCount}</p>
             </div>
           </div>
 
-          <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-3.5 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
-              <ClipboardList size={17} />
+          <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
+              <ClipboardList size={18} />
             </div>
             <div>
               <p className="text-[11px] font-semibold text-[#233d4d]/60 m-0">Items Tracked</p>
-              <p className="text-[19px] font-extrabold text-black m-0">{loading ? "..." : inventory.length}</p>
+              <p className="text-[20px] font-extrabold text-black m-0">{loading ? "..." : inventory.length}</p>
             </div>
           </div>
         </div>
 
         {/* Quick Actions Heading */}
-        <h2 className="text-[15px] font-bold text-black mb-2.5 mt-0">Quick Actions</h2>
+        <h2 className="text-[15px] font-bold text-black mb-3 mt-0">Quick Actions</h2>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5">
-          <Link href="/admin/inventory" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3 hover:border-[#233d4d]/30 transition-all">
-            <div className="w-10 h-10 rounded-[9px] bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
-              <Package size={19} />
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Link href="/admin/inventory" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3.5 hover:border-[#233d4d]/30 transition-all">
+            <div className="w-11 h-11 rounded-[10px] bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
+              <Package size={20} />
             </div>
             <div>
               <p className="text-[13px] font-bold text-black m-0">Inventory</p>
@@ -98,9 +97,9 @@ export default function AdminHomePage() {
             </div>
           </Link>
 
-          <Link href="/admin/cost-estimate/select" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3 hover:border-[#fe7f2d]/50 transition-all">
-            <div className="w-10 h-10 rounded-[9px] bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
-              <Calculator size={19} />
+          <Link href="/admin/cost-estimate/select" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3.5 hover:border-[#fe7f2d]/50 transition-all">
+            <div className="w-11 h-11 rounded-[10px] bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
+              <Calculator size={20} />
             </div>
             <div>
               <p className="text-[13px] font-bold text-black m-0">Create Estimate</p>
@@ -109,17 +108,17 @@ export default function AdminHomePage() {
           </Link>
         </div>
 
-        <h2 className="text-[15px] font-bold text-black mb-2.5 mt-0">Recent Estimates</h2>
-        <div className="bg-white border border-[#233d4d]/12 rounded-xl overflow-hidden">
+        <h2 className="text-[15px] font-bold text-black mb-3 mt-0">Recent Estimates</h2>
+        <div className="bg-white border border-[#233d4d]/12 rounded-xl overflow-hidden shadow-sm">
           {loading ? (
-             <div className="p-3 text-[13px] text-gray-500">Loading...</div>
+             <div className="p-4 text-[13px] text-gray-500">Loading...</div>
           ) : recentEstimates.length === 0 ? (
-             <div className="p-3 text-[13px] text-gray-500">No recent estimates.</div>
+             <div className="p-4 text-[13px] text-gray-500">No recent estimates.</div>
           ) : (
             recentEstimates.map((item, index) => (
               <div 
                 key={item.estimate_id} 
-                className={`p-3 text-[13px] flex items-center justify-between ${
+                className={`p-4 text-[13px] flex items-center justify-between ${
                   index !== recentEstimates.length - 1 ? 'border-b border-[#233d4d]/10' : ''
                 }`}
               >
