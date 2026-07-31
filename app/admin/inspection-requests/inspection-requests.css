@@ -1,0 +1,295 @@
+.requests-page {
+
+    background: #EAECF0;
+    min-height: 100vh;
+    padding: 40px;
+
+}
+
+.requests-page h1 {
+
+    color: #233D4D;
+    margin-bottom: 4px;
+
+}
+
+.requests-subtitle {
+
+    color: #233D4D99;
+    font-size: 14px;
+    margin: 0 0 25px;
+
+}
+
+.request-filters {
+
+    display: flex;
+
+    gap: 6px;
+
+    background: white;
+
+    padding: 4px;
+
+    border-radius: 10px;
+
+    width: fit-content;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    flex-wrap: wrap;
+
+}
+
+.request-filters button {
+
+    border: none;
+
+    background: transparent;
+
+    padding: 8px 16px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #233D4D99;
+
+    cursor: pointer;
+
+    transition: all 0.15s ease;
+
+}
+
+.request-filters button.active {
+
+    background: #233D4D;
+
+    color: white;
+
+}
+
+.request-list {
+
+    display: grid;
+    gap: 20px;
+
+}
+
+.request-card {
+
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+}
+
+.request-card-header {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 4px;
+
+}
+
+.request-card h2 {
+
+    color: #233D4D;
+
+    font-size: 18px;
+
+    margin: 0;
+
+}
+
+.request-card p {
+
+    color: #233D4D;
+
+    font-size: 13px;
+
+    margin: 0;
+
+}
+
+.request-card .muted {
+
+    color: #233D4D99;
+
+}
+
+.request-details {
+
+    font-size: 12px;
+
+    color: #233D4D80;
+
+    background: #EAECF0;
+
+    padding: 10px 12px;
+
+    border-radius: 8px;
+
+    margin: 8px 0 4px;
+
+}
+
+/* Status pills */
+.pill {
+
+    display: inline-block;
+
+    padding: 4px 12px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: capitalize;
+
+    white-space: nowrap;
+
+}
+
+.pill-pending {
+
+    background: #FEF3C7;
+
+    color: #92400E;
+
+}
+
+.pill-assigned {
+
+    background: #E6F1FB;
+
+    color: #0C447C;
+
+}
+
+.pill-in_progress {
+
+    background: #E6F1FB;
+
+    color: #0C447C;
+
+}
+
+.pill-completed {
+
+    background: #DCFCE7;
+
+    color: #166534;
+
+}
+
+.pill-cancelled {
+
+    background: #FEE2E2;
+
+    color: #991B1B;
+
+}
+
+.pill-converted {
+
+    background: #EAECF0;
+
+    color: #233D4D99;
+
+}
+
+.request-actions {
+
+    margin-top: 12px;
+
+}
+
+.btn-convert {
+
+    border: none;
+
+    background: #FE7F2D;
+
+    color: white;
+
+    padding: 10px 20px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: opacity 0.15s ease;
+
+}
+
+.btn-convert:hover:not(:disabled) {
+
+    opacity: 0.9;
+
+}
+
+.btn-convert:disabled {
+
+    opacity: 0.6;
+
+    cursor: default;
+
+}
+
+.requests-status {
+
+    text-align: center;
+
+    color: #233D4D99;
+
+    font-size: 14px;
+
+    margin-top: 60px;
+
+}
+
+.requests-status.error {
+
+    color: #991B1B;
+
+}
+
+.requests-empty {
+
+    text-align: center;
+
+    color: #233D4D66;
+
+    font-size: 13px;
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 40px 20px;
+
+}

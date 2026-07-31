@@ -52,7 +52,7 @@ export async function getByClient(req: Request, res: Response) {
 export async function create(req: Request, res: Response) {
     try {
         // req.body is the JSON the frontend sends in the POST request
-        const { order_id, inspector_id, admin_id, details, estimate_date, status } = req.body;
+        const { order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity } = req.body;
 
         // Basic validation — make sure required fields are present
         if (!order_id || !inspector_id || !details || !estimate_date || !status) {
@@ -67,6 +67,8 @@ export async function create(req: Request, res: Response) {
             details,
             estimate_date,
             status,
+            material_id: material_id ?? null,
+            material_quantity: material_quantity ?? null,
         });
 
         // 201 = "Created" — the standard status code for successful resource creation

@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       { source: '/api/notifications/:path*', destination: isDev ? 'http://localhost:3005/api/notifications/:path*' : 'http://notification-service:3005/api/notifications/:path*' },
       { source: '/api/reports/:path*', destination: isDev ? 'http://localhost:3006/api/reports/:path*' : 'http://report-service:3006/api/reports/:path*' },
       { source: '/api/inspection-requests/:path*', destination: isDev ? 'http://localhost:3007/api/inspection-requests/:path*' : 'http://submission-service:3007/api/inspection-requests/:path*' },
+      { source: '/api/orders/:path*', destination: isDev ? 'http://localhost:3007/api/orders/:path*' : 'http://submission-service:3007/api/orders/:path*' },
+      { source: '/api/inspectors/:path*', destination: isDev ? 'http://localhost:3007/api/inspectors/:path*' : 'http://submission-service:3007/api/inspectors/:path*' },
     ];
   }
 };

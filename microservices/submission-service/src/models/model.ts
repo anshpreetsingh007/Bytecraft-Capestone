@@ -25,3 +25,52 @@ export interface UpdateInspectionRequestInput {
     status?: string;
     scheduled_date?: string | null;
 }
+
+// Joined view for the admin UI — includes names instead of bare IDs, plus
+// whether this request already has an order (so the UI can hide/disable
+// the "Convert to Order" action).
+export interface InspectionRequestWithDetails extends InspectionRequest {
+    client_first_name: string | null;
+    client_last_name: string | null;
+    inspector_first_name: string | null;
+    inspector_last_name: string | null;
+    existing_order_id: number | null;
+}
+
+// ─── Orders ────────────────────────────────────────────────
+// `orders` is the bridge between an inspection_request and a cost_estimate.
+// Nothing else in the system creates one — a request becomes an order only
+// through the explicit convert-to-order action below.
+export interface Order {
+    order_id: number;
+    client_id: number;
+    request_id: number | null;
+    order_date: string;
+    status: string; // 'active' | 'estimated' | 'completed' | 'cancelled'
+}
+
+// Joined view used by the admin UI (the estimate-creation page) so it can
+// show a real customer name/address/phone/email instead of bare IDs.
+export interface OrderWithDetails extends Order {
+    client_first_name: string | null;
+    client_last_name: string | null;
+    client_email: string | null;
+    client_phone: string | null;
+    client_address: string | null;
+    request_details: string | null;
+    request_scheduled_date: string | null;
+    inspector_id: number | null;
+    inspector_first_name: string | null;
+    inspector_last_name: string | null;
+}
+
+// ─── Inspectors ────────────────────────────────────────────
+// Since the dedicated inspector-assignment page was scrapped, the admin
+// picks an inspector directly on the estimate-creation form instead — this
+// is what powers that dropdown.
+export interface Inspector {
+    inspector_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+}

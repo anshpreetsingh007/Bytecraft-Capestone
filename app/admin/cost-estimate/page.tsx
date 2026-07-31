@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "../../../Context/AuthContext";
 import "./cost-estimate.css";
 
 const laborRatePerSqFt = 3.5;
@@ -14,6 +15,31 @@ interface InventoryItem {
     unitCost: number;
     unit: string;
     reorderThreshold: number;
+}
+
+interface Inspector {
+    inspector_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+}
+
+interface OrderWithDetails {
+    order_id: number;
+    client_id: number;
+    request_id: number | null;
+    order_date: string;
+    status: string;
+    client_first_name: string | null;
+    client_last_name: string | null;
+    client_email: string | null;
+    client_phone: string | null;
+    client_address: string | null;
+    request_details: string | null;
+    request_scheduled_date: string | null;
+    inspector_id: number | null;
+    inspector_first_name: string | null;
+    inspector_last_name: string | null;
 }
 
 interface EstimateResult {
@@ -49,16 +75,26 @@ function formatCurrency(value: number): string {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
+function formatName(first: string | null, last: string | null, fallback: string): string {
+  if (!first && !last) return fallback;
+  return `${first ?? ""} ${last ?? ""}`.trim();
+}
+
 function CostEstimateContent() {
   const searchParams = useSearchParams();
-  const requestId = searchParams.get("requestId");
+  const orderId = searchParams.get("orderId");
   const router = useRouter();
+  const { userId } = useAuth(); // real admin_id, now that auth is wired up
 
-  const [requestData, setRequestData] = useState<any>(null);
-  const [loadingRequest, setLoadingRequest] = useState(true);
-  
+  const [orderData, setOrderData] = useState<OrderWithDetails | null>(null);
+  const [loadingOrder, setLoadingOrder] = useState(true);
+
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loadingInventory, setLoadingInventory] = useState(true);
+
+  const [inspectors, setInspectors] = useState<Inspector[]>([]);
+  const [loadingInspectors, setLoadingInspectors] = useState(true);
+  const [inspectorId, setInspectorId] = useState<number | "">("");
 
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
@@ -88,24 +124,45 @@ function CostEstimateContent() {
   }, []);
 
   useEffect(() => {
-    if (!requestId) {
-        setLoadingRequest(false);
+    async function fetchInspectors() {
+      try {
+        const res = await fetch("/api/inspectors");
+        if (!res.ok) throw new Error("Failed to fetch inspectors");
+        const data = await res.json();
+        setInspectors(data);
+      } catch (err: any) {
+        console.error(err);
+      } finally {
+        setLoadingInspectors(false);
+      }
+    }
+    fetchInspectors();
+  }, []);
+
+  useEffect(() => {
+    if (!orderId) {
+        setLoadingOrder(false);
         return;
     }
-    async function fetchRequest() {
+    async function fetchOrder() {
         try {
-            const res = await fetch(`/api/inspection-requests/${requestId}`);
-            if (!res.ok) throw new Error("Failed to fetch request data");
-            const data = await res.json();
-            setRequestData(data);
+            const res = await fetch(`/api/orders/${orderId}`);
+            if (!res.ok) throw new Error("Failed to fetch order data");
+            const data: OrderWithDetails = await res.json();
+            setOrderData(data);
+            // Default the dropdown to whichever inspector was already on the
+            // inspection request, if any — the admin can still change it.
+            if (data.inspector_id) {
+                setInspectorId(data.inspector_id);
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
-            setLoadingRequest(false);
+            setLoadingOrder(false);
         }
     }
-    fetchRequest();
-  }, [requestId]);
+    fetchOrder();
+  }, [orderId]);
 
   const lengthNum = parseFloat(length) || 0;
   const widthNum = parseFloat(width) || 0;
@@ -121,8 +178,11 @@ function CostEstimateContent() {
   );
 
   const hasValidInput = lengthNum > 0 && widthNum > 0 && selectedMaterial !== undefined;
+  const canSubmit = hasValidInput && !!orderData && inspectorId !== "" && userId !== null;
 
   async function handleSubmitEstimate() {
+    if (!orderData || inspectorId === "" || !userId) return;
+
     setIsSubmitting(true);
     setError(null);
     setSubmitted(false);
@@ -134,12 +194,12 @@ function CostEstimateContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          order_id: requestData?.order_id || 1, 
-          inspector_id: 1, 
-          admin_id: 1, 
+          order_id: orderData.order_id,
+          inspector_id: inspectorId,
+          admin_id: userId,
           details: details,
           estimate_date: new Date().toISOString(),
-          status: "pending",
+          status: "submitted",
           material_id: materialId !== "" ? materialId : null,
           material_quantity: result.materialQuantity
         }),
@@ -161,18 +221,18 @@ function CostEstimateContent() {
     }
   }
 
-  if (!requestId) {
+  if (!orderId) {
       return (
           <div className="p-6">
-              <p>No inspection request selected.</p>
+              <p>No order selected.</p>
               <button className="text-blue-500 underline mt-2" onClick={() => router.push("/admin/cost-estimate/select")}>
-                  Select an Inspection Request
+                  Select an Order
               </button>
           </div>
       );
   }
 
-  if (loadingRequest || loadingInventory) return <div className="p-6">Loading data...</div>;
+  if (loadingOrder || loadingInventory || loadingInspectors) return <div className="p-6">Loading data...</div>;
 
   return (
     <div className="estimate-page">
@@ -182,9 +242,39 @@ function CostEstimateContent() {
               className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded transition"
               onClick={() => router.push("/admin/cost-estimate/select")}
           >
-              Change Inspection
+              Change Order
           </button>
       </div>
+
+      {/* --- Inspector assignment --- */}
+      <section className="info-card">
+        <h2 className="section-title">Inspector</h2>
+        <p className="section-subtitle">
+          Since assignment is done here directly, pick which inspector this estimate is for.
+        </p>
+
+        {inspectors.length === 0 ? (
+          <p className="section-subtitle" style={{ color: "#92400E" }}>
+            No inspectors exist yet — one needs to be added before an estimate can be submitted.
+          </p>
+        ) : (
+          <div className="calc-field">
+            <label htmlFor="inspector">Inspector</label>
+            <select
+              id="inspector"
+              value={inspectorId}
+              onChange={(e) => setInspectorId(Number(e.target.value))}
+            >
+              <option value="">Select an inspector</option>
+              {inspectors.map((i) => (
+                <option key={i.inspector_id} value={i.inspector_id}>
+                  {i.first_name} {i.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </section>
 
       {/* --- Calculation section --- */}
       <section className="calc-card">
@@ -285,32 +375,34 @@ function CostEstimateContent() {
         </div>
       </section>
       
-      {requestData && (
+      {orderData && (
           <section className="info-card">
             <h2 className="section-title">Customer Information</h2>
 
             <div className="info-grid">
               <div className="info-field">
                 <span className="info-label">Name</span>
-                <span className="info-value">{requestData.first_name} {requestData.last_name}</span>
+                <span className="info-value">
+                  {formatName(orderData.client_first_name, orderData.client_last_name, "Unknown client")}
+                </span>
               </div>
               <div className="info-field">
                 <span className="info-label">Address</span>
-                <span className="info-value">{requestData.address}</span>
+                <span className="info-value">{orderData.client_address || "—"}</span>
               </div>
               <div className="info-field">
                 <span className="info-label">Phone</span>
-                <span className="info-value">{requestData.phone}</span>
+                <span className="info-value">{orderData.client_phone || "—"}</span>
               </div>
               <div className="info-field">
                 <span className="info-label">Email</span>
-                <span className="info-value">{requestData.email}</span>
+                <span className="info-value">{orderData.client_email || "—"}</span>
               </div>
               <div className="info-field">
                 <span className="info-label">Request Date</span>
                 <span className="info-value">
-                  {requestData.scheduled_date
-                    ? new Date(requestData.scheduled_date).toLocaleDateString("en-US", {
+                  {orderData.request_scheduled_date
+                    ? new Date(orderData.request_scheduled_date).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
@@ -320,7 +412,7 @@ function CostEstimateContent() {
               </div>
               <div className="info-field info-field-wide">
                 <span className="info-label">Notes</span>
-                <span className="info-value">{requestData.details}</span>
+                <span className="info-value">{orderData.request_details || "—"}</span>
               </div>
             </div>
           </section>
@@ -334,7 +426,7 @@ function CostEstimateContent() {
 
       {submitted && (
         <div className="submit-banner">
-          Estimate submitted for {requestData?.first_name} {requestData?.last_name} — total{" "}
+          Estimate submitted for {orderData ? formatName(orderData.client_first_name, orderData.client_last_name, "the client") : "the client"} — total{" "}
           {formatCurrency(result.total)}. Redirecting...
         </div>
       )}
@@ -346,7 +438,7 @@ function CostEstimateContent() {
         <button
           className="btn-primary"
           onClick={handleSubmitEstimate}
-          disabled={!hasValidInput || isSubmitting || !requestData}
+          disabled={!canSubmit || isSubmitting}
           type="button"
         >
           {isSubmitting ? "Submitting..." : "Submit Estimate"}

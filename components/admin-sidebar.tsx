@@ -10,8 +10,7 @@ import {
   Calculator,
   FileText,
   ClipboardList,
-  Users,
-  Wrench,
+  ClipboardCheck,
   LogOut,
   X,
 } from "lucide-react";
@@ -45,6 +44,18 @@ export default function AdminSidebar() {
       name: "Dashboard",
       href: "/admin",
       icon: LayoutDashboard,
+    },
+
+    {
+      name: "Inspection Requests",
+      href: "/admin/inspection-requests",
+      icon: ClipboardCheck,
+    },
+
+    {
+      name: "Inventory",
+      href: "/admin/inventory",
+      icon: Package,
     },
 
     {

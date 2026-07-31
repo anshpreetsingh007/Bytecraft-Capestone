@@ -3,22 +3,37 @@ import {
     InspectionRequest,
     CreateInspectionRequestInput,
     UpdateInspectionRequestInput,
+    InspectionRequestWithDetails,
 } from '../models/model';
 import { notifyInspectionRequestSubmitted } from './notifyClient';
 
+const REQUEST_WITH_DETAILS_SELECT = `
+    SELECT
+        ir.*,
+        c.first_name AS client_first_name,
+        c.last_name AS client_last_name,
+        insp.first_name AS inspector_first_name,
+        insp.last_name AS inspector_last_name,
+        o.order_id AS existing_order_id
+    FROM inspection_request ir
+    LEFT JOIN client c ON c.client_id = ir.client_id
+    LEFT JOIN inspector insp ON insp.inspector_id = ir.inspector_id
+    LEFT JOIN orders o ON o.request_id = ir.request_id
+`;
+
 // get all
 // Optional status filter: /api/inspection-requests?status=pending
-export async function getAllRequests(status?: string): Promise<InspectionRequest[]> {
+export async function getAllRequests(status?: string): Promise<InspectionRequestWithDetails[]> {
     if (status) {
         const result = await pool.query(
-            'SELECT * FROM inspection_request WHERE status = $1 ORDER BY request_id DESC',
+            `${REQUEST_WITH_DETAILS_SELECT} WHERE ir.status = $1 ORDER BY ir.request_id DESC`,
             [status]
         );
         return result.rows;
     }
 
     const result = await pool.query(
-        'SELECT * FROM inspection_request ORDER BY request_id DESC'
+        `${REQUEST_WITH_DETAILS_SELECT} ORDER BY ir.request_id DESC`
     );
     return result.rows;
 }

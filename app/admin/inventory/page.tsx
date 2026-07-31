@@ -69,7 +69,7 @@ export default function InventoryPage() {
       quantity: String(item.quantity),
       unit: item.unit,
       reorderThreshold: String(item.reorderThreshold),
-      cost: item.cost !== undefined ? String(item.cost) : "",
+      cost: item.unitCost !== undefined ? String(item.unitCost) : "",
     });
     setFormOpen(true);
   }
@@ -95,7 +95,7 @@ export default function InventoryPage() {
       quantity: quantityNum,
       unit: form.unit,
       reorderThreshold: thresholdNum,
-      cost: costNum,
+      unitCost: costNum,
     };
 
     try {
@@ -264,7 +264,7 @@ export default function InventoryPage() {
                 </span>
                 <span className={`status-badge ${statusClassMap[status]}`}>{status}</span>
                 <span className="item-cost">
-                  {item.cost !== undefined ? formatCurrency(item.cost) : "—"}
+                  {item.unitCost !== undefined ? formatCurrency(item.unitCost) : "—"}
                 </span>
                 <span className="row-actions">
                   <button className="link-btn" onClick={() => openEditForm(item)} type="button">
@@ -286,3 +286,4 @@ export default function InventoryPage() {
     </div>
   );
 }
+
