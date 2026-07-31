@@ -45,10 +45,10 @@ export async function getEstimateById(id: number): Promise<CostEstimateWithNames
 }
 
 
-// fetch all estimates for a specific client
+// fetch all estimates for a specific client (only approved ones are sent to customer view)
 export async function getEstimatesByClient(clientId: number): Promise<CostEstimateWithNames[]> {
     const result = await pool.query(
-        `${ESTIMATE_WITH_NAMES_SELECT} WHERE o.client_id = $1 ORDER BY ce.estimate_date DESC`,
+        `${ESTIMATE_WITH_NAMES_SELECT} WHERE o.client_id = $1 AND ce.status = 'approved' ORDER BY ce.estimate_date DESC`,
         [clientId]
     );
     return result.rows;
@@ -99,7 +99,7 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
     return result.rows[0];
 }
 
-// update the status (like "approved") and handle inventory/notifications
+// update the status (like "approved") and handle notifications
 export async function updateEstimateStatus(id: number, status: string): Promise<CostEstimate | null> {
     const result = await pool.query(
         `UPDATE cost_estimate SET status = $1 WHERE estimate_id = $2 RETURNING *`,
@@ -107,21 +107,8 @@ export async function updateEstimateStatus(id: number, status: string): Promise<
     );
     const updated = result.rows[0] || null;
 
-    // if approved, notify the client and deduct materials from inventory
+    // if approved, notify the client
     if (updated && status.toLowerCase() === 'approved') {
-        // 1. Deduct material from inventory if specified
-        if (updated.material_id && updated.material_quantity) {
-            try {
-                await pool.query(
-                    `UPDATE items SET qty_on_hand = qty_on_hand - $1 WHERE item_id = $2`,
-                    [updated.material_quantity, updated.material_id]
-                );
-            } catch (err) {
-                console.error("Failed to deduct inventory for estimate:", err);
-            }
-        }
-
-        // 2. Notify the client
         const orderResult = await pool.query(
             'SELECT client_id FROM orders WHERE order_id = $1',
             [updated.order_id]
