@@ -28,14 +28,14 @@ try:
     cursor = connection.cursor()
 
     # Test query
-    cursor.execute("SELECT * FROM inspector;")
+    cursor.execute("SELECT * FROM client;")
 
-    inspectors = cursor.fetchall()
+    clients = cursor.fetchall()
 
-    print("\nInspectors found:")
+    print("\nClients found:")
 
-    for inspector in inspectors:
-        print(inspector)
+    for client in clients:
+        print(client)
 
     # Close cursor and connection
     cursor.close()
