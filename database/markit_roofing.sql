@@ -9,6 +9,7 @@
 -- This section deletes all existing tables and data.
 -- Use only during local development and testing.
 -- Do not run this section after real users are registered.
+DROP TABLE IF EXISTS notification CASCADE;
 DROP TABLE IF EXISTS report CASCADE;
 DROP TABLE IF EXISTS invoice CASCADE;
 DROP TABLE IF EXISTS cost_estimate CASCADE;
@@ -16,11 +17,10 @@ DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS inspection_request CASCADE;
 DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS stock CASCADE;
+DROP TABLE IF EXISTS super_admin CASCADE;
 DROP TABLE IF EXISTS admin CASCADE;
 DROP TABLE IF EXISTS inspector CASCADE;
 DROP TABLE IF EXISTS client CASCADE;
-DROP TABLE IF EXISTS notification CASCADE;
-
 -- =====================================================
 -- 2. CLIENT TABLE
 -- =====================================================
@@ -59,7 +59,20 @@ CREATE TABLE admin (
     department VARCHAR(100)
 );
 -- =====================================================
--- 5. STOCK TABLE
+-- 5. SUPER ADMIN TABLE
+-- =====================================================
+CREATE TABLE super_admin (
+    super_admin_id SERIAL PRIMARY KEY,
+    firebase_uid VARCHAR(128) UNIQUE NOT NULL,
+    first_name VARCHAR(60) NOT NULL,
+    last_name VARCHAR(60) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    role_superadmin VARCHAR(30) NOT NULL DEFAULT 'superadmin',
+    phone VARCHAR(20),
+    department VARCHAR(100)
+);
+-- =====================================================
+-- 6. STOCK TABLE
 -- =====================================================
 CREATE TABLE stock (
     stock_id SERIAL PRIMARY KEY,
@@ -70,7 +83,7 @@ CREATE TABLE stock (
     low_stock_alert INTEGER
 );
 -- =====================================================
--- 6. ITEMS TABLE
+-- 7. ITEMS TABLE
 -- =====================================================
 CREATE TABLE items (
     item_id SERIAL PRIMARY KEY,
@@ -85,7 +98,7 @@ CREATE TABLE items (
     FOREIGN KEY (stock_id) REFERENCES stock(stock_id)
 );
 -- =====================================================
--- 7. INSPECTION REQUEST TABLE
+-- 8. INSPECTION REQUEST TABLE
 -- =====================================================
 CREATE TABLE inspection_request (
     request_id SERIAL PRIMARY KEY,
@@ -98,7 +111,7 @@ CREATE TABLE inspection_request (
     FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id)
 );
 -- =====================================================
--- 8. ORDERS TABLE
+-- 9. ORDERS TABLE
 -- =====================================================
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
@@ -110,7 +123,7 @@ CREATE TABLE orders (
     FOREIGN KEY (request_id) REFERENCES inspection_request(request_id)
 );
 -- =====================================================
--- 9. COST ESTIMATE TABLE
+-- 10. COST ESTIMATE TABLE
 -- =====================================================
 CREATE TABLE cost_estimate (
     estimate_id SERIAL PRIMARY KEY,
@@ -120,12 +133,14 @@ CREATE TABLE cost_estimate (
     details TEXT,
     estimate_date DATE,
     status VARCHAR(30),
+    material_id INTEGER,
+    material_quantity NUMERIC,
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id),
     FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
 );
 -- =====================================================
--- 10. INVOICE TABLE
+-- 11. INVOICE TABLE
 -- =====================================================
 CREATE TABLE invoice (
     invoice_id SERIAL PRIMARY KEY,
@@ -144,7 +159,7 @@ CREATE TABLE invoice (
     FOREIGN KEY (estimate_id) REFERENCES cost_estimate(estimate_id)
 );
 -- =====================================================
--- 11. REPORT TABLE
+-- 12. REPORT TABLE
 -- =====================================================
 CREATE TABLE report (
     report_id SERIAL PRIMARY KEY,
@@ -160,59 +175,54 @@ CREATE TABLE report (
     FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id),
     FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
 );
-
 -- =====================================================
--- 12. NOTIFICATION TABLE
+-- 13. NOTIFICATION TABLE
 -- =====================================================
- 
 CREATE TABLE notification (
-    notification_id    SERIAL PRIMARY KEY,
- 
+    notification_id SERIAL PRIMARY KEY,
     -- Who the notification is for. We store recipient_type +
     -- recipient_id instead of a single FK because recipients can
-    -- be an admin OR a client (two different tables).
-    recipient_type      VARCHAR(20) NOT NULL
-                         CHECK (recipient_type IN ('admin', 'client', 'inspector')),
-    recipient_id        INTEGER NOT NULL,
- 
+    -- be an admin, client, inspector, or super admin (different tables).
+    recipient_type VARCHAR(20) NOT NULL CHECK (
+        recipient_type IN ('admin', 'client', 'inspector', 'super_admin')
+    ),
+    recipient_id INTEGER NOT NULL,
     -- Machine-readable category, used by the frontend to pick an
     -- icon/route and by the backend to avoid duplicate alerts.
-    type                VARCHAR(50) NOT NULL
-                         CHECK (type IN (
-                             'estimate_approved',
-                             'low_stock',
-                             'inspection_request_submitted'
-                         )),
- 
-    title                VARCHAR(150) NOT NULL,
-    message              TEXT,
- 
+    type VARCHAR(50) NOT NULL CHECK (
+        type IN (
+            'estimate_approved',
+            'low_stock',
+            'inspection_request_submitted'
+        )
+    ),
+    title VARCHAR(150) NOT NULL,
+    message TEXT,
     -- Optional pointer back to the record that triggered this
     -- notification (e.g. cost_estimate.estimate_id, items.item_id,
     -- inspection_request.request_id), so the UI can deep-link to it.
-    related_entity_type  VARCHAR(30),
-    related_entity_id    INTEGER,
- 
-    is_read              BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    read_at              TIMESTAMP
+    related_entity_type VARCHAR(30),
+    related_entity_id INTEGER,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at TIMESTAMP
 );
- 
 -- Speeds up the most common query: "give me this recipient's
 -- unread notifications, newest first"
-CREATE INDEX idx_notification_recipient_unread
-    ON notification (recipient_type, recipient_id, is_read, created_at DESC);
- 
+CREATE INDEX idx_notification_recipient_unread ON notification (
+    recipient_type,
+    recipient_id,
+    is_read,
+    created_at DESC
+);
 -- Prevents the low-stock alert from being re-inserted every time
 -- someone polls the inventory endpoint while an item is still low,
 -- since we only want ONE open (unread) low-stock alert per item at a time.
-CREATE UNIQUE INDEX idx_notification_low_stock_unique
-    ON notification (related_entity_type, related_entity_id)
-    WHERE type = 'low_stock' AND is_read = FALSE;
-
-
+CREATE UNIQUE INDEX idx_notification_low_stock_unique ON notification (related_entity_type, related_entity_id)
+WHERE type = 'low_stock'
+    AND is_read = FALSE;
 -- =====================================================
--- 13. SAMPLE DATA
+-- 14. SAMPLE DATA
 -- =====================================================
 -- Create one client
 INSERT INTO client (
@@ -266,6 +276,25 @@ VALUES (
         'sarah.admin@example.com',
         'admin',
         'Operations'
+    );
+-- Create one super administrator
+INSERT INTO super_admin (
+        firebase_uid,
+        first_name,
+        last_name,
+        email,
+        role_superadmin,
+        phone,
+        department
+    )
+VALUES (
+        'test-superadmin-uid-001',
+        'System',
+        'Administrator',
+        'superadmin@markitroofing.com',
+        'superadmin',
+        '403-555-0100',
+        'Management'
     );
 -- Create one stock location
 INSERT INTO stock (
@@ -404,8 +433,25 @@ VALUES (
         'The roof repair was completed successfully.',
         CURRENT_DATE
     );
-
-
+-- Create one low-stock notification for the admin
+INSERT INTO notification (
+        recipient_type,
+        recipient_id,
+        type,
+        title,
+        message,
+        related_entity_type,
+        related_entity_id
+    )
+VALUES (
+        'admin',
+        1,
+        'low_stock',
+        'Low Stock Alert',
+        'Roofing Nails inventory is below the reorder threshold.',
+        'items',
+        2
+    );
 -- =====================================================
 -- END OF SCHEMA + SEED DATA
 -- =====================================================

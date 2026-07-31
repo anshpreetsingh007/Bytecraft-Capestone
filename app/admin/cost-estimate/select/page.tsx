@@ -9,7 +9,7 @@ interface InspectionRequest {
     client_id: number;
     status: string;
     details: string;
-    scheduled_date: string;
+    scheduled_date: string | null;
     first_name: string;
     last_name: string;
     email: string;
@@ -26,7 +26,7 @@ export default function SelectInspectionPage() {
     useEffect(() => {
         async function fetchRequests() {
             try {
-                const res = await fetch("http://localhost:3007/api/inspection-requests");
+                const res = await fetch("/api/inspection-requests");
                 if (!res.ok) throw new Error("Failed to fetch inspection requests");
                 const data = await res.json();
                 setRequests(data);
@@ -56,7 +56,9 @@ export default function SelectInspectionPage() {
                             <div>
                                 <h3 className="font-bold text-[16px] m-0">{req.first_name} {req.last_name}</h3>
                                 <p className="text-[12px] text-gray-500 m-0">Address: {req.address}</p>
-                                <p className="text-[12px] text-gray-500 m-0">Date: {new Date(req.scheduled_date).toLocaleDateString()}</p>
+                                <p className="text-[12px] text-gray-500 m-0">
+                                    Date: {req.scheduled_date ? new Date(req.scheduled_date).toLocaleDateString() : "Not yet scheduled"}
+                                </p>
                                 <p className="text-[13px] mt-1 text-gray-700">Details: {req.details}</p>
                             </div>
                             <button

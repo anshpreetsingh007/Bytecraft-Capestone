@@ -12,6 +12,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.0",
+    "firebase-admin": "^14.2.0",
     "pg": "^8.11.3"
   },
   "devDependencies": {
@@ -20,6 +21,7 @@
     "@types/node": "^20.0.0",
     "@types/pg": "^8.11.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
     "typescript": "^5.4.0"
   }
 }

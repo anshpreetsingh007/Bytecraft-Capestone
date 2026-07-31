@@ -16,7 +16,7 @@ out
 
 # Environment files
 .env
-.env.local
+# .env.local
 .env.docker
 .env.development.local
 .env.test.local

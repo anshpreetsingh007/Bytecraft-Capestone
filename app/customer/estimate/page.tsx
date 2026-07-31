@@ -26,7 +26,10 @@ function statusClass(status: string) {
   return statusStyles[status?.toLowerCase()] ?? "bg-paper-dim text-ink-soft border-line";
 }
 
+import { useAuth } from "../../../Context/AuthContext";
+
 export default function EstimatePage() {
+  const { userId } = useAuth();
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,10 +38,15 @@ export default function EstimatePage() {
     let cancelled = false;
 
     async function fetchEstimates() {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch("http://localhost:3007/api/estimates");
+        const res = await fetch(`/api/estimates/client/${userId}`);
         if (!res.ok) throw new Error("Failed to fetch estimates");
         const data = await res.json();
         if (!cancelled) setEstimates(data);
@@ -57,7 +65,7 @@ export default function EstimatePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [userId]);
 
   return (
     <>

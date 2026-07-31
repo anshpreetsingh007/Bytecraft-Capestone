@@ -9,7 +9,7 @@ import "./notification-bell.css";
 // TODO: move to NEXT_PUBLIC_NOTIFICATION_SERVICE_URL once the rest of the
 // frontend adopts env-based service URLs (currently other pages hardcode
 // localhost too).
-const NOTIFICATION_SERVICE_URL = "http://localhost:3005";
+const NOTIFICATION_SERVICE_URL = "";
 
 const POLL_INTERVAL_MS = 30_000;
 

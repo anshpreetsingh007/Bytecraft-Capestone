@@ -7,7 +7,7 @@ import { EstimateWithNames, EstimateStatus } from "../types/estimate";
 // TODO: move to NEXT_PUBLIC_ESTIMATE_SERVICE_URL once the rest of the
 // frontend adopts env-based service URLs (currently other pages hardcode
 // localhost too).
-const ESTIMATE_SERVICE_URL = "http://localhost:3002";
+const ESTIMATE_SERVICE_URL = "";
 
 const FILTERS: { label: string; value: EstimateStatus | "all" }[] = [
   { label: "Needs Review", value: "submitted" },

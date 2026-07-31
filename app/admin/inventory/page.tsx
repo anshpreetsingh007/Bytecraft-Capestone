@@ -35,7 +35,7 @@ export default function InventoryPage() {
 
   async function fetchInventory() {
     try {
-      const res = await fetch("http://localhost:3003/api/inventory");
+      const res = await fetch("/api/inventory");
       if (res.ok) {
         const data = await res.json();
         setItems(data);
@@ -100,7 +100,7 @@ export default function InventoryPage() {
 
     try {
       if (editingId) {
-        const res = await fetch(`http://localhost:3003/api/inventory/${editingId}`, {
+        const res = await fetch(`/api/inventory/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -110,7 +110,7 @@ export default function InventoryPage() {
           setItems((prev) => prev.map((item) => (item.id === editingId ? updated : item)));
         }
       } else {
-        const res = await fetch("http://localhost:3003/api/inventory", {
+        const res = await fetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -129,7 +129,7 @@ export default function InventoryPage() {
 
   async function handleDelete(id: string) {
     try {
-      const res = await fetch(`http://localhost:3003/api/inventory/${id}`, {
+      const res = await fetch(`/api/inventory/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {

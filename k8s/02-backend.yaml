@@ -1,0 +1,313 @@
+# ==========================================
+# 1. AI Chatbot Service
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-chatbot-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-chatbot-service
+  template:
+    metadata:
+      labels:
+        app: ai-chatbot-service
+    spec:
+      containers:
+      - name: ai-chatbot-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-ai-chatbot-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-chatbot-service
+spec:
+  selector:
+    app: ai-chatbot-service
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3001
+
+# ==========================================
+# 2. Estimate Service
+# ==========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: estimate-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: estimate-service
+  template:
+    metadata:
+      labels:
+        app: estimate-service
+    spec:
+      containers:
+      - name: estimate-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-estimate-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3002
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3002"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: estimate-service
+spec:
+  selector:
+    app: estimate-service
+  ports:
+  - protocol: TCP
+    port: 3002
+    targetPort: 3002
+
+# ==========================================
+# 3. Inventory Service
+# ==========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+      - name: inventory-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-inventory-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3003
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3003"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+spec:
+  selector:
+    app: inventory-service
+  ports:
+  - protocol: TCP
+    port: 3003
+    targetPort: 3003
+
+# ==========================================
+# 4. Auth Service
+# ==========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-auth-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3004
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3004"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - protocol: TCP
+    port: 3004
+    targetPort: 3004
+
+# ==========================================
+# 5. Notification Service
+# ==========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-notification-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3005
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3005"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+  - protocol: TCP
+    port: 3005
+    targetPort: 3005
+
+# ==========================================
+# 6. Report Service
+# ==========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: report-service
+  template:
+    metadata:
+      labels:
+        app: report-service
+    spec:
+      containers:
+      - name: report-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-report-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3006
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3006"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-service
+spec:
+  selector:
+    app: report-service
+  ports:
+  - protocol: TCP
+    port: 3006
+    targetPort: 3006
+
+# ==========================================
+# 7. Submission Service
+# ==========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: submission-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: submission-service
+  template:
+    metadata:
+      labels:
+        app: submission-service
+    spec:
+      containers:
+      - name: submission-service
+        image: markitroofing.azurecr.io/bytecraft-capestone-submission-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3007
+        envFrom:
+        - configMapRef:
+            name: markit-config
+        - secretRef:
+            name: markit-secrets
+        env:
+        - name: PORT
+          value: "3007"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: submission-service
+spec:
+  selector:
+    app: submission-service
+  ports:
+  - protocol: TCP
+    port: 3007
+    targetPort: 3007
