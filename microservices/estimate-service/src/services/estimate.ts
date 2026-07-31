@@ -1,3 +1,9 @@
+/**
+ * Estimate Database Service
+ * 
+ * Handles all direct database interactions (CRUD operations) for cost estimates
+ * using the shared PostgreSQL database pool.
+ */
 import pool from '../config/db';
 import { CostEstimate, CreateEstimateInput, UpdateEstimateInput, CostEstimateWithNames } from '../models/model';
 import { notifyEstimateApproved } from './notifyClient';
@@ -45,23 +51,6 @@ export async function getEstimateById(id: number): Promise<CostEstimateWithNames
     return result.rows[0] || null;
 }
 
-// ─── GET ESTIMATES BY ORDER ─────────────────────────────────
-export async function getEstimatesByOrder(orderId: number): Promise<CostEstimate[]> {
-    const result = await pool.query(
-        'SELECT * FROM cost_estimate WHERE order_id = $1 ORDER BY estimate_date DESC',
-        [orderId]
-    );
-    return result.rows;
-}
-
-// ─── GET ESTIMATES BY INSPECTOR ─────────────────────────────
-export async function getEstimatesByInspector(inspectorId: number): Promise<CostEstimate[]> {
-    const result = await pool.query(
-        'SELECT * FROM cost_estimate WHERE inspector_id = $1 ORDER BY estimate_date DESC',
-        [inspectorId]
-    );
-    return result.rows;
-}
 
 // ─── GET ESTIMATES BY CLIENT ────────────────────────────────
 export async function getEstimatesByClient(clientId: number): Promise<CostEstimateWithNames[]> {
@@ -72,7 +61,9 @@ export async function getEstimatesByClient(clientId: number): Promise<CostEstima
     return result.rows;
 }
 
-// ─── CREATE ESTIMATE ────────────────────────────────────────
+/**
+ * Creates a new cost estimate in the database.
+ */
 export async function createEstimate(data: CreateEstimateInput): Promise<CostEstimate> {
     const result = await pool.query(
         `INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity)
@@ -117,7 +108,10 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
     return result.rows[0];
 }
 
-// ─── UPDATE STATUS ONLY ─────────────────────────────────────
+/**
+ * Updates an estimate's status (e.g. to "approved") and handles side effects
+ * like inventory deduction and client notification.
+ */
 export async function updateEstimateStatus(id: number, status: string): Promise<CostEstimate | null> {
     const result = await pool.query(
         `UPDATE cost_estimate SET status = $1 WHERE estimate_id = $2 RETURNING *`,

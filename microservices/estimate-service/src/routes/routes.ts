@@ -9,11 +9,7 @@ const router = Router();
 // GET /api/estimates — list all (optionally filter by ?status=approved)
 router.get('/', estimateController.getAll);
 
-// GET /api/estimates/order/5 — get all estimates for order #5
-router.get('/order/:orderId', estimateController.getByOrder);
 
-// GET /api/estimates/inspector/3 — get all estimates by inspector #3
-router.get('/inspector/:inspectorId', estimateController.getByInspector);
 
 // GET /api/estimates/client/3 — get all estimates for client #3
 router.get('/client/:clientId', estimateController.getByClient);

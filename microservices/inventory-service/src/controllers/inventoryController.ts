@@ -1,7 +1,14 @@
+/**
+ * Handles business logic for inventory management, including fetching, creating,
+ * updating, and deleting inventory items in the PostgreSQL database.
+ */
 import { Request, Response } from 'express';
 import { pool } from '../config/db';
 import { checkAndNotifyLowStock } from '../services/notifyClient';
 
+/**
+ * Retrieves all inventory items from the database, ordered by ID descending.
+ */
 export async function getAllItems(req: Request, res: Response) {
     try {
         const result = await pool.query('SELECT item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold" FROM items ORDER BY item_id DESC');
@@ -12,13 +19,16 @@ export async function getAllItems(req: Request, res: Response) {
     }
 }
 
+/**
+ * Creates a new inventory item and checks if stock is low to notify clients.
+ */
 export async function createItem(req: Request, res: Response) {
     try {
         const { name, category, quantity, unitCost, unit, reorderThreshold } = req.body;
-        
+
         if (!name || !category || !unit) {
-             res.status(400).json({ error: 'Missing required fields' });
-             return;
+            res.status(400).json({ error: 'Missing required fields' });
+            return;
         }
 
         const result = await pool.query(
@@ -38,6 +48,9 @@ export async function createItem(req: Request, res: Response) {
     }
 }
 
+/**
+ * Updates an existing inventory item based on its ID.
+ */
 export async function updateItem(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -66,11 +79,14 @@ export async function updateItem(req: Request, res: Response) {
     }
 }
 
+/**
+ * Deletes an inventory item from the database.
+ */
 export async function deleteItem(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
         const result = await pool.query('DELETE FROM items WHERE item_id = $1 RETURNING item_id', [id]);
-        
+
         if (result.rows.length === 0) {
             res.status(404).json({ error: 'Item not found' });
             return;

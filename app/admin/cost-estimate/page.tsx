@@ -3,7 +3,8 @@
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import "./cost-estimate.css";
-import { laborRatePerSqFt } from "../mockdata/materialRates";
+
+const laborRatePerSqFt = 3.5;
 
 interface InventoryItem {
     id: number;

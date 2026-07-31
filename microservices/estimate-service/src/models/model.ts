@@ -1,5 +1,11 @@
 // This interface describes the shape of a cost_estimate row
 // coming back from the database
+/**
+ * Estimate Models
+ * 
+ * Defines the TypeScript interfaces mapping to the PostgreSQL database table
+ * structures for cost estimates. These ensure type safety across the service.
+ */
 export interface CostEstimate {
     estimate_id: number;
     order_id: number;
