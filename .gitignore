@@ -27,3 +27,5 @@ next-env.d.ts
 npm-debug.log*
 
 k8s/01-secrets.yaml
+
+dist/

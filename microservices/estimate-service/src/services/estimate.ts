@@ -75,10 +75,10 @@ export async function getEstimatesByClient(clientId: number): Promise<CostEstima
 // ─── CREATE ESTIMATE ────────────────────────────────────────
 export async function createEstimate(data: CreateEstimateInput): Promise<CostEstimate> {
     const result = await pool.query(
-        `INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status)
-     VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING *`,
-        [data.order_id, data.inspector_id, data.admin_id || null, data.details, data.estimate_date, data.status]
+        [data.order_id, data.inspector_id, data.admin_id || null, data.details, data.estimate_date, data.status, data.material_id || null, data.material_quantity || null]
     );
     // RETURNING * means: after inserting, give me back the full row (including the auto-generated estimate_id)
     return result.rows[0];
@@ -97,8 +97,10 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
          admin_id = $3,
          details = $4,
          estimate_date = $5,
-         status = $6
-     WHERE estimate_id = $7
+         status = $6,
+         material_id = $7,
+         material_quantity = $8
+     WHERE estimate_id = $9
      RETURNING *`,
         [
             data.order_id ?? current.order_id,           // if data.order_id is undefined, keep the current value
@@ -107,6 +109,8 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
             data.details ?? current.details,
             data.estimate_date ?? current.estimate_date,
             data.status ?? current.status,
+            data.material_id !== undefined ? data.material_id : current.material_id,
+            data.material_quantity !== undefined ? data.material_quantity : current.material_quantity,
             id
         ]
     );
@@ -124,6 +128,19 @@ export async function updateEstimateStatus(id: number, status: string): Promise<
     // When an estimate is approved, let the client know via notification-service.
     // This is best-effort: if it fails, the estimate update itself still succeeds.
     if (updated && status.toLowerCase() === 'approved') {
+        // 1. Deduct material from inventory if specified
+        if (updated.material_id && updated.material_quantity) {
+            try {
+                await pool.query(
+                    `UPDATE items SET qty_on_hand = qty_on_hand - $1 WHERE item_id = $2`,
+                    [updated.material_quantity, updated.material_id]
+                );
+            } catch (err) {
+                console.error("Failed to deduct inventory for estimate:", err);
+            }
+        }
+
+        // 2. Notify the client
         const orderResult = await pool.query(
             'SELECT client_id FROM orders WHERE order_id = $1',
             [updated.order_id]

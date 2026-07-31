@@ -8,6 +8,8 @@ export interface CostEstimate {
     details: string;
     estimate_date: string;      // comes back as a string from pg
     status: string;             // 'draft' | 'submitted' | 'approved' | 'rejected'
+    material_id?: number | null;
+    material_quantity?: number | null;
 }
 
 // When creating a new estimate, the user doesn't provide estimate_id
@@ -19,6 +21,8 @@ export interface CreateEstimateInput {
     details: string;
     estimate_date: string;
     status: string;
+    material_id?: number | null;
+    material_quantity?: number | null;
 }
 
 // When updating, all fields are optional — you only send what you want to change
@@ -29,6 +33,8 @@ export interface UpdateEstimateInput {
     details?: string;
     estimate_date?: string;
     status?: string;
+    material_id?: number | null;
+    material_quantity?: number | null;
 }
 
 // GET endpoints join in client/inspector names for display purposes.

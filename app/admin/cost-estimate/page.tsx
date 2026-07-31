@@ -2,25 +2,46 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { MaterialType, EstimateResult } from "../types/estimate";
 import "./cost-estimate.css";
-import { materialRates, laborRatePerSqFt } from "../mockdata/materialRates";
+import { laborRatePerSqFt } from "../mockdata/materialRates";
+
+interface InventoryItem {
+    id: number;
+    name: string;
+    category: string;
+    quantity: number;
+    unitCost: number;
+    unit: string;
+    reorderThreshold: number;
+}
+
+interface EstimateResult {
+  squareFootage: number;
+  materialCost: number;
+  laborCost: number;
+  total: number;
+  materialQuantity: number;
+}
 
 function calculateEstimate(
   length: number,
   width: number,
   height: number,
-  materialId: MaterialType
+  material: InventoryItem | undefined
 ): EstimateResult {
   const baseArea = length * width;
   const pitchAdjustedArea = height > 0 ? baseArea * (1 + height * 0.05) : baseArea;
   const squareFootage = Math.round(pitchAdjustedArea * 100) / 100;
-  const material = materialRates.find((m) => m.id === materialId) ?? materialRates[0];
-  const materialCost = Math.round(squareFootage * material.costPerSqFt * 100) / 100;
+  
+  const unitCost = material ? Number(material.unitCost) : 0;
+  const materialCost = Math.round(squareFootage * unitCost * 100) / 100;
   const laborCost = Math.round(squareFootage * laborRatePerSqFt * 100) / 100;
   const total = Math.round((materialCost + laborCost) * 100) / 100;
+  
+  // Estimate material quantity needed (assuming 1 unit covers 1 sqft for simplicity, or we just ceil sqft)
+  const materialQuantity = Math.ceil(squareFootage);
 
-  return { squareFootage, materialCost, laborCost, total };
+  return { squareFootage, materialCost, laborCost, total, materialQuantity };
 }
 
 function formatCurrency(value: number): string {
@@ -35,13 +56,35 @@ function CostEstimateContent() {
   const [requestData, setRequestData] = useState<any>(null);
   const [loadingRequest, setLoadingRequest] = useState(true);
   
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loadingInventory, setLoadingInventory] = useState(true);
+
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
-  const [materialId, setMaterialId] = useState<MaterialType>("asphalt-shingle");
+  const [materialId, setMaterialId] = useState<number | "">("");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchInventory() {
+      try {
+        const res = await fetch("/api/inventory");
+        if (!res.ok) throw new Error("Failed to fetch inventory");
+        const data = await res.json();
+        setInventory(data);
+        if (data.length > 0) {
+          setMaterialId(data[0].id);
+        }
+      } catch (err: any) {
+        console.error(err);
+      } finally {
+        setLoadingInventory(false);
+      }
+    }
+    fetchInventory();
+  }, []);
 
   useEffect(() => {
     if (!requestId) {
@@ -67,12 +110,16 @@ function CostEstimateContent() {
   const widthNum = parseFloat(width) || 0;
   const heightNum = parseFloat(height) || 0;
 
+  const selectedMaterial = useMemo(() => {
+    return inventory.find(i => i.id === materialId);
+  }, [inventory, materialId]);
+
   const result = useMemo(
-    () => calculateEstimate(lengthNum, widthNum, heightNum, materialId),
-    [lengthNum, widthNum, heightNum, materialId]
+    () => calculateEstimate(lengthNum, widthNum, heightNum, selectedMaterial),
+    [lengthNum, widthNum, heightNum, selectedMaterial]
   );
 
-  const hasValidInput = lengthNum > 0 && widthNum > 0;
+  const hasValidInput = lengthNum > 0 && widthNum > 0 && selectedMaterial !== undefined;
 
   async function handleSubmitEstimate() {
     setIsSubmitting(true);
@@ -92,6 +139,8 @@ function CostEstimateContent() {
           details: details,
           estimate_date: new Date().toISOString(),
           status: "pending",
+          material_id: materialId !== "" ? materialId : null,
+          material_quantity: result.materialQuantity
         }),
       });
 
@@ -122,7 +171,7 @@ function CostEstimateContent() {
       );
   }
 
-  if (loadingRequest) return <div className="p-6">Loading customer data...</div>;
+  if (loadingRequest || loadingInventory) return <div className="p-6">Loading data...</div>;
 
   return (
     <div className="estimate-page">
@@ -188,13 +237,14 @@ function CostEstimateContent() {
             <select
               id="material"
               value={materialId}
-              onChange={(e) => setMaterialId(e.target.value as MaterialType)}
+              onChange={(e) => setMaterialId(Number(e.target.value))}
             >
-              {materialRates.map((m) => (
+              {inventory.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.label} (${m.costPerSqFt.toFixed(2)}/sqft)
+                  {m.name} ({formatCurrency(Number(m.unitCost))}/{m.unit || 'sqft'}) - In stock: {m.quantity}
                 </option>
               ))}
+              {inventory.length === 0 && <option value="">No materials available</option>}
             </select>
           </div>
         </div>
@@ -205,6 +255,12 @@ function CostEstimateContent() {
             <span className="result-label">Square Footage</span>
             <span className="result-value">
               {hasValidInput ? `${result.squareFootage.toLocaleString()} sqft` : "—"}
+            </span>
+          </div>
+          <div className="result-row">
+            <span className="result-label">Material Required</span>
+            <span className="result-value">
+              {hasValidInput ? `${result.materialQuantity} ${selectedMaterial?.unit || 'units'}` : "—"}
             </span>
           </div>
           <div className="result-row">

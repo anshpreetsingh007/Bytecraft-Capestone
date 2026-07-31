@@ -131,6 +131,8 @@ CREATE TABLE cost_estimate (
     details TEXT,
     estimate_date DATE,
     status VARCHAR(30),
+    material_id INTEGER,
+    material_quantity NUMERIC,
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id),
     FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
