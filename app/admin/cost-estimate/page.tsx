@@ -252,11 +252,13 @@ function CostEstimateContent() {
               <div className="info-field">
                 <span className="info-label">Request Date</span>
                 <span className="info-value">
-                  {new Date(requestData.scheduled_date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  {requestData.scheduled_date
+                    ? new Date(requestData.scheduled_date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "Not yet scheduled"}
                 </span>
               </div>
               <div className="info-field info-field-wide">

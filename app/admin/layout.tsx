@@ -2,6 +2,7 @@
 
 import "../globals.css";
 import AdminSidebar from "../../components/admin-sidebar";
+import NotificationBell from "../../components/notificationBell";
 
 
 export default function AdminLayout({
@@ -14,6 +15,7 @@ export default function AdminLayout({
     <div>
 
       <AdminSidebar />
+      <NotificationBell />
 
       <main style={{ marginLeft: "260px" }}>
         {children}
