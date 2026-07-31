@@ -4,6 +4,7 @@ import { streamText, tool, isStepCount } from 'ai';
 import { createAzure } from '@ai-sdk/azure';
 import { z } from 'zod';
 import * as dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -12,6 +13,13 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// Apply rate limiting: max 5 requests per minute per IP
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5,
+  message: { error: 'Too many requests, please try again later.' }
+});
 
 const SUBMISSION_SERVICE_URL = process.env.SUBMISSION_SERVICE_URL || 'http://localhost:3007';
 
@@ -24,12 +32,15 @@ const azure = createAzure({
 });
 
 // handle incoming messages from the frontend chat UI and return a streaming AI response
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', apiLimiter, async (req, res) => {
   try {
     const { messages } = req.body;
 
+    // Slice to only keep the last 10 messages to prevent token exhaustion
+    const recentMessages = messages.slice(-10);
+
     // Map standard client messages to CoreMessages for streamText
-    const coreMessages = messages.map((m: any) => {
+    const coreMessages = recentMessages.map((m: any) => {
       let content = m.content;
       if (m.parts) {
         content = m.parts
@@ -62,11 +73,15 @@ STRICT RULES YOU MUST NEVER BREAK:
         bookInspection: tool({
           description: 'Book a roofing inspection request for a customer. Use this when the customer wants to schedule or request an inspection.',
           inputSchema: z.object({
-            clientId: z.number().describe('The client ID of the customer. Use 1 as default if unknown.'),
             details: z.string().describe('Description of the roofing issue and any relevant details the customer provided.'),
           }),
-          execute: async (args: { clientId: number, details: string }) => {
-            const { clientId, details } = args;
+          execute: async (args: { details: string }) => {
+            const { details } = args;
+
+            // SECURITY: Hardcoded clientId to 1 for now to prevent IDOR.
+            // TODO: Extract actual clientId securely from JWT auth token in req.headers
+            const clientId = 1;
+
             // call the submission service to save the new inspection request
             const response = await fetch(`${SUBMISSION_SERVICE_URL}/api/inspection-requests`, {
               method: 'POST',
