@@ -1,6 +1,7 @@
 "use client";
 
 import InspectorSidebar from "../../components/InspectorSidebar";
+import { RoleGuard } from "../../components/RoleGuard";
 
 
 export default function InspectorLayout({
@@ -10,15 +11,17 @@ export default function InspectorLayout({
 }) {
   return (
 
-    <div>
+    <RoleGuard allowedRoles={["inspector"]}>
+      <div>
 
-      <InspectorSidebar />
+        <InspectorSidebar />
 
-      <main>
-        {children}
-      </main>
+        <main>
+          {children}
+        </main>
 
-    </div>
+      </div>
+    </RoleGuard>
 
   );
 }
