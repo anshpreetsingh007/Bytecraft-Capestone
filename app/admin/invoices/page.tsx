@@ -1,6 +1,5 @@
 "use client";
 
-import "./invoice.css";
 
 export default function InvoicePage() {
   return (

@@ -1,6 +1,5 @@
 "use client";
 
-import "./assignment.css";
 
 export default function AssignmentPage() {
 
