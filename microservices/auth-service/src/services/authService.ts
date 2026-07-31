@@ -1,7 +1,7 @@
 import { pool } from '../config/db';
 import { ResolvedUser, RegisterClientInput } from '../models/model';
 
-// ─── RESOLVE: firebase_uid -> { role, id, name, email } ─────
+// resolve: firebase_uid -> { role, id, name, email }
 // Checks all three identity tables in a single query. A firebase_uid should
 // only ever exist in one of them, but LIMIT 1 guards against that anyway.
 export async function resolveByFirebaseUid(firebaseUid: string): Promise<ResolvedUser | null> {
@@ -32,7 +32,7 @@ export async function resolveByFirebaseUid(firebaseUid: string): Promise<Resolve
     };
 }
 
-// ─── REGISTER: create a new client row after Firebase signup ───
+// register: create a new client row after firebase signup
 export async function registerClient(data: RegisterClientInput): Promise<ResolvedUser> {
     const result = await pool.query(
         `INSERT INTO client (firebase_uid, first_name, last_name, email, role_client, phone, address)

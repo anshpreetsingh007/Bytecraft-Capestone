@@ -3,13 +3,9 @@ import * as estimateController from '../controllers/controller';
 
 const router = Router();
 
-// IMPORTANT: Put specific paths BEFORE the generic /:id path!
-// Otherwise Express thinks "order" is an ID and tries to parse it as a number
 
 // GET /api/estimates — list all (optionally filter by ?status=approved)
 router.get('/', estimateController.getAll);
-
-
 
 // GET /api/estimates/client/3 — get all estimates for client #3
 router.get('/client/:clientId', estimateController.getByClient);

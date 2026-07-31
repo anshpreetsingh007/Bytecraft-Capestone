@@ -1,11 +1,5 @@
-// This interface describes the shape of a cost_estimate row
-// coming back from the database
-/**
- * Estimate Models
- * 
- * Defines the TypeScript interfaces mapping to the PostgreSQL database table
- * structures for cost estimates. These ensure type safety across the service.
- */
+// db cost_estimate row
+
 export interface CostEstimate {
     estimate_id: number;
     order_id: number;
@@ -18,8 +12,8 @@ export interface CostEstimate {
     material_quantity?: number | null;
 }
 
-// When creating a new estimate, the user doesn't provide estimate_id
-// because the database auto-generates it (SERIAL PRIMARY KEY)
+// input for new estimate
+
 export interface CreateEstimateInput {
     order_id: number;
     inspector_id: number;
@@ -31,7 +25,8 @@ export interface CreateEstimateInput {
     material_quantity?: number | null;
 }
 
-// When updating, all fields are optional — you only send what you want to change
+// input for updating estimate
+
 export interface UpdateEstimateInput {
     order_id?: number;
     inspector_id?: number;
@@ -43,9 +38,8 @@ export interface UpdateEstimateInput {
     material_quantity?: number | null;
 }
 
-// GET endpoints join in client/inspector names for display purposes.
-// The cost_estimate table itself has no name or dollar-amount columns —
-// only IDs, details text, a date, and a status.
+// estimate with joined names
+
 export interface CostEstimateWithNames extends CostEstimate {
     client_first_name: string | null;
     client_last_name: string | null;

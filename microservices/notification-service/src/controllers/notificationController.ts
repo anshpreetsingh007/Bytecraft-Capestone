@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as notificationService from '../services/notificationService';
 import { isValidRecipientType, isValidNotificationType } from '../models/model';
 
-// ─── CREATE (single recipient) ──────────────────────────────
+// create (single recipient)
 export async function create(req: Request, res: Response) {
     try {
         const { recipient_type, recipient_id, type, title, message, related_entity_type, related_entity_id } = req.body;
@@ -37,7 +37,7 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-// ─── BROADCAST TO ALL ADMINS ────────────────────────────────
+// broadcast to all admins
 export async function broadcastAdmins(req: Request, res: Response) {
     try {
         const { type, title, message, related_entity_type, related_entity_id } = req.body;
@@ -66,7 +66,7 @@ export async function broadcastAdmins(req: Request, res: Response) {
     }
 }
 
-// ─── LIST NOTIFICATIONS FOR A RECIPIENT ─────────────────────
+// list notifications for a recipient
 // GET /api/notifications?recipientType=admin&recipientId=1&unreadOnly=true&limit=20
 export async function getAll(req: Request, res: Response) {
     try {
@@ -92,7 +92,7 @@ export async function getAll(req: Request, res: Response) {
     }
 }
 
-// ─── UNREAD COUNT ────────────────────────────────────────────
+// unread count
 // GET /api/notifications/unread-count?recipientType=admin&recipientId=1
 export async function getUnreadCount(req: Request, res: Response) {
     try {
@@ -116,7 +116,7 @@ export async function getUnreadCount(req: Request, res: Response) {
     }
 }
 
-// ─── MARK ONE AS READ ────────────────────────────────────────
+// mark one as read
 export async function markAsRead(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -134,7 +134,7 @@ export async function markAsRead(req: Request, res: Response) {
     }
 }
 
-// ─── MARK ALL AS READ ────────────────────────────────────────
+// mark all as read
 // PATCH /api/notifications/read-all  body: { recipientType, recipientId }
 export async function markAllAsRead(req: Request, res: Response) {
     try {
@@ -157,7 +157,7 @@ export async function markAllAsRead(req: Request, res: Response) {
     }
 }
 
-// ─── DELETE / DISMISS ────────────────────────────────────────
+// delete / dismiss
 export async function remove(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);

@@ -1,9 +1,3 @@
-/**
- * AI Chatbot Service
- * 
- * This microservice provides the conversational AI backend for the Markit Roofing 
- * customer chat interface. It uses the Vercel AI SDK and Azure OpenAI.
- */
 import express from 'express';
 import cors from 'cors';
 import { streamText, tool, isStepCount } from 'ai';
@@ -29,10 +23,7 @@ const azure = createAzure({
   apiVersion: '2024-04-01-preview',
 });
 
-/**
- * POST /api/chat
- * Handles incoming chat messages from the frontend chat UI and returns a streaming response.
- */
+// handle incoming messages from the frontend chat UI and return a streaming AI response
 app.post('/api/chat', async (req, res) => {
   try {
     const { messages } = req.body;
@@ -49,6 +40,7 @@ app.post('/api/chat', async (req, res) => {
       return { role: m.role, content: content || '' };
     });
 
+    // start the AI stream using Azure OpenAI
     const result = streamText({
       model: azure.chat(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
       messages: coreMessages,
@@ -75,6 +67,7 @@ STRICT RULES YOU MUST NEVER BREAK:
           }),
           execute: async (args: { clientId: number, details: string }) => {
             const { clientId, details } = args;
+            // call the submission service to save the new inspection request
             const response = await fetch(`${SUBMISSION_SERVICE_URL}/api/inspection-requests`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

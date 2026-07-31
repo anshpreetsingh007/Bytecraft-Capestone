@@ -6,7 +6,7 @@ import {
     BroadcastAdminsInput,
 } from '../models/model';
 
-// ─── CREATE (single recipient) ──────────────────────────────
+// create (single recipient)
 // Used for things like "estimate approved" -> notify one specific client.
 export async function createNotification(data: CreateNotificationInput): Promise<Notification> {
     const result = await pool.query(
@@ -44,7 +44,7 @@ export async function createNotification(data: CreateNotificationInput): Promise
     return existing.rows[0];
 }
 
-// ─── BROADCAST TO ALL ADMINS ────────────────────────────────
+// broadcast to all admins
 // Used for "low stock" and "inspection request submitted" alerts,
 // which every admin should see.
 export async function broadcastToAdmins(data: BroadcastAdminsInput): Promise<Notification[]> {
@@ -71,7 +71,7 @@ export async function broadcastToAdmins(data: BroadcastAdminsInput): Promise<Not
     return created;
 }
 
-// ─── LIST NOTIFICATIONS FOR A RECIPIENT ─────────────────────
+// list notifications for a recipient
 export async function getNotifications(
     recipientType: RecipientType,
     recipientId: number,
@@ -98,7 +98,7 @@ export async function getNotifications(
     return result.rows;
 }
 
-// ─── UNREAD COUNT (for a bell-icon badge) ───────────────────
+// unread count (for a bell-icon badge)
 export async function getUnreadCount(recipientType: RecipientType, recipientId: number): Promise<number> {
     const result = await pool.query(
         `SELECT COUNT(*)::int AS count FROM notification
@@ -108,7 +108,7 @@ export async function getUnreadCount(recipientType: RecipientType, recipientId: 
     return result.rows[0].count;
 }
 
-// ─── MARK ONE AS READ ────────────────────────────────────────
+// mark one as read
 export async function markAsRead(id: number): Promise<Notification | null> {
     const result = await pool.query(
         `UPDATE notification
@@ -120,7 +120,7 @@ export async function markAsRead(id: number): Promise<Notification | null> {
     return result.rows[0] || null;
 }
 
-// ─── MARK ALL AS READ FOR A RECIPIENT ───────────────────────
+// mark all as read for a recipient
 export async function markAllAsRead(recipientType: RecipientType, recipientId: number): Promise<number> {
     const result = await pool.query(
         `UPDATE notification
@@ -131,7 +131,7 @@ export async function markAllAsRead(recipientType: RecipientType, recipientId: n
     return result.rowCount ?? 0;
 }
 
-// ─── DELETE / DISMISS ────────────────────────────────────────
+// delete / dismiss
 export async function deleteNotification(id: number): Promise<boolean> {
     const result = await pool.query(
         'DELETE FROM notification WHERE notification_id = $1',

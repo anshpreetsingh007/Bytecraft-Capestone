@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as authService from '../services/authService';
 
-// ─── RESOLVE ──────────────────────────────────────────────────
+// resolve
 // GET /api/auth/resolve/:firebaseUid
 export async function resolve(req: Request, res: Response) {
     try {
@@ -22,7 +22,7 @@ export async function resolve(req: Request, res: Response) {
     }
 }
 
-// ─── REGISTER ─────────────────────────────────────────────────
+// register
 // POST /api/auth/register — called right after Firebase signup succeeds
 export async function register(req: Request, res: Response) {
     try {

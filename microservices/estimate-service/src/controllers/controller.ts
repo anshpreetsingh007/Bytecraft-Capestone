@@ -1,13 +1,8 @@
-/**
- * Estimate Controller
- * 
- * Handles incoming API requests related to cost estimates. Validates parameters
- * and delegates business logic to the estimate service layer.
- */
+
 import { Request, Response } from 'express';
 import * as estimateService from '../services/estimate';
 
-// ─── GET ALL ────────────────────────────────────────────────
+// get all
 export async function getAll(req: Request, res: Response) {
     try {
         // req.query.status comes from the URL: /api/estimates?status=approved
@@ -20,7 +15,7 @@ export async function getAll(req: Request, res: Response) {
     }
 }
 
-// ─── GET BY ID ──────────────────────────────────────────────
+// get by id
 export async function getById(req: Request, res: Response) {
     try {
         // req.params.id comes from the URL: /api/estimates/5
@@ -41,7 +36,7 @@ export async function getById(req: Request, res: Response) {
 
 
 
-// ─── GET BY CLIENT ──────────────────────────────────────────
+// get by client
 export async function getByClient(req: Request, res: Response) {
     try {
         const clientId = parseInt(req.params.clientId as string);
@@ -53,7 +48,7 @@ export async function getByClient(req: Request, res: Response) {
     }
 }
 
-// ─── CREATE ─────────────────────────────────────────────────
+// create
 export async function create(req: Request, res: Response) {
     try {
         // req.body is the JSON the frontend sends in the POST request
@@ -82,7 +77,7 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-// ─── UPDATE ─────────────────────────────────────────────────
+// update
 export async function update(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -100,7 +95,7 @@ export async function update(req: Request, res: Response) {
     }
 }
 
-// ─── UPDATE STATUS ──────────────────────────────────────────
+// update status
 export async function updateStatus(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -125,7 +120,7 @@ export async function updateStatus(req: Request, res: Response) {
     }
 }
 
-// ─── DELETE ─────────────────────────────────────────────────
+// delete
 export async function remove(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);

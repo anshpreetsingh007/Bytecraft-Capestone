@@ -1,15 +1,9 @@
-/**
- * Estimate Database Service
- * 
- * Handles all direct database interactions (CRUD operations) for cost estimates
- * using the shared PostgreSQL database pool.
- */
+
 import pool from '../config/db';
 import { CostEstimate, CreateEstimateInput, UpdateEstimateInput, CostEstimateWithNames } from '../models/model';
 import { notifyEstimateApproved } from './notifyClient';
 
-// Shared join used by both getAllEstimates and getEstimateById so the admin
-// UI can show "Jane Doe" instead of client_id: 4.
+// combine tables to get actual names instead of just IDs
 const ESTIMATE_WITH_NAMES_SELECT = `
     SELECT
         ce.*,
@@ -23,11 +17,10 @@ const ESTIMATE_WITH_NAMES_SELECT = `
     LEFT JOIN inspector i ON i.inspector_id = ce.inspector_id
 `;
 
-// ─── GET ALL ESTIMATES ──────────────────────────────────────
-// Optional status filter: /api/estimates?status=approved
+// fetch all estimates, optionally filtering by status
 export async function getAllEstimates(status?: string): Promise<CostEstimateWithNames[]> {
     if (status) {
-        // $1 is a placeholder — pg replaces it with the value safely (prevents SQL injection)
+        // safely inject the status to prevent sql injection
         const result = await pool.query(
             `${ESTIMATE_WITH_NAMES_SELECT} WHERE ce.status = $1 ORDER BY ce.estimate_date DESC`,
             [status]
@@ -41,18 +34,18 @@ export async function getAllEstimates(status?: string): Promise<CostEstimateWith
     return result.rows;
 }
 
-// ─── GET ESTIMATE BY ID ─────────────────────────────────────
+// fetch a specific estimate by its id
 export async function getEstimateById(id: number): Promise<CostEstimateWithNames | null> {
     const result = await pool.query(
         `${ESTIMATE_WITH_NAMES_SELECT} WHERE ce.estimate_id = $1`,
         [id]
     );
-    // result.rows is an array — if empty, the estimate doesn't exist
+    // return the estimate if it exists, otherwise return null
     return result.rows[0] || null;
 }
 
 
-// ─── GET ESTIMATES BY CLIENT ────────────────────────────────
+// fetch all estimates for a specific client
 export async function getEstimatesByClient(clientId: number): Promise<CostEstimateWithNames[]> {
     const result = await pool.query(
         `${ESTIMATE_WITH_NAMES_SELECT} WHERE o.client_id = $1 ORDER BY ce.estimate_date DESC`,
@@ -61,9 +54,7 @@ export async function getEstimatesByClient(clientId: number): Promise<CostEstima
     return result.rows;
 }
 
-/**
- * Creates a new cost estimate in the database.
- */
+// insert a new cost estimate into the database
 export async function createEstimate(data: CreateEstimateInput): Promise<CostEstimate> {
     const result = await pool.query(
         `INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity)
@@ -71,13 +62,13 @@ export async function createEstimate(data: CreateEstimateInput): Promise<CostEst
      RETURNING *`,
         [data.order_id, data.inspector_id, data.admin_id || null, data.details, data.estimate_date, data.status, data.material_id || null, data.material_quantity || null]
     );
-    // RETURNING * means: after inserting, give me back the full row (including the auto-generated estimate_id)
+    // return the newly created row
     return result.rows[0];
 }
 
-// ─── UPDATE ESTIMATE ────────────────────────────────────────
+// update an existing estimate
 export async function updateEstimate(id: number, data: UpdateEstimateInput): Promise<CostEstimate | null> {
-    // First, get the current estimate so we can fill in any fields the user didn't send
+    // grab the current data to fill in any missing fields
     const current = await getEstimateById(id);
     if (!current) return null;
 
@@ -94,7 +85,7 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
      WHERE estimate_id = $9
      RETURNING *`,
         [
-            data.order_id ?? current.order_id,           // if data.order_id is undefined, keep the current value
+            data.order_id ?? current.order_id,
             data.inspector_id ?? current.inspector_id,
             data.admin_id !== undefined ? data.admin_id : current.admin_id,
             data.details ?? current.details,
@@ -108,10 +99,7 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
     return result.rows[0];
 }
 
-/**
- * Updates an estimate's status (e.g. to "approved") and handles side effects
- * like inventory deduction and client notification.
- */
+// update the status (like "approved") and handle inventory/notifications
 export async function updateEstimateStatus(id: number, status: string): Promise<CostEstimate | null> {
     const result = await pool.query(
         `UPDATE cost_estimate SET status = $1 WHERE estimate_id = $2 RETURNING *`,
@@ -119,8 +107,7 @@ export async function updateEstimateStatus(id: number, status: string): Promise<
     );
     const updated = result.rows[0] || null;
 
-    // When an estimate is approved, let the client know via notification-service.
-    // This is best-effort: if it fails, the estimate update itself still succeeds.
+    // if approved, notify the client and deduct materials from inventory
     if (updated && status.toLowerCase() === 'approved') {
         // 1. Deduct material from inventory if specified
         if (updated.material_id && updated.material_quantity) {
@@ -148,12 +135,12 @@ export async function updateEstimateStatus(id: number, status: string): Promise<
     return updated;
 }
 
-// ─── DELETE ESTIMATE ────────────────────────────────────────
+// completely delete an estimate
 export async function deleteEstimate(id: number): Promise<boolean> {
     const result = await pool.query(
         'DELETE FROM cost_estimate WHERE estimate_id = $1',
         [id]
     );
-    // result.rowCount tells you how many rows were deleted — 0 means the ID didn't exist
+    // return true if something was actually deleted
     return (result.rowCount ?? 0) > 0;
 }

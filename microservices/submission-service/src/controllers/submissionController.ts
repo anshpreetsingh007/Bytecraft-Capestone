@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as submissionService from '../services/submission';
 
-// ─── GET ALL ────────────────────────────────────────────────
+// get all
 export async function getAll(req: Request, res: Response) {
     try {
         const status = req.query.status as string | undefined;
@@ -13,7 +13,7 @@ export async function getAll(req: Request, res: Response) {
     }
 }
 
-// ─── GET BY ID ──────────────────────────────────────────────
+// get by id
 export async function getById(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -31,7 +31,7 @@ export async function getById(req: Request, res: Response) {
     }
 }
 
-// ─── GET BY CLIENT ──────────────────────────────────────────
+// get by client
 export async function getByClient(req: Request, res: Response) {
     try {
         const clientId = parseInt(req.params.clientId as string);
@@ -43,7 +43,7 @@ export async function getByClient(req: Request, res: Response) {
     }
 }
 
-// ─── GET BY INSPECTOR ───────────────────────────────────────
+// get by inspector
 export async function getByInspector(req: Request, res: Response) {
     try {
         const inspectorId = parseInt(req.params.inspectorId as string);
@@ -55,7 +55,7 @@ export async function getByInspector(req: Request, res: Response) {
     }
 }
 
-// ─── CREATE (client submits a request) ──────────────────────
+// create (client submits a request)
 export async function create(req: Request, res: Response) {
     try {
         const { client_id, details, status } = req.body;
@@ -73,7 +73,7 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-// ─── UPDATE ───────────────────────────────────────────────────
+// update
 export async function update(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -91,7 +91,7 @@ export async function update(req: Request, res: Response) {
     }
 }
 
-// ─── UPDATE STATUS ────────────────────────────────────────────
+// update status
 export async function updateStatus(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -116,7 +116,7 @@ export async function updateStatus(req: Request, res: Response) {
     }
 }
 
-// ─── DELETE ─────────────────────────────────────────────────
+// delete
 export async function remove(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);

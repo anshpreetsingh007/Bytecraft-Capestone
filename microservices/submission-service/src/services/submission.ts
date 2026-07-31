@@ -6,7 +6,7 @@ import {
 } from '../models/model';
 import { notifyInspectionRequestSubmitted } from './notifyClient';
 
-// ─── GET ALL ─────────────────────────────────────────────────
+// get all
 // Optional status filter: /api/inspection-requests?status=pending
 export async function getAllRequests(status?: string): Promise<InspectionRequest[]> {
     if (status) {
@@ -23,7 +23,7 @@ export async function getAllRequests(status?: string): Promise<InspectionRequest
     return result.rows;
 }
 
-// ─── GET BY ID ───────────────────────────────────────────────
+// get by id
 export async function getRequestById(id: number): Promise<InspectionRequest | null> {
     const result = await pool.query(
         'SELECT * FROM inspection_request WHERE request_id = $1',
@@ -32,7 +32,7 @@ export async function getRequestById(id: number): Promise<InspectionRequest | nu
     return result.rows[0] || null;
 }
 
-// ─── GET BY CLIENT ───────────────────────────────────────────
+// get by client
 export async function getRequestsByClient(clientId: number): Promise<InspectionRequest[]> {
     const result = await pool.query(
         'SELECT * FROM inspection_request WHERE client_id = $1 ORDER BY request_id DESC',
@@ -41,7 +41,7 @@ export async function getRequestsByClient(clientId: number): Promise<InspectionR
     return result.rows;
 }
 
-// ─── GET BY INSPECTOR ────────────────────────────────────────
+// get by inspector
 export async function getRequestsByInspector(inspectorId: number): Promise<InspectionRequest[]> {
     const result = await pool.query(
         'SELECT * FROM inspection_request WHERE inspector_id = $1 ORDER BY request_id DESC',
@@ -50,7 +50,7 @@ export async function getRequestsByInspector(inspectorId: number): Promise<Inspe
     return result.rows;
 }
 
-// ─── CREATE (client submits a new request) ──────────────────
+// create (client submits a new request)
 export async function createRequest(data: CreateInspectionRequestInput): Promise<InspectionRequest> {
     const result = await pool.query(
         `INSERT INTO inspection_request (client_id, inspector_id, details, scheduled_date, status)
@@ -68,7 +68,7 @@ export async function createRequest(data: CreateInspectionRequestInput): Promise
     return created;
 }
 
-// ─── UPDATE (e.g. assign inspector, set schedule, edit details) ─
+// update (e.g. assign inspector, set schedule, edit details)
 export async function updateRequest(id: number, data: UpdateInspectionRequestInput): Promise<InspectionRequest | null> {
     const current = await getRequestById(id);
     if (!current) return null;
@@ -94,7 +94,7 @@ export async function updateRequest(id: number, data: UpdateInspectionRequestInp
     return result.rows[0];
 }
 
-// ─── UPDATE STATUS ONLY ──────────────────────────────────────
+// update status only
 export async function updateRequestStatus(id: number, status: string): Promise<InspectionRequest | null> {
     const result = await pool.query(
         `UPDATE inspection_request SET status = $1 WHERE request_id = $2 RETURNING *`,
@@ -103,7 +103,7 @@ export async function updateRequestStatus(id: number, status: string): Promise<I
     return result.rows[0] || null;
 }
 
-// ─── DELETE ───────────────────────────────────────────────────
+// delete
 export async function deleteRequest(id: number): Promise<boolean> {
     const result = await pool.query(
         'DELETE FROM inspection_request WHERE request_id = $1',
