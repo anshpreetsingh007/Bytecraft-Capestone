@@ -13,18 +13,15 @@ export default function AdminLayout({
 }) {
   return (
 
-    <RoleGuard allowedRoles={["admin"]}>
-      <div>
+    <div>
 
-        <AdminSidebar />
-        <NotificationBell />
+      <AdminSidebar />
 
-        <main style={{ marginLeft: "260px" }}>
-          {children}
-        </main>
+      <main style={{ marginLeft: "260px" }}>
+        {children}
+      </main>
 
-      </div>
-    </RoleGuard>
+    </div>
 
   );
 }

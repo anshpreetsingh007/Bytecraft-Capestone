@@ -1,12 +1,17 @@
-import { pool } from '../config/db';
-import { ResolvedUser, RegisterClientInput } from '../models/model';
+import { pool } from "../config/db";
+import { ResolvedUser, RegisterClientInput } from "../models/model";
 
-// resolve: firebase_uid -> { role, id, name, email }
-// Checks all three identity tables in a single query. A firebase_uid should
+// ─── RESOLVE: firebase_uid -> { role, id, name, email } ─────
+// Checks all four identity tables in a single query. A firebase_uid should
 // only ever exist in one of them, but LIMIT 1 guards against that anyway.
-export async function resolveByFirebaseUid(firebaseUid: string): Promise<ResolvedUser | null> {
-    const result = await pool.query(
-        `
+export async function resolveByFirebaseUid(
+  firebaseUid: string,
+): Promise<ResolvedUser | null> {
+  const result = await pool.query(
+    `
+        SELECT 'super_admin' AS role, super_admin_id AS id, first_name, last_name, email
+            FROM super_admin WHERE firebase_uid = $1
+        UNION ALL
         SELECT 'admin' AS role, admin_id AS id, first_name, last_name, email
             FROM admin WHERE firebase_uid = $1
         UNION ALL
@@ -17,43 +22,45 @@ export async function resolveByFirebaseUid(firebaseUid: string): Promise<Resolve
             FROM client WHERE firebase_uid = $1
         LIMIT 1
         `,
-        [firebaseUid]
-    );
+    [firebaseUid],
+  );
 
-    if (result.rows.length === 0) return null;
+  if (result.rows.length === 0) return null;
 
-    const row = result.rows[0];
-    return {
-        role: row.role,
-        id: row.id,
-        firstName: row.first_name,
-        lastName: row.last_name,
-        email: row.email,
-    };
+  const row = result.rows[0];
+  return {
+    role: row.role,
+    id: row.id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+  };
 }
 
-// register: create a new client row after firebase signup
-export async function registerClient(data: RegisterClientInput): Promise<ResolvedUser> {
-    const result = await pool.query(
-        `INSERT INTO client (firebase_uid, first_name, last_name, email, role_client, phone, address)
+// ─── REGISTER: create a new client row after Firebase signup ───
+export async function registerClient(
+  data: RegisterClientInput,
+): Promise<ResolvedUser> {
+  const result = await pool.query(
+    `INSERT INTO client (firebase_uid, first_name, last_name, email, role_client, phone, address)
          VALUES ($1, $2, $3, $4, 'client', $5, $6)
          RETURNING client_id, first_name, last_name, email`,
-        [
-            data.firebase_uid,
-            data.first_name,
-            data.last_name,
-            data.email,
-            data.phone ?? null,
-            data.address ?? null,
-        ]
-    );
+    [
+      data.firebase_uid,
+      data.first_name,
+      data.last_name,
+      data.email,
+      data.phone ?? null,
+      data.address ?? null,
+    ],
+  );
 
-    const row = result.rows[0];
-    return {
-        role: 'client',
-        id: row.client_id,
-        firstName: row.first_name,
-        lastName: row.last_name,
-        email: row.email,
-    };
+  const row = result.rows[0];
+  return {
+    role: "client",
+    id: row.client_id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+  };
 }

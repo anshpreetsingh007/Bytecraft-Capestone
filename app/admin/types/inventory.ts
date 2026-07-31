@@ -7,6 +7,7 @@ export interface InventoryItem {
   quantity: number;
   unit: string; 
   reorderThreshold: number;
+  cost: number;
 }
 
 export function getStockStatus(item: InventoryItem): StockStatus {
