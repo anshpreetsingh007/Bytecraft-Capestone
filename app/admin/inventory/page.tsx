@@ -9,6 +9,7 @@ const emptyForm = {
   quantity: "",
   unit: "",
   reorderThreshold: "",
+  cost: "",
 };
 
 const statusClassMap: Record<string, string> = {
@@ -16,6 +17,10 @@ const statusClassMap: Record<string, string> = {
   "Low Stock": "status-low",
   "Out of Stock": "status-out",
 };
+
+function formatCurrency(value: number): string {
+  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
 
 export default function InventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -64,6 +69,7 @@ export default function InventoryPage() {
       quantity: String(item.quantity),
       unit: item.unit,
       reorderThreshold: String(item.reorderThreshold),
+      cost: item.cost !== undefined ? String(item.cost) : "",
     });
     setFormOpen(true);
   }
@@ -81,6 +87,7 @@ export default function InventoryPage() {
 
     const quantityNum = parseInt(form.quantity, 10) || 0;
     const thresholdNum = parseInt(form.reorderThreshold, 10) || 0;
+    const costNum = parseFloat(form.cost) || 0;
 
     const payload = {
       name: form.name,
@@ -88,6 +95,7 @@ export default function InventoryPage() {
       quantity: quantityNum,
       unit: form.unit,
       reorderThreshold: thresholdNum,
+      cost: costNum,
     };
 
     try {
@@ -208,6 +216,18 @@ export default function InventoryPage() {
                 placeholder="0"
               />
             </div>
+            <div className="form-field">
+              <label htmlFor="cost">Cost per Unit ($)</label>
+              <input
+                id="cost"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.cost}
+                onChange={(e) => setForm({ ...form, cost: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
           </div>
           <div className="form-actions">
             <button className="btn-secondary" onClick={closeForm} type="button">
@@ -226,6 +246,7 @@ export default function InventoryPage() {
           <span>Category</span>
           <span>Quantity</span>
           <span>Status</span>
+          <span>Cost</span>
           <span></span>
         </div>
 
@@ -242,6 +263,9 @@ export default function InventoryPage() {
                   {item.quantity} {item.unit}
                 </span>
                 <span className={`status-badge ${statusClassMap[status]}`}>{status}</span>
+                <span className="item-cost">
+                  {item.cost !== undefined ? formatCurrency(item.cost) : "—"}
+                </span>
                 <span className="row-actions">
                   <button className="link-btn" onClick={() => openEditForm(item)} type="button">
                     Edit

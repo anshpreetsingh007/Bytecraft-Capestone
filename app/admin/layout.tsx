@@ -10,16 +10,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-
     <div>
-
       <AdminSidebar />
 
-      <main style={{ marginLeft: "260px" }}>
-        {children}
+      <main className="admin-main-content">
+        <div className="admin-page-shell">{children}</div>
       </main>
-
     </div>
-
   );
 }

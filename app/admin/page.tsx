@@ -40,15 +40,14 @@ export default function AdminHomePage() {
   }).length;
 
   return (
-    <div className="flex-1 min-w-0 pb-10">
-      {/* 1. BLUE BAR: Stretches edge-to-edge from the left sidebar */}
-      <div className="bg-[#233d4d] px-8 py-7 rounded-b-[16px] mb-8 w-full">
-        <h1 className="text-[22px] font-extrabold text-white m-0">Admin Dashboard</h1>
-        <p className="text-[12px] font-medium text-white/65 mt-1 mb-0">Inventory and estimate overview</p>
-      </div>
+    <div className="min-h-screen bg-[#eff3f7] px-3 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl">
+        <div className="bg-[#233d4d] px-6 py-7 pl-16 sm:px-8 sm:py-8 sm:pl-20 rounded-[18px] mb-6 shadow-sm">
+          <h1 className="text-[22px] font-extrabold text-white m-0">Admin Dashboard</h1>
+          <p className="text-[12px] font-medium text-white/65 mt-1 mb-0">Inventory and estimate overview</p>
+        </div>
 
-      {/* 2. CONTENT AREA: Centered nicely with a max-width */}
-      <div className="max-w-5xl mx-auto px-6">
+        <div className="mx-auto w-full max-w-5xl px-1 sm:px-0">
         {/* Stat Grid */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-4 flex items-center gap-3">
@@ -86,7 +85,7 @@ export default function AdminHomePage() {
         <h2 className="text-[15px] font-bold text-black mb-3 mt-0">Quick Actions</h2>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
           <Link href="/admin/inventory" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3.5 hover:border-[#233d4d]/30 transition-all">
             <div className="w-11 h-11 rounded-[10px] bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
               <Package size={20} />
@@ -131,6 +130,7 @@ export default function AdminHomePage() {
               </div>
             ))
           )}
+        </div>
         </div>
       </div>
     </div>

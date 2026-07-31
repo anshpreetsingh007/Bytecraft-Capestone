@@ -46,25 +46,11 @@ export default function AdminSidebar() {
       href: "/admin",
       icon: LayoutDashboard,
     },
-    {
-      name: "Inventory",
-      href: "/admin/inventory",
-      icon: Package,
-    },
+
     {
       name: "Estimates",
       href: "/admin/estimates",
       icon: Calculator,
-    },
-    {
-      name: "Cost Estimate",
-      href: "/admin/cost-estimate",
-      icon: Calculator,
-    },
-    {
-      name: "Assignment",
-      href: "/admin/assignment",
-      icon: Users,
     },
    
     {
@@ -72,11 +58,7 @@ export default function AdminSidebar() {
       href: "/admin/reports",
       icon: ClipboardList,
     },
-    {
-      name: "Invoices",
-      href: "/admin/invoices",
-      icon: FileText,
-    },
+    
   ];
 
   return (
