@@ -6,7 +6,7 @@ import { auth } from "@/lib/firebase";
 
 export type UserRole = | "client" | "inspector" | "admin" | "super_admin";
 
-const AUTH_SERVICE_URL = "http://localhost:3004";
+const AUTH_SERVICE_URL = "";
 
 interface SignUpDetails {
   firstName: string;
