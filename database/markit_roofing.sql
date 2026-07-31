@@ -9,6 +9,7 @@
 -- This section deletes all existing tables and data.
 -- Use only during local development and testing.
 -- Do not run this section after real users are registered.
+DROP TABLE IF EXISTS notification CASCADE;
 DROP TABLE IF EXISTS report CASCADE;
 DROP TABLE IF EXISTS invoice CASCADE;
 DROP TABLE IF EXISTS cost_estimate CASCADE;
@@ -16,10 +17,10 @@ DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS inspection_request CASCADE;
 DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS stock CASCADE;
+DROP TABLE IF EXISTS super_admin CASCADE;
 DROP TABLE IF EXISTS admin CASCADE;
 DROP TABLE IF EXISTS inspector CASCADE;
 DROP TABLE IF EXISTS client CASCADE;
-DROP TABLE IF EXISTS notification CASCADE;
 -- =====================================================
 -- 2. CLIENT TABLE
 -- =====================================================
@@ -66,7 +67,8 @@ CREATE TABLE super_admin (
     first_name VARCHAR(60) NOT NULL,
     last_name VARCHAR(60) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    role_superadmin VARCHAR(30) DEFAULT 'superadmin',
+    role_superadmin VARCHAR(30) NOT NULL DEFAULT 'superadmin',
+    phone VARCHAR(20),
     department VARCHAR(100)
 );
 -- =====================================================
@@ -178,9 +180,9 @@ CREATE TABLE notification (
     notification_id SERIAL PRIMARY KEY,
     -- Who the notification is for. We store recipient_type +
     -- recipient_id instead of a single FK because recipients can
-    -- be an admin OR a client (two different tables).
+    -- be an admin, client, inspector, or super admin (different tables).
     recipient_type VARCHAR(20) NOT NULL CHECK (
-        recipient_type IN ('admin', 'client', 'inspector')
+        recipient_type IN ('admin', 'client', 'inspector', 'super_admin')
     ),
     recipient_id INTEGER NOT NULL,
     -- Machine-readable category, used by the frontend to pick an
@@ -274,7 +276,7 @@ VALUES (
         'Operations'
     );
 -- Create one super administrator
-INSERT INTO superadmin (
+INSERT INTO super_admin (
         firebase_uid,
         first_name,
         last_name,
@@ -428,6 +430,25 @@ VALUES (
         1450.00,
         'The roof repair was completed successfully.',
         CURRENT_DATE
+    );
+-- Create one low-stock notification for the admin
+INSERT INTO notification (
+        recipient_type,
+        recipient_id,
+        type,
+        title,
+        message,
+        related_entity_type,
+        related_entity_id
+    )
+VALUES (
+        'admin',
+        1,
+        'low_stock',
+        'Low Stock Alert',
+        'Roofing Nails inventory is below the reorder threshold.',
+        'items',
+        2
     );
 -- =====================================================
 -- END OF SCHEMA + SEED DATA
