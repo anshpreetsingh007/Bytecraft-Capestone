@@ -1,10 +1,14 @@
 "use client";
-
 import "../globals.css";
-import AdminSidebar from "../../components/admin-sidebar";
-import NotificationBell from "../../components/notificationBell";
-import { RoleGuard } from "../../components/RoleGuard";
+import { LayoutDashboard, Package, Calculator, FileText } from "lucide-react";
+import { DashboardNav } from "../../components/DashboardNav";
 
+const adminNavItems = [
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Inventory", href: "/admin/inventory", icon: Package },
+  { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
+  { label: "Inspections", href: "/admin/inspections", icon: FileText },
+];
 
 export default function AdminLayout({
   children,
@@ -12,19 +16,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-
-    <RoleGuard allowedRoles={["admin", "super_admin"]}>
-      <div>
-
-        <AdminSidebar />
-        <NotificationBell />
-
-        <main style={{ marginLeft: "260px" }}>
-          {children}
-        </main>
-
-      </div>
-    </RoleGuard>
-
+    <div className="min-h-screen bg-[#EAECF0]">
+      <DashboardNav roleLabel="Admin" navItems={adminNavItems} />
+      <main className="p-6">{children}</main>
+    </div>
   );
 }

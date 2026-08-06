@@ -1,13 +1,32 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode,} from "react";
-import { User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,} from "firebase/auth";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+
+import {
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+
 import { auth } from "@/lib/firebase";
 
-export type UserRole = | "client" | "inspector" | "admin" | "super_admin";
+export type UserRole =
+  | "client"
+  | "inspector"
+  | "admin"
+  | "super_admin";
 
-const AUTH_SERVICE_URL = 
-  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 
+const AUTH_SERVICE_URL =
+  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL ||
   "http://localhost:3004";
 
 interface SignUpDetails {
@@ -24,13 +43,23 @@ interface AuthContextType {
   firstName: string | null;
   lastName: string | null;
   loading: boolean;
+
   signUp: (
     email: string,
     password: string,
     details: SignUpDetails
   ) => Promise<void>;
-  logIn: (email: string, password: string) => Promise<void>;
+
+  logIn: (
+    email: string,
+    password: string
+  ) => Promise<void>;
+
   logOut: () => Promise<void>;
+
+  forgotPassword: (
+    email: string
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -40,16 +69,20 @@ const AuthContext = createContext<AuthContextType>({
   firstName: null,
   lastName: null,
   loading: true,
+
   signUp: async () => {},
   logIn: async () => {},
   logOut: async () => {},
+  forgotPassword: async () => {},
 });
 
 export function useAuth() {
   return useContext(AuthContext);
 }
 
-async function resolveUser(firebaseUid: string): Promise<{
+async function resolveUser(
+  firebaseUid: string
+): Promise<{
   role: UserRole;
   id: number;
   firstName: string;
@@ -83,11 +116,21 @@ export function AuthProvider({
 }: {
   children: ReactNode;
 }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
-  const [firstName, setFirstName] = useState<string | null>(null);
-  const [lastName, setLastName] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] =
+    useState<User | null>(null);
+
+  const [role, setRole] =
+    useState<UserRole | null>(null);
+
+  const [userId, setUserId] =
+    useState<number | null>(null);
+
+  const [firstName, setFirstName] =
+    useState<string | null>(null);
+
+  const [lastName, setLastName] =
+    useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   function clearProfile() {
@@ -102,11 +145,12 @@ export function AuthProvider({
     password: string,
     details: SignUpDetails
   ) {
-    const credential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const credential =
+      await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
     const response = await fetch(
       `${AUTH_SERVICE_URL}/api/auth/register`,
@@ -127,12 +171,15 @@ export function AuthProvider({
     );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = await response
+        .json()
+        .catch(() => ({}));
 
       await signOut(auth);
 
       throw new Error(
-        errorData.error || "Failed to complete registration"
+        errorData.error ||
+          "Failed to complete registration"
       );
     }
 
@@ -144,12 +191,16 @@ export function AuthProvider({
     setLastName(registeredUser.lastName);
   }
 
-  async function logIn(email: string, password: string) {
-    const credential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+  async function logIn(
+    email: string,
+    password: string
+  ) {
+    const credential =
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
     const resolvedUser = await resolveUser(
       credential.user.uid
@@ -170,6 +221,13 @@ export function AuthProvider({
     clearProfile();
   }
 
+  async function forgotPassword(email: string) {
+    await sendPasswordResetEmail(
+      auth,
+      email.trim()
+    );
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
@@ -177,7 +235,9 @@ export function AuthProvider({
         setCurrentUser(user);
 
         if (user) {
-          const resolvedUser = await resolveUser(user.uid);
+          const resolvedUser = await resolveUser(
+            user.uid
+          );
 
           if (resolvedUser) {
             setRole(resolvedUser.role);
@@ -208,6 +268,7 @@ export function AuthProvider({
     signUp,
     logIn,
     logOut,
+    forgotPassword,
   };
 
   return (

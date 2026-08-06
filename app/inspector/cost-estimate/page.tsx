@@ -1,16 +1,11 @@
 "use client";
 
-import InspectorSidebar from "@/components/InspectorSidebar";
 import "./cost-estimate.css";
 
 
 export default function CostEstimatePage() {
 
 return (
-
-<main className="estimate-page">
-
-<InspectorSidebar />
 
 <section className="estimate-content">
 
@@ -66,8 +61,6 @@ Generate Estimate
 
 
 </section>
-
-</main>
 
 );
 

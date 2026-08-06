@@ -1,6 +1,5 @@
 "use client";
 
-import InspectorSidebar from "@/components/InspectorSidebar";
 import "./reports.css"
 
 
@@ -8,53 +7,45 @@ export default function ReportsPage() {
 
   return (
 
-    <main className="reports-page">
+    <section className="reports-content">
 
-      <InspectorSidebar />
+      <h1>
+        Inspection Reports
+      </h1>
 
 
-      <section className="reports-content">
+      <p>
+        View completed inspection reports here.
+      </p>
 
-        <h1>
-          Inspection Reports
-        </h1>
+
+
+      <div className="report-card">
+
+        <h2>
+          Roof Inspection Report
+        </h2>
 
 
         <p>
-          View completed inspection reports here.
+          Customer: John Smith
         </p>
 
 
-
-        <div className="report-card">
-
-          <h2>
-            Roof Inspection Report
-          </h2>
+        <p>
+          Status: Completed
+        </p>
 
 
-          <p>
-            Customer: John Smith
-          </p>
+        <button>
+          View Report
+        </button>
 
 
-          <p>
-            Status: Completed
-          </p>
+      </div>
 
 
-          <button>
-            View Report
-          </button>
-
-
-        </div>
-
-
-      </section>
-
-
-    </main>
+    </section>
 
   );
 }

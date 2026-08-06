@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import InspectorSidebar from "@/components/InspectorSidebar";
 import "./dash.css";
+import { DashboardNav } from "../../../components/DashboardNav";
 
 export default function InspectorDashboard() {
 
   return (
     <main className="inspector-layout">
-
-      <InspectorSidebar />
 
 
       <section className="dashboard-content">

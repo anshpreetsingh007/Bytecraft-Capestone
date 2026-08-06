@@ -1,6 +1,6 @@
 "use client";
-
-import "./inspection.css";
+import "../../../styles/inspector.css";
+<section className="inspector-content-wrapper"></section>
 
 export default function InspectionPage() {
 
