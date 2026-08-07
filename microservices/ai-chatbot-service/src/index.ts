@@ -6,7 +6,10 @@ import { z } from 'zod';
 import * as dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 
-dotenv.config();
+// In Docker, env vars are injected by compose. Only load .env.local for local dev.
+if (!process.env.AZURE_OPENAI_API_KEY) {
+  dotenv.config({ path: '../../.env.local' });
+}
 
 const app = express();
 const port = process.env.PORT || 3001;
