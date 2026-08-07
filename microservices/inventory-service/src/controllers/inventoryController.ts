@@ -6,7 +6,7 @@ import { checkAndNotifyLowStock } from '../services/notifyClient';
 export async function getAllItems(req: Request, res: Response) {
     try {
         // grab all the inventory items from the database
-        const result = await pool.query('SELECT item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold" FROM items ORDER BY item_id DESC');
+        const result = await pool.query('SELECT item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold", coverage_sqft as "coverageSqft" FROM items ORDER BY item_id DESC');
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching inventory:', error);
@@ -16,7 +16,7 @@ export async function getAllItems(req: Request, res: Response) {
 
 export async function createItem(req: Request, res: Response) {
     try {
-        const { name, category, quantity, unitCost, unit, reorderThreshold } = req.body;
+        const { name, category, quantity, unitCost, unit, reorderThreshold, coverageSqft } = req.body;
 
         if (!name || !category || !unit) {
             res.status(400).json({ error: 'Missing required fields' });
@@ -25,10 +25,10 @@ export async function createItem(req: Request, res: Response) {
 
         // insert the new item into the database
         const result = await pool.query(
-            `INSERT INTO items (stock_id, name, description, qty_on_hand, unit_cost, category, unit, reorder_threshold) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-             RETURNING item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold"`,
-            [1, name, category, quantity || 0, unitCost || 0, category, unit, reorderThreshold || 0]
+            `INSERT INTO items (stock_id, name, description, qty_on_hand, unit_cost, category, unit, reorder_threshold, coverage_sqft) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+             RETURNING item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold", coverage_sqft as "coverageSqft"`,
+            [1, name, category, quantity || 0, unitCost || 0, category, unit, reorderThreshold || 0, coverageSqft || 1.0]
         );
 
         const newItem = result.rows[0];
@@ -46,15 +46,15 @@ export async function createItem(req: Request, res: Response) {
 export async function updateItem(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
-        const { name, category, quantity, unitCost, unit, reorderThreshold } = req.body;
+        const { name, category, quantity, unitCost, unit, reorderThreshold, coverageSqft } = req.body;
 
         // update the existing item with new values
         const result = await pool.query(
             `UPDATE items 
-             SET name = $1, category = $2, qty_on_hand = $3, unit_cost = $4, unit = $5, reorder_threshold = $6 
-             WHERE item_id = $7 
-             RETURNING item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold"`,
-            [name, category, quantity, unitCost, unit, reorderThreshold, id]
+             SET name = $1, category = $2, qty_on_hand = $3, unit_cost = $4, unit = $5, reorder_threshold = $6, coverage_sqft = $7 
+             WHERE item_id = $8 
+             RETURNING item_id as id, name, category, qty_on_hand as quantity, unit_cost as "unitCost", unit, reorder_threshold as "reorderThreshold", coverage_sqft as "coverageSqft"`,
+            [name, category, quantity, unitCost, unit, reorderThreshold, coverageSqft || 1.0, id]
         );
 
         if (result.rows.length === 0) {

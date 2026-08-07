@@ -10,6 +10,7 @@ const emptyForm = {
   unit: "",
   reorderThreshold: "",
   cost: "",
+  coverageSqft: "",
 };
 
 const statusClassMap: Record<string, string> = {
@@ -70,6 +71,7 @@ export default function InventoryPage() {
       unit: item.unit,
       reorderThreshold: String(item.reorderThreshold),
       cost: item.unitCost != null ? String(item.unitCost) : "",
+      coverageSqft: item.coverageSqft != null ? String(item.coverageSqft) : "1",
     });
     setFormOpen(true);
   }
@@ -88,6 +90,7 @@ export default function InventoryPage() {
     const quantityNum = parseInt(form.quantity, 10) || 0;
     const thresholdNum = parseInt(form.reorderThreshold, 10) || 0;
     const costNum = parseFloat(form.cost) || 0;
+    const coverageNum = parseFloat(form.coverageSqft) || 1.0;
 
     const payload = {
       name: form.name,
@@ -96,6 +99,7 @@ export default function InventoryPage() {
       unit: form.unit,
       reorderThreshold: thresholdNum,
       unitCost: costNum,
+      coverageSqft: coverageNum,
     };
 
     try {
@@ -226,6 +230,18 @@ export default function InventoryPage() {
                 value={form.cost}
                 onChange={(e) => setForm({ ...form, cost: e.target.value })}
                 placeholder="0.00"
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="coverageSqft">Coverage per Unit (sqft)</label>
+              <input
+                id="coverageSqft"
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={form.coverageSqft}
+                onChange={(e) => setForm({ ...form, coverageSqft: e.target.value })}
+                placeholder="e.g. 33.3"
               />
             </div>
           </div>

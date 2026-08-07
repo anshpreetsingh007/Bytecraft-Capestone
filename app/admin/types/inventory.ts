@@ -8,6 +8,7 @@ export interface InventoryItem {
   unit: string; 
   reorderThreshold: number;
   unitCost: number;
+  coverageSqft: number;
 }
 
 export function getStockStatus(item: InventoryItem): StockStatus {

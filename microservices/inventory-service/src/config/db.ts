@@ -21,7 +21,8 @@ async function ensureSchema() {
             ALTER TABLE items 
             ADD COLUMN IF NOT EXISTS category VARCHAR(100) DEFAULT 'Uncategorized',
             ADD COLUMN IF NOT EXISTS unit VARCHAR(50) DEFAULT 'units',
-            ADD COLUMN IF NOT EXISTS reorder_threshold INTEGER DEFAULT 0;
+            ADD COLUMN IF NOT EXISTS reorder_threshold INTEGER DEFAULT 0,
+            ADD COLUMN IF NOT EXISTS coverage_sqft DECIMAL(10,2) DEFAULT 1.0;
         `);
     console.log("Database schema verified for inventory items.");
   } catch (err) {

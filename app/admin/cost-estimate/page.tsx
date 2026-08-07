@@ -60,13 +60,15 @@ function calculateEstimate(
   const pitchAdjustedArea = height > 0 ? baseArea * (1 + height * 0.05) : baseArea;
   const squareFootage = Math.round(pitchAdjustedArea * 100) / 100;
   
+  const coverage = material?.coverageSqft || 1.0;
   const unitCost = material ? Number(material.unitCost) : 0;
-  const materialCost = Math.round(squareFootage * unitCost * 100) / 100;
+  
+  // Calculate how many units (e.g. bundles) are needed
+  const materialQuantity = Math.ceil(squareFootage / coverage);
+  const materialCost = Math.round(materialQuantity * unitCost * 100) / 100;
+  
   const laborCost = Math.round(squareFootage * laborRatePerSqFt * 100) / 100;
   const total = Math.round((materialCost + laborCost) * 100) / 100;
-  
-  // Estimate material quantity needed (assuming 1 unit covers 1 sqft for simplicity, or we just ceil sqft)
-  const materialQuantity = Math.ceil(squareFootage);
 
   return { squareFootage, materialCost, laborCost, total, materialQuantity };
 }
@@ -330,11 +332,14 @@ function CostEstimateContent() {
               value={materialId}
               onChange={(e) => setMaterialId(Number(e.target.value))}
             >
-              {inventory.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name} ({formatCurrency(Number(m.unitCost))}/{m.unit || 'sqft'}) - In stock: {m.quantity}
-                </option>
-              ))}
+              {inventory.map((m) => {
+                const pricePerSqft = (Number(m.unitCost) / (m.coverageSqft || 1.0));
+                return (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({formatCurrency(Number(m.unitCost))}/{m.unit || 'sqft'} ≈ {formatCurrency(pricePerSqft)}/sqft) - In stock: {m.quantity}
+                  </option>
+                );
+              })}
               {inventory.length === 0 && <option value="">No materials available</option>}
             </select>
           </div>
