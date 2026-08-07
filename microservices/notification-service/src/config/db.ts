@@ -1,17 +1,18 @@
-import { Pool } from 'pg';
-import * as dotenv from 'dotenv';
+import { Pool } from "pg";
+import * as dotenv from "dotenv";
 
 // In Docker, env vars are injected by compose. Only load .env.local for local dev.
 if (!process.env.DB_HOST) {
-    dotenv.config({ path: '../../.env.local' });
+  dotenv.config({ path: "../../.env.local" });
 }
 
 export const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || "5432"),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
 // Self-healing schema check, same pattern as inventory-service.
@@ -19,8 +20,8 @@ export const pool = new Pool({
 // on every boot. The full migration with comments lives at
 // database/002_notifications.sql for manual/first-time setup.
 async function ensureSchema() {
-    try {
-        await pool.query(`
+  try {
+    await pool.query(`
             CREATE TABLE IF NOT EXISTS notification (
                 notification_id     SERIAL PRIMARY KEY,
                 recipient_type      VARCHAR(20) NOT NULL
@@ -42,21 +43,21 @@ async function ensureSchema() {
             );
         `);
 
-        await pool.query(`
+    await pool.query(`
             CREATE INDEX IF NOT EXISTS idx_notification_recipient_unread
                 ON notification (recipient_type, recipient_id, is_read, created_at DESC);
         `);
 
-        await pool.query(`
+    await pool.query(`
             CREATE UNIQUE INDEX IF NOT EXISTS idx_notification_low_stock_unique
                 ON notification (related_entity_type, related_entity_id)
                 WHERE type = 'low_stock' AND is_read = FALSE;
         `);
 
-        console.log('Database schema verified for notifications.');
-    } catch (err) {
-        console.error('Error ensuring notification schema:', err);
-    }
+    console.log("Database schema verified for notifications.");
+  } catch (err) {
+    console.error("Error ensuring notification schema:", err);
+  }
 }
 
 ensureSchema();
