@@ -42,22 +42,34 @@ const ai_1 = require("ai");
 const azure_1 = require("@ai-sdk/azure");
 const zod_1 = require("zod");
 const dotenv = __importStar(require("dotenv"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 dotenv.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3001;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
+// Apply rate limiting: max 5 requests per minute per IP
+const apiLimiter = (0, express_rate_limit_1.default)({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5,
+    message: { error: 'Too many requests, please try again later.' }
+});
 const SUBMISSION_SERVICE_URL = process.env.SUBMISSION_SERVICE_URL || 'http://localhost:3007';
 // Initialize the Azure OpenAI provider
 const azure = (0, azure_1.createAzure)({
     resourceName: process.env.AZURE_OPENAI_RESOURCE_NAME,
     apiKey: process.env.AZURE_OPENAI_API_KEY,
+    useDeploymentBasedUrls: true,
+    apiVersion: '2024-04-01-preview',
 });
-app.post('/api/chat', async (req, res) => {
+// handle incoming messages from the frontend chat UI and return a streaming AI response
+app.post('/api/chat', apiLimiter, async (req, res) => {
     try {
         const { messages } = req.body;
+        // Slice to only keep the last 10 messages to prevent token exhaustion
+        const recentMessages = messages.slice(-10);
         // Map standard client messages to CoreMessages for streamText
-        const coreMessages = messages.map((m) => {
+        const coreMessages = recentMessages.map((m) => {
             let content = m.content;
             if (m.parts) {
                 content = m.parts
@@ -67,8 +79,9 @@ app.post('/api/chat', async (req, res) => {
             }
             return { role: m.role, content: content || '' };
         });
+        // start the AI stream using Azure OpenAI
         const result = (0, ai_1.streamText)({
-            model: azure(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
+            model: azure.chat(process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-5-mini'),
             messages: coreMessages,
             system: `You are a customer service assistant for Markit Roofing. Your ONLY purpose is to help with roofing-related topics.
 
@@ -88,11 +101,14 @@ STRICT RULES YOU MUST NEVER BREAK:
                 bookInspection: (0, ai_1.tool)({
                     description: 'Book a roofing inspection request for a customer. Use this when the customer wants to schedule or request an inspection.',
                     inputSchema: zod_1.z.object({
-                        clientId: zod_1.z.number().describe('The client ID of the customer. Use 1 as default if unknown.'),
                         details: zod_1.z.string().describe('Description of the roofing issue and any relevant details the customer provided.'),
                     }),
                     execute: async (args) => {
-                        const { clientId, details } = args;
+                        const { details } = args;
+                        // SECURITY: Hardcoded clientId to 1 for now to prevent IDOR.
+                        // TODO: Extract actual clientId securely from JWT auth token in req.headers
+                        const clientId = 1;
+                        // call the submission service to save the new inspection request
                         const response = await fetch(`${SUBMISSION_SERVICE_URL}/api/inspection-requests`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -107,6 +123,9 @@ STRICT RULES YOU MUST NEVER BREAK:
                 }),
             },
             stopWhen: (0, ai_1.isStepCount)(3),
+            onError: ({ error }) => {
+                console.error("AI SDK Stream Error:", error);
+            }
         });
         // Use UIMessageStream format (required by AI SDK v7 DefaultChatTransport)
         result.pipeUIMessageStreamToResponse(res);
