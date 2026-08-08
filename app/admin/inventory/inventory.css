@@ -108,11 +108,11 @@
 
 .btn-primary {
     background: var(--color-navy);
-    color: var(--color-surface);
+    color: #fff;
 }
 
 .btn-primary:hover {
-    background: #1a2e3a;
+    opacity: 0.9;
 }
 
 .btn-secondary {

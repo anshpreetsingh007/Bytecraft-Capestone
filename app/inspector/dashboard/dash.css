@@ -4,7 +4,7 @@
 
     display: flex;
 
-    background: #EAECF0;
+    background: var(--color-bg);
 
 }
 
@@ -22,7 +22,7 @@
 
 .dashboard-content h1 {
 
-    color: #233D4D;
+    color: var(--color-ink);
 
     font-size: 32px;
 
@@ -32,7 +32,7 @@
 
 .dashboard-subtitle {
 
-    color: #6b7280;
+    color: var(--color-muted);
 
     margin-bottom: 30px;
 
@@ -54,7 +54,7 @@
 
 .dashboard-card {
 
-    background: white;
+    background: var(--color-surface);
 
     padding: 30px;
 
@@ -68,7 +68,7 @@
 
 .dashboard-card h2 {
 
-    color: #233D4D;
+    color: var(--color-ink);
 
 }
 
@@ -76,7 +76,7 @@
 
 .dashboard-card p {
 
-    color: #000;
+    color: var(--color-ink);
 
     margin-bottom: 20px;
 
@@ -92,9 +92,9 @@
 
     padding: 12px;
 
-    background: #FE7F2D;
+    background: var(--color-accent);
 
-    color: white;
+    color: #fff;
 
     border-radius: 8px;
 

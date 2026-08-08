@@ -160,7 +160,7 @@ export default function EstimatesPage() {
                     <Link
                       href={`/admin/cost-estimate?orderId=${estimate.order_id}&estimateId=${estimate.estimate_id}`}
                       className="btn-secondary"
-                      style={{ textDecoration: 'none', padding: '0.5rem 1rem', borderRadius: '4px', border: '1px solid #ccc', color: '#333', display: 'inline-block' }}
+                      style={{ textDecoration: 'none', padding: '0.5rem 1rem', borderRadius: '4px', border: '1px solid var(--color-border)', color: 'var(--color-ink)', display: 'inline-block' }}
                     >
                       Edit
                     </Link>

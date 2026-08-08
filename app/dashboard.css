@@ -88,12 +88,12 @@
 
 .icon-chip-accent {
     background: var(--color-accent);
-    color: var(--color-surface);
+    color: #fff;
 }
 
 .icon-chip-navy {
     background: var(--color-navy);
-    color: var(--color-surface);
+    color: #fff;
 }
 
 /* ============ Search / inputs ============ */
@@ -171,7 +171,7 @@
 
 .btn-primary {
     background: var(--color-navy);
-    color: var(--color-surface);
+    color: #fff;
 }
 
 .btn-primary:hover {
@@ -185,7 +185,7 @@
 
 .btn-accent {
     background: var(--color-accent-solid);
-    color: var(--color-surface);
+    color: #fff;
 }
 
 .btn-accent:hover {

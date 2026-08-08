@@ -16,7 +16,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#EAECF0]">
+    <div className="min-h-screen bg-bg">
       <DashboardNav roleLabel="Admin" navItems={adminNavItems} />
       <main className="p-6">{children}</main>
     </div>

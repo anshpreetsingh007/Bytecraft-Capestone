@@ -1,76 +1,46 @@
 .requests-page {
-
-    background: #EAECF0;
     min-height: 100vh;
     padding: 40px;
-
 }
 
 .requests-page h1 {
-
-    color: #233D4D;
+    color: var(--color-ink);
     margin-bottom: 4px;
-
 }
 
 .requests-subtitle {
-
-    color: #233D4D99;
+    color: var(--color-muted);
     font-size: 14px;
     margin: 0 0 25px;
-
 }
 
 .request-filters {
-
     display: flex;
-
     gap: 6px;
-
-    background: white;
-
+    background: var(--color-surface);
     padding: 4px;
-
     border-radius: 10px;
-
     width: fit-content;
-
     margin-bottom: 25px;
-
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-
     flex-wrap: wrap;
-
 }
 
 .request-filters button {
-
     border: none;
-
     background: transparent;
-
     padding: 8px 16px;
-
     border-radius: 8px;
-
     font-size: 13px;
-
     font-weight: 600;
-
-    color: #233D4D99;
-
+    color: var(--color-muted);
     cursor: pointer;
-
     transition: all 0.15s ease;
-
 }
 
 .request-filters button.active {
-
-    background: #233D4D;
-
-    color: white;
-
+    background: var(--color-navy);
+    color: #fff;
 }
 
 .request-list {
@@ -81,18 +51,13 @@
 }
 
 .request-card {
-
-    background: white;
+    background: var(--color-surface);
     padding: 25px;
     border-radius: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-
     display: flex;
-
     flex-direction: column;
-
     gap: 6px;
-
 }
 
 .request-card-header {
@@ -110,45 +75,28 @@
 }
 
 .request-card h2 {
-
-    color: #233D4D;
-
+    color: var(--color-ink);
     font-size: 18px;
-
     margin: 0;
-
 }
 
 .request-card p {
-
-    color: #233D4D;
-
+    color: var(--color-ink);
     font-size: 13px;
-
     margin: 0;
-
 }
 
 .request-card .muted {
-
-    color: #233D4D99;
-
+    color: var(--color-muted);
 }
 
 .request-details {
-
     font-size: 12px;
-
-    color: #233D4D80;
-
-    background: #EAECF0;
-
+    color: var(--color-muted);
+    background: var(--color-bg);
     padding: 10px 12px;
-
     border-radius: 8px;
-
     margin: 8px 0 4px;
-
 }
 
 /* Status pills */
@@ -212,9 +160,9 @@
 
 .pill-converted {
 
-    background: #EAECF0;
+    background: var(--color-bg);
 
-    color: #233D4D99;
+    color: var(--color-muted);
 
 }
 
@@ -228,9 +176,9 @@
 
     border: none;
 
-    background: #FE7F2D;
+    background: var(--color-accent);
 
-    color: white;
+    color: #fff;
 
     padding: 10px 20px;
 
@@ -264,7 +212,7 @@
 
     text-align: center;
 
-    color: #233D4D99;
+    color: var(--color-muted);
 
     font-size: 14px;
 
@@ -282,11 +230,11 @@
 
     text-align: center;
 
-    color: #233D4D66;
+    color: var(--color-muted);
 
     font-size: 13px;
 
-    background: white;
+    background: var(--color-surface);
 
     border-radius: 16px;
 

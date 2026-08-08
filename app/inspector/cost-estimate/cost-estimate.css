@@ -4,7 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #EAECF0;
+    background: var(--color-bg);
 
 }
 
@@ -24,7 +24,7 @@
 
 .estimate-content h1 {
 
-    color: #233D4D;
+    color: var(--color-ink);
     font-size: 30px;
     text-align: center;
     margin-bottom: 10px;
@@ -33,7 +33,7 @@
 
 .estimate-card {
 
-    background: white;
+    background: var(--color-surface);
 
     width: 100%;
     max-width: 520px;
@@ -50,7 +50,7 @@
 
     text-align: center;
     margin-bottom: 25px;
-    color: #555;
+    color: var(--color-muted);
 
 }
 
@@ -61,6 +61,7 @@
     display: block;
     margin-top: 15px;
     font-weight: 600;
+    color: var(--color-ink);
 
 }
 
@@ -72,8 +73,10 @@
     width: 100%;
     padding: 12px;
     margin-top: 5px;
-    border: 1px solid #233D4D;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
+    background: var(--color-bg);
+    color: var(--color-ink);
 
 }
 
@@ -84,9 +87,10 @@
     margin-top: 20px;
     width: 100%;
     padding: 12px;
-    background: #FE7F2D;
-    color: white;
+    background: var(--color-accent);
+    color: #fff;
     border: none;
     border-radius: 8px;
+    cursor: pointer;
 
 }

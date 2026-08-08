@@ -268,7 +268,7 @@ function CostEstimateContent() {
       <div className="flex justify-between items-center mb-6">
           <h1 className="page-title m-0">Cost Estimate</h1>
           <button 
-              className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded transition"
+              className="text-sm bg-bg border border-border hover:border-navy text-ink py-1 px-3 rounded transition"
               onClick={() => router.push("/admin/cost-estimate/select")}
           >
               Change Order
@@ -283,7 +283,7 @@ function CostEstimateContent() {
         </p>
 
         {inspectors.length === 0 ? (
-          <p className="section-subtitle" style={{ color: "#92400E" }}>
+          <p className="section-subtitle" style={{ color: "var(--color-accent)" }}>
             No inspectors exist yet — one needs to be added before an estimate can be submitted.
           </p>
         ) : (
@@ -356,8 +356,8 @@ function CostEstimateContent() {
             <label>Materials</label>
             <div className="flex gap-2 mb-4">
               <select
-                className="flex-1"
-                style={{ padding: "0.75rem", borderRadius: "8px", border: "1px solid #d1d5db" }}
+                className="flex-1 bg-bg text-ink"
+                style={{ padding: "0.75rem", borderRadius: "8px", border: "1px solid var(--color-border)" }}
                 value={materialToAdd}
                 onChange={(e) => setMaterialToAdd(Number(e.target.value))}
               >
@@ -388,10 +388,10 @@ function CostEstimateContent() {
             </div>
 
             {selectedMaterials.length > 0 && (
-              <div className="flex flex-col gap-2" style={{ border: "1px solid #e5e7eb", borderRadius: "8px", padding: "12px", backgroundColor: "#f9fafb" }}>
+              <div className="flex flex-col gap-2" style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "12px", backgroundColor: "var(--color-bg)" }}>
                 {selectedMaterials.map(m => (
-                  <div key={m.id} className="flex justify-between items-center" style={{ backgroundColor: "#ffffff", padding: "8px 12px", border: "1px solid #e5e7eb", borderRadius: "6px" }}>
-                    <span style={{ fontWeight: 500, color: "#1f2937" }}>{m.name}</span>
+                  <div key={m.id} className="flex justify-between items-center" style={{ backgroundColor: "var(--color-surface)", padding: "8px 12px", border: "1px solid var(--color-border)", borderRadius: "6px" }}>
+                    <span style={{ fontWeight: 500, color: "var(--color-ink)" }}>{m.name}</span>
                     <button 
                       type="button" 
                       className="text-red-500 hover:text-red-700 text-sm font-medium"
@@ -404,7 +404,7 @@ function CostEstimateContent() {
               </div>
             )}
             {selectedMaterials.length === 0 && (
-              <p className="text-sm text-gray-500 italic mt-2">No materials added yet. Please add at least one material to proceed.</p>
+              <p className="text-sm text-muted italic mt-2">No materials added yet. Please add at least one material to proceed.</p>
             )}
           </div>
         </div>
@@ -418,7 +418,7 @@ function CostEstimateContent() {
             </span>
           </div>
           {hasValidInput && result.materialBreakdown.map(mb => (
-            <div className="result-row" key={mb.inventoryItem.id} style={{ fontSize: '0.9em', color: '#555' }}>
+            <div className="result-row" key={mb.inventoryItem.id} style={{ fontSize: '0.9em', color: 'var(--color-muted)' }}>
               <span className="result-label">↳ {mb.inventoryItem.name} Required</span>
               <span className="result-value">
                 {mb.quantityNeeded} {mb.inventoryItem.unit || 'units'} ({formatCurrency(mb.cost)})
@@ -490,7 +490,7 @@ function CostEstimateContent() {
       )}
 
       {error && (
-        <div className="submit-banner" style={{ backgroundColor: "#ffcccc", color: "#990000", borderColor: "#cc0000" }}>
+        <div className="submit-banner error">
           Error: {error}
         </div>
       )}

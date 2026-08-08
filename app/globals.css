@@ -22,11 +22,30 @@
   --sidebar-width: 240px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-ink: #ffffff;
+  --color-navy: #1f2937;
+  --color-accent: #fe7f2d;
+  
+  --color-muted: rgba(255, 255, 255, 0.6);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-navy-tint: rgba(255, 255, 255, 0.08);
+  --color-accent-tint: rgba(254, 127, 45, 0.14);
+}
+
+@theme {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-navy: var(--color-navy);
+  --color-accent: var(--color-accent);
+  --color-muted: var(--color-muted);
+  --color-border: var(--color-border);
 }
 
 body {
@@ -34,6 +53,7 @@ body {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-ink);
+  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 }
 

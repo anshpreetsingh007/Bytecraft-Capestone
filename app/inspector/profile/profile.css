@@ -1,6 +1,6 @@
 .profile-page {
     min-height: 100vh;
-    background: #EAECF0;
+    background: var(--color-bg);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -10,14 +10,14 @@
 
 .page-title {
     text-align: center;
-    color: #233D4D;
+    color: var(--color-ink);
     font-size: clamp(28px, 5vw, 36px);
     margin-bottom: 20px;
     width: 100%;
 }
 
 .profile-card {
-    background: white;
+    background: var(--color-surface);
     width: 100%;
     max-width: 450px;
     margin: 0 auto;
@@ -36,27 +36,27 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #233D4D;
-    color: white;
+    background: var(--color-navy);
+    color: #fff;
     font-size: 32px;
     font-weight: bold;
 }
 
 .profile-card h2 {
-    color: #233D4D;
+    color: var(--color-ink);
     margin-bottom: 10px;
 }
 
 .profile-card p {
-    color: #000;
+    color: var(--color-ink);
     margin: 10px 0;
     word-break: break-word;
 }
 
 .profile-button {
     margin-top: 20px;
-    background: #FE7F2D;
-    color: white;
+    background: var(--color-accent);
+    color: #fff;
     border: none;
     padding: 12px 25px;
     border-radius: 8px;

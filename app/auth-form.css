@@ -22,6 +22,18 @@
     --auth-disabled-text: #475467;
 }
 
+.dark {
+    --auth-background: var(--color-bg);
+    --auth-surface: var(--color-surface);
+    --auth-text: var(--color-ink);
+    --auth-text-secondary: var(--color-muted);
+    --auth-border: var(--color-border);
+    --auth-primary: var(--color-navy);
+    --auth-primary-hover: #1a2e3a;
+    --auth-disabled-background: #3a3f47;
+    --auth-disabled-text: #9ca3af;
+}
+
 /* Page background */
 
 .auth-page {

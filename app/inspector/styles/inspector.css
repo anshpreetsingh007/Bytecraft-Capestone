@@ -55,14 +55,14 @@
     padding: 9px 18px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-surface);
+    color: #fff;
     background: var(--color-accent-solid);
     border-radius: 6px;
     text-decoration: none;
 }
 
 .inspection-button:hover {
-    background: #a53a0c;
+    opacity: 0.9;
 }
 
 /* ============ Cost estimate form ============ */
@@ -115,7 +115,7 @@
     padding: 11px 0;
     font-size: 14px;
     font-weight: 600;
-    color: var(--color-surface);
+    color: #fff;
     background: var(--color-navy);
     border: none;
     border-radius: 6px;
@@ -123,7 +123,7 @@
 }
 
 .estimate-card button:hover {
-    background: #1a2e3a;
+    opacity: 0.9;
 }
 
 /* ============ Reports ============ */
@@ -154,7 +154,7 @@
     padding: 9px 18px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-surface);
+    color: #fff;
     background: var(--color-accent-solid);
     border: none;
     border-radius: 6px;
@@ -162,7 +162,7 @@
 }
 
 .report-card button:hover {
-    background: #a53a0c;
+    opacity: 0.9;
 }
 
 /* ============ Responsive ============ */

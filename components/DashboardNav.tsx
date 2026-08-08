@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, X, LucideIcon } from "lucide-react";
 import { useAuth } from "../Context/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
 import "./dashboard-nav.css";
 
 export interface NavItem {
@@ -55,10 +56,13 @@ export function DashboardNav({
           ))}
         </nav>
 
-        <button className="topnav-logout" onClick={handleLogout} type="button">
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <ThemeToggle />
+          <button className="topnav-logout" onClick={handleLogout} type="button">
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
 
         <button
           className="topnav-hamburger"
@@ -77,14 +81,17 @@ export function DashboardNav({
               <span className="topnav-brand">MARKIT</span>
               <span className="topnav-role">{roleLabel}</span>
             </div>
-            <button
-              className="mobile-overlay-close"
-              onClick={() => setMobileOpen(false)}
-              type="button"
-              aria-label="Close menu"
-            >
-              <X size={26} />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <ThemeToggle />
+              <button
+                className="mobile-overlay-close"
+                onClick={() => setMobileOpen(false)}
+                type="button"
+                aria-label="Close menu"
+              >
+                <X size={26} />
+              </button>
+            </div>
           </div>
 
           <nav className="mobile-overlay-links">

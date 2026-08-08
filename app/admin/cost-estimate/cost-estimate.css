@@ -154,6 +154,12 @@
     margin-bottom: 16px;
 }
 
+.submit-banner.error {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgb(220, 38, 38);
+    color: rgb(220, 38, 38);
+}
+
 .estimate-actions {
     display: flex;
     justify-content: flex-end;
@@ -172,11 +178,11 @@
 
 .btn-primary {
     background: var(--color-navy);
-    color: var(--color-surface);
+    color: #fff;
 }
 
 .btn-primary:hover {
-    background: #1a2e3a;
+    opacity: 0.9;
 }
 
 .btn-primary:disabled {

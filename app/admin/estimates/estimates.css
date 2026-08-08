@@ -1,6 +1,6 @@
 .estimates-page {
 
-    background: #EAECF0;
+    background: var(--color-bg);
     min-height: 100vh;
     padding: 40px;
 
@@ -8,13 +8,13 @@
 
 .estimates-page h1 {
 
-    color: #233D4D;
+    color: var(--color-ink);
     margin-bottom: 4px;
 }
 
 .estimates-subtitle {
 
-    color: #233D4D99;
+    color: var(--color-muted);
     font-size: 14px;
     margin: 0 0 25px;
 }
@@ -24,7 +24,7 @@
 
     display: flex;
     gap: 6px;
-    background: white;
+    background: var(--color-surface);
     padding: 4px;
     border-radius: 10px;
     width: fit-content;
@@ -40,15 +40,15 @@
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
-    color: #233D4D99;
+    color: var(--color-muted);
     cursor: pointer;
     transition: all 0.15s ease;
 }
 
 .estimate-filters button.active {
 
-    background: #233D4D;
-    color: white;
+    background: var(--color-navy);
+    color: #fff;
 }
 
 .estimate-list {
@@ -59,7 +59,7 @@
 
 .estimate-card {
 
-    background: white;
+    background: var(--color-surface);
     padding: 25px;
     border-radius: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
@@ -79,36 +79,36 @@
 
 .estimate-card h2 {
 
-    color: #233D4D;
+    color: var(--color-ink);
     font-size: 18px;
     margin: 0;
 }
 
 .estimate-card p {
 
-    color: #233D4D;
+    color: var(--color-ink);
     font-size: 13px;
     margin: 0;
 }
 
 .estimate-card .muted {
 
-    color: #233D4D99;
+    color: var(--color-muted);
 }
 
 .estimate-total {
 
     font-size: 20px;
     font-weight: 800;
-    color: #233D4D;
+    color: var(--color-ink);
     margin: 4px 0;
 }
 
 .estimate-details {
 
     font-size: 12px;
-    color: #233D4D80;
-    background: #EAECF0;
+    color: var(--color-muted);
+    background: var(--color-bg);
     padding: 10px 12px;
     border-radius: 8px;
     margin: 8px 0 4px;
@@ -128,8 +128,8 @@
 
 .pill-draft {
 
-    background: #EAECF0;
-    color: #233D4D99;
+    background: var(--color-bg);
+    color: var(--color-muted);
 }
 
 .pill-submitted {
@@ -177,8 +177,8 @@
 
 .btn-approve {
 
-    background: #FE7F2D;
-    color: white;
+    background: var(--color-accent);
+    color: #fff;
 }
 
 .btn-approve:hover:not(:disabled) {
@@ -188,9 +188,9 @@
 
 .btn-reject {
 
-    background: white;
+    background: transparent;
     color: #991B1B;
-    border: 1.5px solid #FEE2E2 !important;
+    border: 1px solid var(--color-border) !important;
 }
 
 .btn-reject:hover:not(:disabled) {
@@ -202,7 +202,7 @@
 .estimates-status {
 
     text-align: center;
-    color: #233D4D99;
+    color: var(--color-muted);
     font-size: 14px;
     margin-top: 60px;
 }
@@ -215,9 +215,9 @@
 .estimates-empty {
 
     text-align: center;
-    color: #233D4D66;
+    color: var(--color-muted);
     font-size: 13px;
-    background: white;
+    background: var(--color-surface);
     border-radius: 16px;
     padding: 40px 20px;
 }

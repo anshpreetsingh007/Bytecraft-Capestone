@@ -111,7 +111,7 @@ export default function EstimatePage() {
               {estimates.map((estimate) => (
                 <div
                   key={estimate.estimate_id}
-                  className="bg-white border border-line rounded-[3px] p-7"
+                  className="bg-background border border-line rounded-[3px] p-7"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[1.05rem] mb-0">

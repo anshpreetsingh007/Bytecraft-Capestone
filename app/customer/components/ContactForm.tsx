@@ -160,7 +160,7 @@ export default function ContactForm() {
 }
 
 const inputClass =
-  "font-body text-[0.98rem] px-3.5 py-3 border border-line rounded-[3px] bg-white text-foreground w-full focus:outline-none focus:border-navy";
+  "font-body text-[0.98rem] px-3.5 py-3 border border-line rounded-[3px] bg-background text-foreground w-full focus:outline-none focus:border-navy";
 
 function Field({
   label,
