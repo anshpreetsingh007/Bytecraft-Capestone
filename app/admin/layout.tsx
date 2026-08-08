@@ -7,7 +7,7 @@ const adminNavItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
   { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
-  { label: "Inspections", href: "/admin/inspections", icon: FileText },
+  { label: "Inspections", href: "/admin/inspection-requests", icon: FileText },
 ];
 
 export default function AdminLayout({
