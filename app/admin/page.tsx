@@ -49,7 +49,7 @@ export default function AdminHomePage() {
 
         <div className="mx-auto w-full max-w-5xl px-1 sm:px-0">
         {/* Stat Grid */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
               <Package size={18} />
