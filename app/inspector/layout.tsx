@@ -1,11 +1,12 @@
 "use client";
-
-import "../globals.css";
+import "../inspector/styles/inspector.css"
 
 import {
   LayoutDashboard,
   ClipboardList,
   DollarSign,
+  FileText,
+  ArrowRight
 } from "lucide-react";
 
 import { DashboardNav } from "../../components/DashboardNav";

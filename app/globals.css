@@ -7,34 +7,17 @@
   --color-foreground: var(--foreground);
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
+
   --color-bg: #eaecf0;
   --color-surface: #ffffff;
   --color-ink: #000000;
-
   --color-navy: #233d4d;
+  --color-accent: #fe7f2d;
 
-  /* Clay — works directly as text color, button fill, and border.
-     Single token, no split needed. */
-  --color-accent: #b5471b;
-  --color-accent-hover: #943a16;
-  --color-accent-tint: rgba(181, 71, 27, 0.12);
-
-  --color-muted: rgba(2, 31, 49, 0.75);
+  --color-muted: rgba(35, 61, 77, 0.6);
   --color-border: rgba(35, 61, 77, 0.12);
   --color-navy-tint: rgba(35, 61, 77, 0.08);
-
-  /* Status colors — unchanged, already WCAG-safe pairs */
-  --color-info-bg: #e6edf5;
-  --color-info-text: #1d4f7a;
-
-  --color-success-bg: #e2f0e5;
-  --color-success-text: #1f5c2e;
-
-  --color-warning-bg: var(--color-accent-tint);
-  --color-warning-text: var(--color-accent);
-
-  --color-danger-bg: #fbe2e0;
-  --color-danger-text: #8c2517;
+  --color-accent-tint: rgba(254, 127, 45, 0.14);
 
   --sidebar-width: 240px;
 }
@@ -42,13 +25,13 @@
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
-  
+
   --color-bg: #121212;
   --color-surface: #1e1e1e;
   --color-ink: #ffffff;
   --color-navy: #1f2937;
   --color-accent: #fe7f2d;
-  
+
   --color-muted: rgba(255, 255, 255, 0.6);
   --color-border: rgba(255, 255, 255, 0.12);
   --color-navy-tint: rgba(255, 255, 255, 0.08);
@@ -70,6 +53,7 @@ body {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-ink);
+  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -202,6 +186,7 @@ body {
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
 }
+
 .admin-dashboard-body {
   max-width: 1200px;
   margin: 0 auto;
@@ -209,3 +194,18 @@ body {
   box-sizing: border-box;
 }
 
+.page-transition {
+  animation: fadeInSlideUp 0.35s ease-out forwards;
+}
+
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

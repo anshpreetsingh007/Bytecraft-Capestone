@@ -1,6 +1,6 @@
 "use client";
 
-import "../styles/inspector-dashboard.css";
+import "../styles/inspector.css"
 
 
 export default function ReportsPage() {
