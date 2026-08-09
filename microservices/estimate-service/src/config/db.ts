@@ -14,4 +14,18 @@ const pool = new Pool({
   ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
+async function ensureSchema() {
+  try {
+    await pool.query(`
+      ALTER TABLE cost_estimate 
+      ADD COLUMN IF NOT EXISTS materials JSONB DEFAULT '[]'::jsonb;
+    `);
+    console.log("Database schema verified for cost estimates.");
+  } catch (err) {
+    console.error("Error ensuring schema for estimates:", err);
+  }
+}
+
+ensureSchema();
+
 export default pool;

@@ -15,6 +15,7 @@ interface InventoryItem {
     unitCost: number;
     unit: string;
     reorderThreshold: number;
+    coverageSqft?: number;
 }
 
 interface Inspector {
@@ -42,35 +43,50 @@ interface OrderWithDetails {
     inspector_last_name: string | null;
 }
 
+interface MaterialBreakdown {
+  inventoryItem: InventoryItem;
+  quantityNeeded: number;
+  cost: number;
+}
+
 interface EstimateResult {
   squareFootage: number;
-  materialCost: number;
+  materialBreakdown: MaterialBreakdown[];
+  totalMaterialCost: number;
   laborCost: number;
   total: number;
-  materialQuantity: number;
 }
 
 function calculateEstimate(
   length: number,
   width: number,
   height: number,
-  material: InventoryItem | undefined
+  materials: InventoryItem[]
 ): EstimateResult {
   const baseArea = length * width;
   const pitchAdjustedArea = height > 0 ? baseArea * (1 + height * 0.05) : baseArea;
   const squareFootage = Math.round(pitchAdjustedArea * 100) / 100;
   
-  const coverage = material?.coverageSqft || 1.0;
-  const unitCost = material ? Number(material.unitCost) : 0;
-  
-  // Calculate how many units (e.g. bundles) are needed
-  const materialQuantity = Math.ceil(squareFootage / coverage);
-  const materialCost = Math.round(materialQuantity * unitCost * 100) / 100;
-  
-  const laborCost = Math.round(squareFootage * laborRatePerSqFt * 100) / 100;
-  const total = Math.round((materialCost + laborCost) * 100) / 100;
+  let totalMaterialCost = 0;
+  const materialBreakdown: MaterialBreakdown[] = [];
 
-  return { squareFootage, materialCost, laborCost, total, materialQuantity };
+  for (const material of materials) {
+    const coverage = material.coverageSqft || 1.0;
+    const unitCost = Number(material.unitCost) || 0;
+    
+    // Calculate how many units (e.g. bundles) are needed
+    const quantityNeeded = Math.ceil(squareFootage / coverage);
+    const cost = Math.round(quantityNeeded * unitCost * 100) / 100;
+    
+    totalMaterialCost += cost;
+    materialBreakdown.push({ inventoryItem: material, quantityNeeded, cost });
+  }
+  
+  totalMaterialCost = Math.round(totalMaterialCost * 100) / 100;
+  const laborCost = Math.round(squareFootage * laborRatePerSqFt * 100) / 100;
+  const total = Math.round((totalMaterialCost + laborCost) * 100) / 100;
+
+  return { squareFootage, materialBreakdown, totalMaterialCost, laborCost, total };
 }
 
 function formatCurrency(value: number): string {
@@ -85,6 +101,7 @@ function formatName(first: string | null, last: string | null, fallback: string)
 function CostEstimateContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const estimateId = searchParams.get("estimateId");
   const router = useRouter();
   const { userId } = useAuth(); // real admin_id, now that auth is wired up
 
@@ -101,7 +118,8 @@ function CostEstimateContent() {
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
-  const [materialId, setMaterialId] = useState<number | "">("");
+  const [selectedMaterialIds, setSelectedMaterialIds] = useState<number[]>([]);
+  const [materialToAdd, setMaterialToAdd] = useState<number | "">("");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -113,9 +131,6 @@ function CostEstimateContent() {
         if (!res.ok) throw new Error("Failed to fetch inventory");
         const data = await res.json();
         setInventory(data);
-        if (data.length > 0) {
-          setMaterialId(data[0].id);
-        }
       } catch (err: any) {
         console.error(err);
       } finally {
@@ -170,16 +185,18 @@ function CostEstimateContent() {
   const widthNum = parseFloat(width) || 0;
   const heightNum = parseFloat(height) || 0;
 
-  const selectedMaterial = useMemo(() => {
-    return inventory.find(i => i.id === materialId);
-  }, [inventory, materialId]);
+  const selectedMaterials = useMemo(() => {
+    return selectedMaterialIds
+      .map(id => inventory.find(i => i.id === id))
+      .filter((i): i is InventoryItem => i !== undefined);
+  }, [inventory, selectedMaterialIds]);
 
   const result = useMemo(
-    () => calculateEstimate(lengthNum, widthNum, heightNum, selectedMaterial),
-    [lengthNum, widthNum, heightNum, selectedMaterial]
+    () => calculateEstimate(lengthNum, widthNum, heightNum, selectedMaterials),
+    [lengthNum, widthNum, heightNum, selectedMaterials]
   );
 
-  const hasValidInput = lengthNum > 0 && widthNum > 0 && selectedMaterial !== undefined;
+  const hasValidInput = lengthNum > 0 && widthNum > 0 && selectedMaterials.length > 0;
   const canSubmit = hasValidInput && !!orderData && inspectorId !== "" && userId !== null;
 
   async function handleSubmitEstimate() {
@@ -190,10 +207,19 @@ function CostEstimateContent() {
     setSubmitted(false);
 
     try {
-      const details = `Square Footage: ${result.squareFootage}, Material Cost: ${formatCurrency(result.materialCost)}, Labor Cost: ${formatCurrency(result.laborCost)}, Total: ${formatCurrency(result.total)}`;
+      const details = `Square Footage: ${result.squareFootage}, Material Cost: ${formatCurrency(result.totalMaterialCost)}, Labor Cost: ${formatCurrency(result.laborCost)}, Total: ${formatCurrency(result.total)}`;
 
-      const response = await fetch("/api/estimates", {
-        method: "POST",
+      const apiMaterials = result.materialBreakdown.map(mb => ({
+        material_id: mb.inventoryItem.id,
+        quantity: mb.quantityNeeded,
+        cost: mb.cost
+      }));
+
+      const method = estimateId ? "PUT" : "POST";
+      const url = estimateId ? `/api/estimates/${estimateId}` : "/api/estimates";
+
+      const response = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           order_id: orderData.order_id,
@@ -202,8 +228,9 @@ function CostEstimateContent() {
           details: details,
           estimate_date: new Date().toISOString(),
           status: "submitted",
-          material_id: materialId !== "" ? materialId : null,
-          material_quantity: result.materialQuantity
+          materials: apiMaterials,
+          material_id: null,
+          material_quantity: null
         }),
       });
 
@@ -241,7 +268,7 @@ function CostEstimateContent() {
       <div className="flex justify-between items-center mb-6">
           <h1 className="page-title m-0">Cost Estimate</h1>
           <button 
-              className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded transition"
+              className="text-sm bg-bg border border-border hover:border-navy text-ink py-1 px-3 rounded transition"
               onClick={() => router.push("/admin/cost-estimate/select")}
           >
               Change Order
@@ -256,7 +283,7 @@ function CostEstimateContent() {
         </p>
 
         {inspectors.length === 0 ? (
-          <p className="section-subtitle" style={{ color: "#92400E" }}>
+          <p className="section-subtitle" style={{ color: "var(--color-accent)" }}>
             No inspectors exist yet — one needs to be added before an estimate can be submitted.
           </p>
         ) : (
@@ -325,23 +352,60 @@ function CostEstimateContent() {
             />
           </div>
 
-          <div className="calc-field">
-            <label htmlFor="material">Material</label>
-            <select
-              id="material"
-              value={materialId}
-              onChange={(e) => setMaterialId(Number(e.target.value))}
-            >
-              {inventory.map((m) => {
-                const pricePerSqft = (Number(m.unitCost) / (m.coverageSqft || 1.0));
-                return (
-                  <option key={m.id} value={m.id}>
-                    {m.name} ({formatCurrency(Number(m.unitCost))}/{m.unit || 'sqft'} ≈ {formatCurrency(pricePerSqft)}/sqft) - In stock: {m.quantity}
-                  </option>
-                );
-              })}
-              {inventory.length === 0 && <option value="">No materials available</option>}
-            </select>
+          <div className="calc-field" style={{ gridColumn: "1 / -1" }}>
+            <label>Materials</label>
+            <div className="flex gap-2 mb-4">
+              <select
+                className="flex-1 bg-bg text-ink"
+                style={{ padding: "0.75rem", borderRadius: "8px", border: "1px solid var(--color-border)" }}
+                value={materialToAdd}
+                onChange={(e) => setMaterialToAdd(Number(e.target.value))}
+              >
+                <option value="">Select a material to add...</option>
+                {inventory.filter(m => !selectedMaterialIds.includes(m.id)).map((m) => {
+                  const pricePerSqft = (Number(m.unitCost) / (m.coverageSqft || 1.0));
+                  return (
+                    <option key={m.id} value={m.id}>
+                      {m.name} ({formatCurrency(Number(m.unitCost))}/{m.unit || 'sqft'} ≈ {formatCurrency(pricePerSqft)}/sqft) - In stock: {m.quantity}
+                    </option>
+                  );
+                })}
+              </select>
+              <button 
+                type="button" 
+                className="btn-primary"
+                style={{ whiteSpace: "nowrap" }}
+                onClick={() => {
+                  if (materialToAdd !== "") {
+                    setSelectedMaterialIds([...selectedMaterialIds, materialToAdd as number]);
+                    setMaterialToAdd("");
+                  }
+                }}
+                disabled={materialToAdd === ""}
+              >
+                Add Material
+              </button>
+            </div>
+
+            {selectedMaterials.length > 0 && (
+              <div className="flex flex-col gap-2" style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "12px", backgroundColor: "var(--color-bg)" }}>
+                {selectedMaterials.map(m => (
+                  <div key={m.id} className="flex justify-between items-center" style={{ backgroundColor: "var(--color-surface)", padding: "8px 12px", border: "1px solid var(--color-border)", borderRadius: "6px" }}>
+                    <span style={{ fontWeight: 500, color: "var(--color-ink)" }}>{m.name}</span>
+                    <button 
+                      type="button" 
+                      className="text-red-500 hover:text-red-700 text-sm font-medium"
+                      onClick={() => setSelectedMaterialIds(selectedMaterialIds.filter(id => id !== m.id))}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {selectedMaterials.length === 0 && (
+              <p className="text-sm text-muted italic mt-2">No materials added yet. Please add at least one material to proceed.</p>
+            )}
           </div>
         </div>
 
@@ -353,16 +417,18 @@ function CostEstimateContent() {
               {hasValidInput ? `${result.squareFootage.toLocaleString()} sqft` : "—"}
             </span>
           </div>
+          {hasValidInput && result.materialBreakdown.map(mb => (
+            <div className="result-row" key={mb.inventoryItem.id} style={{ fontSize: '0.9em', color: 'var(--color-muted)' }}>
+              <span className="result-label">↳ {mb.inventoryItem.name} Required</span>
+              <span className="result-value">
+                {mb.quantityNeeded} {mb.inventoryItem.unit || 'units'} ({formatCurrency(mb.cost)})
+              </span>
+            </div>
+          ))}
           <div className="result-row">
-            <span className="result-label">Material Required</span>
+            <span className="result-label">Total Material Cost</span>
             <span className="result-value">
-              {hasValidInput ? `${result.materialQuantity} ${selectedMaterial?.unit || 'units'}` : "—"}
-            </span>
-          </div>
-          <div className="result-row">
-            <span className="result-label">Material Cost</span>
-            <span className="result-value">
-              {hasValidInput ? formatCurrency(result.materialCost) : "—"}
+              {hasValidInput ? formatCurrency(result.totalMaterialCost) : "—"}
             </span>
           </div>
           <div className="result-row">
@@ -424,7 +490,7 @@ function CostEstimateContent() {
       )}
 
       {error && (
-        <div className="submit-banner" style={{ backgroundColor: "#ffcccc", color: "#990000", borderColor: "#cc0000" }}>
+        <div className="submit-banner error">
           Error: {error}
         </div>
       )}
@@ -446,7 +512,7 @@ function CostEstimateContent() {
           disabled={!canSubmit || isSubmitting}
           type="button"
         >
-          {isSubmitting ? "Submitting..." : "Submit Estimate"}
+          {isSubmitting ? "Submitting..." : (estimateId ? "Update Estimate" : "Submit Estimate")}
         </button>
       </div>
     </div>

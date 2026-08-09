@@ -82,7 +82,7 @@ export default function Services() {
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {services.map((s) => (
-              <div key={s.title} className="bg-white border border-line rounded-[3px] p-8 hover:border-copper hover:-translate-y-0.5 transition-all">
+              <div key={s.title} className="bg-background border border-line rounded-[3px] p-8 hover:border-copper hover:-translate-y-0.5 transition-all">
                 <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 mb-[18px] text-copper">{s.icon}</svg>
                 <h3 className="text-[1.15rem] mb-2">{s.title}</h3>
                 <p className="text-ink-soft text-[0.96rem] mb-0">{s.body}</p>
@@ -100,7 +100,7 @@ export default function Services() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {materials.map((m) => (
-              <div key={m.title} className="bg-white border border-line rounded-[3px] p-8">
+              <div key={m.title} className="bg-background border border-line rounded-[3px] p-8">
                 <h3 className="text-[1.15rem] mb-2">{m.title}</h3>
                 <p className="text-ink-soft text-[0.96rem] mb-0">{m.body}</p>
               </div>

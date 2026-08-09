@@ -54,17 +54,17 @@ export default function SelectInspectionPage() {
 
     return (
         <div className="flex-1 min-w-0 p-6">
-            <h1 className="text-[21px] font-extrabold text-black mb-2">Select an Order</h1>
-            <p className="text-[14px] text-gray-600 mb-6">
+            <h1 className="text-[21px] font-extrabold text-ink mb-2">Select an Order</h1>
+            <p className="text-[14px] text-muted mb-6">
                 Choose an order to create a cost estimate for. Only orders that don&apos;t already have an estimate
                 are shown here — an inspection request has to be converted into an order first.
             </p>
 
             <div className="grid gap-4">
                 {orders.length === 0 ? (
-                    <p className="text-gray-500">
+                    <p className="text-muted">
                         No orders currently need an estimate.{" "}
-                        <Link href="/admin/inspection-requests" className="text-[#fe7f2d] underline font-semibold">
+                        <Link href="/admin/inspection-requests" className="text-accent underline font-semibold">
                             Convert an inspection request to an order
                         </Link>{" "}
                         first.
@@ -73,26 +73,26 @@ export default function SelectInspectionPage() {
                     orders.map((order) => (
                         <div
                             key={order.order_id}
-                            className="bg-white border border-[#233d4d]/12 rounded-xl p-4 flex justify-between items-center hover:border-[#233d4d]/30 transition-all"
+                            className="bg-surface border border-border rounded-xl p-4 flex justify-between items-center hover:border-navy transition-all"
                         >
                             <div>
-                                <h3 className="font-bold text-[16px] m-0">
+                                <h3 className="font-bold text-[16px] text-ink m-0">
                                     Order #{order.order_id} — {formatName(order.client_first_name, order.client_last_name, "Unknown client")}
                                 </h3>
-                                <p className="text-[12px] text-gray-500 m-0">Address: {order.client_address || "—"}</p>
-                                <p className="text-[12px] text-gray-500 m-0">
+                                <p className="text-[12px] text-muted m-0">Address: {order.client_address || "—"}</p>
+                                <p className="text-[12px] text-muted m-0">
                                     Scheduled: {order.request_scheduled_date ? new Date(order.request_scheduled_date).toLocaleDateString() : "Not yet scheduled"}
                                 </p>
-                                <p className="text-[12px] text-gray-500 m-0">
+                                <p className="text-[12px] text-muted m-0">
                                     Inspector: {formatName(order.inspector_first_name, order.inspector_last_name, "Unassigned")}
                                 </p>
                                 {order.request_details && (
-                                    <p className="text-[13px] mt-1 text-gray-700">Details: {order.request_details}</p>
+                                    <p className="text-[13px] mt-1 text-muted">Details: {order.request_details}</p>
                                 )}
                             </div>
                             <button
                                 onClick={() => router.push(`/admin/cost-estimate?orderId=${order.order_id}`)}
-                                className="bg-[#fe7f2d] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#e06d20] transition-colors"
+                                className="bg-accent text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity"
                             >
                                 Select
                             </button>

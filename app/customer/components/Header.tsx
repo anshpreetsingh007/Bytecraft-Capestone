@@ -5,6 +5,7 @@ import Link from "next/link";
 import Logo from "./Logo";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../../Context/AuthContext";
+import { ThemeToggle } from "../../../components/ThemeToggle";
 
 const links = [
   { href: "/customer", label: "Home" },
@@ -84,6 +85,7 @@ async function handleLogout() {
 >
   Sign Out
 </button>
+<ThemeToggle />
         </nav>
       </div>
     </header>

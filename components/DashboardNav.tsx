@@ -3,14 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  LogOut,
-  Menu,
-  X,
-  LucideIcon,
-} from "lucide-react";
-
+import { LogOut, Menu, X, LucideIcon } from "lucide-react";
 import { useAuth } from "../Context/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
 import "./dashboard-nav.css";
 
 export interface NavItem {
@@ -27,195 +22,103 @@ export function DashboardNav({
   navItems: NavItem[];
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] =
-    useState(false);
-
   const pathname = usePathname();
-  const router = useRouter();
   const { logOut } = useAuth();
-
-  function isActive(href: string) {
-    return (
-      pathname === href ||
-      pathname.startsWith(`${href}/`)
-    );
-  }
+  const router = useRouter();
 
   async function handleLogout() {
     await logOut();
     router.push("/signin");
   }
 
+  function isActive(href: string) {
+    return pathname === href || pathname.startsWith(href + "/");
+  }
+
   return (
     <>
       <header className="topnav">
         <div className="topnav-brand-group">
-          <span className="topnav-brand">
-            MARKIT
-          </span>
-
-          <span className="topnav-role">
-            {roleLabel}
-          </span>
+          <span className="topnav-brand">MARKIT</span>
+          <span className="topnav-role">{roleLabel}</span>
         </div>
 
-        {/* DESKTOP NAV */}
-        <nav
-          className="topnav-links"
-          aria-label={`${roleLabel} navigation`}
-        >
-          {navItems.map(
-            ({ label, href, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`topnav-link ${
-                  isActive(href)
-                    ? "topnav-link-active"
-                    : ""
-                }`}
-              >
-                <Icon
-                  size={18}
-                  aria-hidden="true"
-                />
-
-                <span>{label}</span>
-              </Link>
-            )
-          )}
+        <nav className="topnav-links">
+          {navItems.map(({ label, href, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`topnav-link ${isActive(href) ? "topnav-link-active" : ""}`}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+            </Link>
+          ))}
         </nav>
 
-        {/* DESKTOP LOGOUT */}
-        <button
-          type="button"
-          className="topnav-logout"
-          onClick={() =>
-            setShowLogoutConfirm(true)
-          }
-        >
-          <LogOut size={18} aria-hidden="true" />
-          <span>Logout</span>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <ThemeToggle />
+          <button className="topnav-logout" onClick={handleLogout} type="button">
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
 
-        {/* MOBILE HAMBURGER */}
         <button
-          type="button"
           className="topnav-hamburger"
           onClick={() => setMobileOpen(true)}
-          aria-label="Open navigation menu"
-          aria-expanded={mobileOpen}
+          type="button"
+          aria-label="Open menu"
         >
-          <Menu size={26} aria-hidden="true" />
+          <Menu size={24} />
         </button>
       </header>
 
-      {/* MOBILE MENU */}
       {mobileOpen && (
-        <div className="mobile-menu-overlay">
-          <div className="mobile-menu">
-            <div className="mobile-menu-header">
-              <div className="topnav-brand-group">
-                <span className="topnav-brand">
-                  MARKIT
-                </span>
-
-                <span className="topnav-role">
-                  {roleLabel}
-                </span>
-              </div>
-
+        <div className="mobile-overlay">
+          <div className="mobile-overlay-header">
+            <div className="topnav-brand-group">
+              <span className="topnav-brand">MARKIT</span>
+              <span className="topnav-role">{roleLabel}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <ThemeToggle />
               <button
-                type="button"
-                className="mobile-menu-close"
+                className="mobile-overlay-close"
                 onClick={() => setMobileOpen(false)}
-                aria-label="Close navigation menu"
+                type="button"
+                aria-label="Close menu"
               >
-                <X size={26} aria-hidden="true" />
+                <X size={26} />
               </button>
             </div>
-
-            <nav
-              className="mobile-menu-links"
-              aria-label={`${roleLabel} mobile navigation`}
-            >
-              {navItems.map(
-                ({ label, href, icon: Icon }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() =>
-                      setMobileOpen(false)
-                    }
-                    className={`mobile-menu-link ${
-                      isActive(href)
-                        ? "mobile-menu-link-active"
-                        : ""
-                    }`}
-                  >
-                    <Icon
-                      size={20}
-                      aria-hidden="true"
-                    />
-
-                    <span>{label}</span>
-                  </Link>
-                )
-              )}
-            </nav>
-
-            <button
-              type="button"
-              className="mobile-menu-logout"
-              onClick={() => {
-                setMobileOpen(false);
-                setShowLogoutConfirm(true);
-              }}
-            >
-              <LogOut size={20} aria-hidden="true" />
-              Logout
-            </button>
           </div>
-        </div>
-      )}
 
-      {/* LOGOUT CONFIRMATION */}
-      {showLogoutConfirm && (
-        <div className="logout-confirm-overlay">
-          <div
-            className="logout-confirm-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="logout-title"
+          <nav className="mobile-overlay-links">
+            {navItems.map(({ label, href, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setMobileOpen(false)}
+                className={`mobile-overlay-link ${isActive(href) ? "mobile-overlay-link-active" : ""}`}
+              >
+                <Icon size={22} />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </nav>
+
+          <button
+            className="mobile-overlay-logout"
+            onClick={() => {
+              setMobileOpen(false);
+              handleLogout();
+            }}
+            type="button"
           >
-            <h2 id="logout-title">
-              Log out?
-            </h2>
-
-            <p>
-              Are you sure you want to log out of your account?
-            </p>
-
-            <div className="logout-confirm-actions">
-              <button
-                type="button"
-                className="logout-cancel-button"
-                onClick={() =>
-                  setShowLogoutConfirm(false)
-                }
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="logout-confirm-button"
-                onClick={handleLogout}
-              >
-                Log Out
-              </button>
-            </div>
-          </div>
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
         </div>
       )}
     </>

@@ -57,10 +57,10 @@ export async function getEstimatesByClient(clientId: number): Promise<CostEstima
 // insert a new cost estimate into the database
 export async function createEstimate(data: CreateEstimateInput): Promise<CostEstimate> {
     const result = await pool.query(
-        `INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity, materials)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
-        [data.order_id, data.inspector_id, data.admin_id || null, data.details, data.estimate_date, data.status, data.material_id || null, data.material_quantity || null]
+        [data.order_id, data.inspector_id, data.admin_id || null, data.details, data.estimate_date, data.status, data.material_id || null, data.material_quantity || null, data.materials ? JSON.stringify(data.materials) : '[]']
     );
     // return the newly created row
     return result.rows[0];
@@ -81,8 +81,9 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
          estimate_date = $5,
          status = $6,
          material_id = $7,
-         material_quantity = $8
-     WHERE estimate_id = $9
+         material_quantity = $8,
+         materials = $9
+     WHERE estimate_id = $10
      RETURNING *`,
         [
             data.order_id ?? current.order_id,
@@ -93,6 +94,7 @@ export async function updateEstimate(id: number, data: UpdateEstimateInput): Pro
             data.status ?? current.status,
             data.material_id !== undefined ? data.material_id : current.material_id,
             data.material_quantity !== undefined ? data.material_quantity : current.material_quantity,
+            data.materials ? JSON.stringify(data.materials) : current.materials,
             id
         ]
     );

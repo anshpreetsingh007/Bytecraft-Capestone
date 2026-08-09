@@ -63,7 +63,7 @@ export default function About() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {values.map((v) => (
-              <div key={v.title} className="bg-white border border-line rounded-[3px] p-8">
+              <div key={v.title} className="bg-background border border-line rounded-[3px] p-8">
                 <h3 className="text-[1.15rem] mb-2">{v.title}</h3>
                 <p className="text-ink-soft text-[0.96rem] mb-0">{v.body}</p>
               </div>

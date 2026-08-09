@@ -7,7 +7,7 @@ const adminNavItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
   { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
-  { label: "Inspections", href: "/admin/inspections", icon: FileText },
+  { label: "Inspections", href: "/admin/inspection-requests", icon: FileText },
 ];
 
 export default function AdminLayout({
@@ -16,7 +16,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#EAECF0]">
+    <div className="min-h-screen bg-bg">
       <DashboardNav roleLabel="Admin" navItems={adminNavItems} />
       <main className="p-6">{children}</main>
     </div>

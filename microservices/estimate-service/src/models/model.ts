@@ -10,6 +10,7 @@ export interface CostEstimate {
     status: string;             // 'draft' | 'submitted' | 'approved' | 'rejected'
     material_id?: number | null;
     material_quantity?: number | null;
+    materials?: any[];
 }
 
 // input for new estimate
@@ -23,6 +24,7 @@ export interface CreateEstimateInput {
     status: string;
     material_id?: number | null;
     material_quantity?: number | null;
+    materials?: any[];
 }
 
 // input for updating estimate
@@ -36,6 +38,7 @@ export interface UpdateEstimateInput {
     status?: string;
     material_id?: number | null;
     material_quantity?: number | null;
+    materials?: any[];
 }
 
 // estimate with joined names

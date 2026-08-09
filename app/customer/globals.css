@@ -18,6 +18,16 @@
   --copper-dark: #e36a1b;
 }
 
+.dark {
+  --background: #181c20;
+  --foreground: #e8eaed;
+  --ink-soft: #9ca3af;
+  --paper-dim: #1f2328;
+  --line: #33383e;
+  --navy-soft: #c7cdd2;
+  --navy-faint: #899299;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
