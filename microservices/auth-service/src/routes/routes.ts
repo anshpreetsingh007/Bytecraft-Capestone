@@ -9,4 +9,7 @@ router.get('/resolve/:firebaseUid', authController.resolve);
 // POST /api/auth/register — create the Postgres client row after Firebase signup
 router.post('/register', authController.register);
 
+// GET /api/auth/inspectors — get all inspectors
+router.get('/inspectors', authController.getInspectors);
+
 export default router;

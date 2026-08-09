@@ -64,3 +64,20 @@ export async function registerClient(
     email: row.email,
   };
 }
+
+// ─── GET ALL INSPECTORS ───
+export async function getAllInspectors(): Promise<ResolvedUser[]> {
+  const result = await pool.query(
+    `SELECT 'inspector' AS role, inspector_id AS id, first_name, last_name, email
+     FROM inspector`
+  );
+
+  return result.rows.map(row => ({
+    role: row.role,
+    id: row.id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+  }));
+}
+

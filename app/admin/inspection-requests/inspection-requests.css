@@ -166,11 +166,7 @@
 
 }
 
-.request-actions {
 
-    margin-top: 12px;
-
-}
 
 .btn-convert {
 
@@ -240,4 +236,62 @@
 
     padding: 40px 20px;
 
+}
+
+/* ── Assignment controls ── */
+.request-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.assign-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    border-left: 2px solid var(--color-border);
+    padding-left: 12px;
+    margin-left: 4px;
+}
+
+.assign-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+    appearance: auto;
+}
+
+.assign-select:focus {
+    outline: none;
+    border-color: var(--color-navy);
+}
+
+.btn-assign {
+    border: none;
+    background: var(--color-navy);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn-assign:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-assign:disabled {
+    opacity: 0.5;
+    cursor: default;
 }

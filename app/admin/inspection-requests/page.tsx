@@ -17,6 +17,13 @@ interface InspectionRequestWithDetails {
   existing_order_id: number | null;
 }
 
+interface Inspector {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 const FILTERS: { label: string; value: string }[] = [
   { label: "All", value: "all" },
   { label: "Pending", value: "pending" },
@@ -37,6 +44,10 @@ export default function InspectionRequestsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [convertingId, setConvertingId] = useState<number | null>(null);
+  
+  const [inspectors, setInspectors] = useState<Inspector[]>([]);
+  const [selectedInspectorId, setSelectedInspectorId] = useState<Record<number, string>>({});
+  const [assigningId, setAssigningId] = useState<number | null>(null);
 
   const loadRequests = useCallback(async (selectedFilter: string) => {
     setError(null);
@@ -59,6 +70,12 @@ export default function InspectionRequestsPage() {
   useEffect(() => {
     setLoading(true);
     loadRequests(filter);
+    
+    // Fetch inspectors once on mount
+    fetch("/api/auth/inspectors")
+      .then(res => res.json())
+      .then(data => setInspectors(data))
+      .catch(err => console.error("Failed to load inspectors:", err));
   }, [filter, loadRequests]);
 
   async function handleConvertToOrder(request: InspectionRequestWithDetails) {
@@ -90,6 +107,37 @@ export default function InspectionRequestsPage() {
       alert("Something went wrong converting this request. Please try again.");
     } finally {
       setConvertingId(null);
+    }
+  }
+
+  async function handleAssignInspector(request: InspectionRequestWithDetails) {
+    const inspectorIdStr = selectedInspectorId[request.request_id];
+    if (!inspectorIdStr) {
+      alert("Please select an inspector first.");
+      return;
+    }
+    const inspectorId = parseInt(inspectorIdStr, 10);
+    
+    setAssigningId(request.request_id);
+    try {
+      const res = await fetch(`/api/inspection-requests/${request.request_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          inspector_id: inspectorId,
+          status: "assigned"
+        })
+      });
+
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      
+      alert("Inspector assigned successfully!");
+      loadRequests(filter);
+    } catch (err) {
+      console.error("Failed to assign inspector:", err);
+      alert("Something went wrong assigning the inspector.");
+    } finally {
+      setAssigningId(null);
     }
   }
 
@@ -152,6 +200,30 @@ export default function InspectionRequestsPage() {
                     >
                       {isConverting ? "Converting…" : "Convert to Order"}
                     </button>
+                  )}
+                  
+                  {!request.inspector_id && (
+                    <div className="assign-group">
+                      <select 
+                        className="assign-select"
+                        value={selectedInspectorId[request.request_id] || ""}
+                        onChange={e => setSelectedInspectorId(prev => ({ ...prev, [request.request_id]: e.target.value }))}
+                      >
+                        <option value="" disabled>Select Inspector</option>
+                        {inspectors.map(insp => (
+                          <option key={insp.id} value={insp.id}>
+                            {insp.firstName} {insp.lastName}
+                          </option>
+                        ))}
+                      </select>
+                      <button 
+                        className="btn-assign"
+                        disabled={assigningId === request.request_id || !selectedInspectorId[request.request_id]}
+                        onClick={() => handleAssignInspector(request)}
+                      >
+                        {assigningId === request.request_id ? "Assigning…" : "Assign"}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "dev:all": "npx concurrently \"npm run dev\" \"npm run dev --prefix microservices/ai-chatbot-service\" \"npm run dev --prefix microservices/auth-service\" \"npm run dev --prefix microservices/estimate-service\" \"npm run dev --prefix microservices/inventory-service\" \"npm run dev --prefix microservices/notification-service\" \"npm run dev --prefix microservices/report-service\" \"npm run dev --prefix microservices/submission-service\"",
     "build": "next build",
     "start": "next start",

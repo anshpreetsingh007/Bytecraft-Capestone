@@ -53,3 +53,16 @@ export async function register(req: Request, res: Response) {
         res.status(500).json({ error: 'Failed to register client' });
     }
 }
+
+// getInspectors
+// GET /api/auth/inspectors
+export async function getInspectors(req: Request, res: Response) {
+    try {
+        const inspectors = await authService.getAllInspectors();
+        res.json(inspectors);
+    } catch (error) {
+        console.error('Error fetching inspectors:', error);
+        res.status(500).json({ error: 'Failed to fetch inspectors' });
+    }
+}
+
