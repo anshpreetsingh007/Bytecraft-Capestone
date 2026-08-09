@@ -1,6 +1,7 @@
 .inspector-content-wrapper {
     max-width: 900px;
     margin: 0 auto;
+    padding: 32px 20px;
 }
 
 .inspector-content-wrapper h1 {
@@ -56,13 +57,13 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--color-surface);
-    background: var(--color-accent-solid);
+    background: var(--color-accent);
     border-radius: 6px;
     text-decoration: none;
 }
 
 .inspection-button:hover {
-    background: #a53a0c;
+    background: var(--color-accent-hover);
 }
 
 /* ============ Cost estimate form ============ */
@@ -100,7 +101,7 @@
 
 .estimate-card input:focus,
 .estimate-card textarea:focus {
-    outline: 2px solid var(--color-accent-solid);
+    outline: 2px solid var(--color-accent);
     outline-offset: 1px;
     background: var(--color-surface);
 }
@@ -155,14 +156,14 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--color-surface);
-    background: var(--color-accent-solid);
+    background: var(--color-accent);
     border: none;
     border-radius: 6px;
     cursor: pointer;
 }
 
 .report-card button:hover {
-    background: #a53a0c;
+    background: var(--color-accent-hover);
 }
 
 /* ============ Responsive ============ */
@@ -171,4 +172,75 @@
     .inspection-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ============ Inspector dashboard (Welcome back / quick links) ============ */
+
+.dashboard-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0;
+    text-align: center;
+}
+
+.dashboard-subtitle {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin: 4px 0 28px;
+    text-align: center;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.dashboard-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-navy);
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.dashboard-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--color-navy);
+    color: var(--color-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.dashboard-card h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 8px;
+}
+
+.dashboard-card p {
+    font-size: 13px;
+    color: var(--color-muted);
+    margin: 0 0 14px;
+}
+
+.dashboard-button {
+    display: inline-block;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-surface);
+    background: var(--color-accent);
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.dashboard-button:hover {
+    background: var(--color-accent-hover);
 }

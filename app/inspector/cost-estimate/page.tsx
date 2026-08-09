@@ -1,6 +1,6 @@
 "use client";
 
-import "./cost-estimate.css";
+import "../styles/inspector-dashboard.css";
 
 
 export default function CostEstimatePage() {

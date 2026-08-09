@@ -1,16 +1,32 @@
 "use client";
-// app/inspector/layout.tsx
 
 import "../globals.css";
-import { LayoutDashboard, ClipboardList, User, DollarSign } from "lucide-react";
+
+import {
+  LayoutDashboard,
+  ClipboardList,
+  DollarSign,
+} from "lucide-react";
+
 import { DashboardNav } from "../../components/DashboardNav";
 import { RoleGuard } from "../../components/RoleGuard";
 
 const inspectorNavItems = [
-  { label: "Dashboard", href: "/inspector/dashboard", icon: LayoutDashboard },
-  { label: "Inspections", href: "/inspector/inspections", icon: ClipboardList },
-  { label: "Cost Estimate", href: "/inspector/cost-estimate", icon: DollarSign },
-  { label: "Profile", href: "/inspector/profile", icon: User },
+  {
+    label: "Dashboard",
+    href: "/inspector/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Inspections",
+    href: "/inspector/inspections",
+    icon: ClipboardList,
+  },
+  {
+    label: "Cost Estimate",
+    href: "/inspector/cost-estimate",
+    icon: DollarSign,
+  },
 ];
 
 export default function InspectorLayout({
@@ -20,9 +36,15 @@ export default function InspectorLayout({
 }) {
   return (
     <RoleGuard allowedRoles={["inspector"]}>
-      <div className="min-h-screen bg-[#EAECF0]">
-        <DashboardNav roleLabel="Inspector" navItems={inspectorNavItems} />
-        <main className="p-6">{children}</main>
+      <div className="inspector-shell">
+        <DashboardNav
+          roleLabel="Inspector"
+          navItems={inspectorNavItems}
+        />
+
+        <main className="inspector-main">
+          {children}
+        </main>
       </div>
     </RoleGuard>
   );

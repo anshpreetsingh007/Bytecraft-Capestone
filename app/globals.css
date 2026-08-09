@@ -7,17 +7,34 @@
   --color-foreground: var(--foreground);
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
-
   --color-bg: #eaecf0;
   --color-surface: #ffffff;
   --color-ink: #000000;
-  --color-navy: #233d4d;
-  --color-accent: #fe7f2d;
 
-  --color-muted: rgba(35, 61, 77, 0.6);
+  --color-navy: #233d4d;
+
+  /* Clay — works directly as text color, button fill, and border.
+     Single token, no split needed. */
+  --color-accent: #b5471b;
+  --color-accent-hover: #943a16;
+  --color-accent-tint: rgba(181, 71, 27, 0.12);
+
+  --color-muted: rgba(2, 31, 49, 0.75);
   --color-border: rgba(35, 61, 77, 0.12);
   --color-navy-tint: rgba(35, 61, 77, 0.08);
-  --color-accent-tint: rgba(254, 127, 45, 0.14);
+
+  /* Status colors — unchanged, already WCAG-safe pairs */
+  --color-info-bg: #e6edf5;
+  --color-info-text: #1d4f7a;
+
+  --color-success-bg: #e2f0e5;
+  --color-success-text: #1f5c2e;
+
+  --color-warning-bg: var(--color-accent-tint);
+  --color-warning-text: var(--color-accent);
+
+  --color-danger-bg: #fbe2e0;
+  --color-danger-text: #8c2517;
 
   --sidebar-width: 240px;
 }
@@ -34,142 +51,6 @@ body {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-ink);
+  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 }
-
-.page-container {
-
-  min-height: 100vh;
-
-  background: #EAECF0;
-
-  padding: 40px;
-
-}
-
-
-.page-content {
-
-  max-width: 900px;
-
-  margin: auto;
-
-}
-
-
-.page-title {
-
-  color: #233D4D;
-
-  text-align: center;
-
-  font-size: 36px;
-
-  margin-bottom: 15px;
-
-}
-
-
-.page-subtitle {
-
-  text-align: center;
-
-  color: #555;
-
-  margin-bottom: 35px;
-
-}
-
-
-.card {
-
-  background: white;
-
-  border-radius: 18px;
-
-  padding: 35px;
-
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-
-}
-
-.role-badge {
-
-  position: fixed;
-
-  top: 20px;
-
-  right: 30px;
-
-  background: #233D4D;
-
-  color: white;
-
-  padding: 10px 22px;
-
-  border-radius: 20px;
-
-  font-weight: 600;
-
-  z-index: 50;
-
-
-}
-
-.admin-full-page {
-  min-height: 100vh;
-  background: #EAECF0;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.admin-header-banner {
-  background: var(--color-navy);
-  color: white;
-  padding: 25px 30px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  box-sizing: border-box;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.admin-header-banner {
-  background: var(--color-navy);
-  color: white;
-  padding: 25px 30px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  box-sizing: border-box;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.admin-header-banner h1 {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0;
-  color: white;
-}
-
-.admin-header-banner p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-}
-.admin-dashboard-body {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 25px 40px 25px;
-  box-sizing: border-box;
-}
-
