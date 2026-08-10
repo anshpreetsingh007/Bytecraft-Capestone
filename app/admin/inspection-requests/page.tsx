@@ -117,7 +117,17 @@ export default function InspectionRequestsPage() {
       return;
     }
     const inspectorId = parseInt(inspectorIdStr, 10);
-    
+    const selectedInsp = inspectors.find(i => i.id === inspectorId);
+    const inspName = selectedInsp ? `${selectedInsp.firstName} ${selectedInsp.lastName}` : `Inspector #${inspectorId}`;
+    const isReassign = !!request.inspector_id;
+
+    const confirmed = window.confirm(
+      isReassign
+        ? `Reassign this request to ${inspName}? The previous inspector will be removed.`
+        : `Assign ${inspName} to this inspection request?`
+    );
+    if (!confirmed) return;
+
     setAssigningId(request.request_id);
     try {
       const res = await fetch(`/api/inspection-requests/${request.request_id}`, {
@@ -131,7 +141,7 @@ export default function InspectionRequestsPage() {
 
       if (!res.ok) throw new Error(`Server returned ${res.status}`);
       
-      alert("Inspector assigned successfully!");
+      alert(isReassign ? "Inspector reassigned successfully!" : "Inspector assigned successfully!");
       loadRequests(filter);
     } catch (err) {
       console.error("Failed to assign inspector:", err);
@@ -202,14 +212,14 @@ export default function InspectionRequestsPage() {
                     </button>
                   )}
                   
-                  {!request.inspector_id && (
+                  {request.status !== "completed" && request.status !== "cancelled" && (
                     <div className="assign-group">
                       <select 
                         className="assign-select"
                         value={selectedInspectorId[request.request_id] || ""}
                         onChange={e => setSelectedInspectorId(prev => ({ ...prev, [request.request_id]: e.target.value }))}
                       >
-                        <option value="" disabled>Select Inspector</option>
+                        <option value="" disabled>{request.inspector_id ? "Change Inspector" : "Select Inspector"}</option>
                         {inspectors.map(insp => (
                           <option key={insp.id} value={insp.id}>
                             {insp.firstName} {insp.lastName}
@@ -221,7 +231,7 @@ export default function InspectionRequestsPage() {
                         disabled={assigningId === request.request_id || !selectedInspectorId[request.request_id]}
                         onClick={() => handleAssignInspector(request)}
                       >
-                        {assigningId === request.request_id ? "Assigning…" : "Assign"}
+                        {assigningId === request.request_id ? "Assigning…" : request.inspector_id ? "Reassign" : "Assign"}
                       </button>
                     </div>
                   )}

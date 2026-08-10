@@ -238,8 +238,11 @@ function CostEstimateContent() {
         throw new Error(`Server returned ${response.status}: ${await response.text()}`);
       }
 
+      alert(estimateId ? "Estimate updated successfully!" : "Estimate submitted successfully!");
+
       setSubmitted(true);
       setTimeout(() => {
+        // Redirect logic remains, but we also showed an alert above.
         router.push("/admin/estimates");
       }, 2000);
     } catch (err: any) {

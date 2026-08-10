@@ -57,9 +57,9 @@ export async function getRequestsByClient(clientId: number): Promise<InspectionR
 }
 
 // get by inspector
-export async function getRequestsByInspector(inspectorId: number): Promise<InspectionRequest[]> {
+export async function getRequestsByInspector(inspectorId: number): Promise<InspectionRequestWithDetails[]> {
     const result = await pool.query(
-        'SELECT * FROM inspection_request WHERE inspector_id = $1 ORDER BY request_id DESC',
+        `${REQUEST_WITH_DETAILS_SELECT} WHERE ir.inspector_id = $1 ORDER BY ir.request_id DESC`,
         [inspectorId]
     );
     return result.rows;

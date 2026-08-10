@@ -86,6 +86,7 @@ export default function EstimatesPage() {
           ? prev.filter((e) => e.estimate_id !== estimate.estimate_id)
           : prev.map((e) => (e.estimate_id === estimate.estimate_id ? { ...e, status: newStatus } : e))
       );
+      alert(newStatus === "approved" ? "Estimate approved successfully!" : "Estimate rejected successfully!");
     } catch (err) {
       console.error(`Failed to ${newStatus === "approved" ? "approve" : "reject"} estimate:`, err);
       alert("Something went wrong updating this estimate. Please try again.");
@@ -141,22 +142,26 @@ export default function EstimatesPage() {
 
                 <p className="estimate-details">{estimate.details}</p>
 
-                {estimate.status === "submitted" && (
-                  <div className="estimate-actions">
-                    <button
-                      className="btn-approve"
-                      disabled={isActioning}
-                      onClick={() => handleStatusChange(estimate, "approved")}
-                    >
-                      {isActioning ? "Working…" : "Approve"}
-                    </button>
-                    <button
-                      className="btn-reject"
-                      disabled={isActioning}
-                      onClick={() => handleStatusChange(estimate, "rejected")}
-                    >
-                      Reject
-                    </button>
+                <div className="estimate-actions">
+                  {estimate.status === "submitted" && (
+                    <>
+                      <button
+                        className="btn-approve"
+                        disabled={isActioning}
+                        onClick={() => handleStatusChange(estimate, "approved")}
+                      >
+                        {isActioning ? "Working…" : "Approve"}
+                      </button>
+                      <button
+                        className="btn-reject"
+                        disabled={isActioning}
+                        onClick={() => handleStatusChange(estimate, "rejected")}
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  {(estimate.status === "submitted" || estimate.status === "approved") && (
                     <Link
                       href={`/admin/cost-estimate?orderId=${estimate.order_id}&estimateId=${estimate.estimate_id}`}
                       className="btn-secondary"
@@ -164,8 +169,8 @@ export default function EstimatesPage() {
                     >
                       Edit
                     </Link>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
