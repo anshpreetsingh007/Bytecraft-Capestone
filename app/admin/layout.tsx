@@ -1,6 +1,6 @@
 "use client";
 import "../globals.css";
-import { LayoutDashboard, Package, Calculator, FileText } from "lucide-react";
+import { LayoutDashboard, Package, Calculator, FileText, BarChart3 } from "lucide-react";
 import { DashboardNav } from "../../components/DashboardNav";
 
 const adminNavItems = [
@@ -8,6 +8,7 @@ const adminNavItems = [
   { label: "Inventory", href: "/admin/inventory", icon: Package },
   { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
   { label: "Inspections", href: "/admin/inspection-requests", icon: FileText },
+  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
 ];
 
 export default function AdminLayout({
