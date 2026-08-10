@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import * as estimateService from '../services/estimate';
 
-// get all
+// GET ALL
 export async function getAll(req: Request, res: Response) {
     try {
         // req.query.status comes from the URL: /api/estimates?status=approved
@@ -15,7 +15,7 @@ export async function getAll(req: Request, res: Response) {
     }
 }
 
-// get by id
+//GET BY ID 
 export async function getById(req: Request, res: Response) {
     try {
         // req.params.id comes from the URL: /api/estimates/5
@@ -36,7 +36,7 @@ export async function getById(req: Request, res: Response) {
 
 
 
-// get by client
+//GET BY CLIENT
 export async function getByClient(req: Request, res: Response) {
     try {
         const clientId = parseInt(req.params.clientId as string);
@@ -48,11 +48,10 @@ export async function getByClient(req: Request, res: Response) {
     }
 }
 
-// create
 export async function create(req: Request, res: Response) {
     try {
         // req.body is the JSON the frontend sends in the POST request
-        const { order_id, inspector_id, admin_id, details, estimate_date, status, material_id, material_quantity } = req.body;
+        const { order_id, inspector_id, admin_id, details, estimate_date, status } = req.body;
 
         // Basic validation — make sure required fields are present
         if (!order_id || !inspector_id || !details || !estimate_date || !status) {
@@ -67,8 +66,6 @@ export async function create(req: Request, res: Response) {
             details,
             estimate_date,
             status,
-            material_id: material_id ?? null,
-            material_quantity: material_quantity ?? null,
         });
 
         // 201 = "Created" — the standard status code for successful resource creation
@@ -79,7 +76,7 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-// update
+
 export async function update(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -97,7 +94,7 @@ export async function update(req: Request, res: Response) {
     }
 }
 
-// update status
+
 export async function updateStatus(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -122,7 +119,7 @@ export async function updateStatus(req: Request, res: Response) {
     }
 }
 
-// delete
+// DELETE 
 export async function remove(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
