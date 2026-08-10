@@ -1,139 +1,172 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, FormEvent, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "../../Context/AuthContext";
-import "../auth-form.css";
+import { verifyPasswordResetCode, confirmPasswordReset } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+import { AuthLogo } from "../../components/AuthLogo";
+import { AuthHeroPanel } from "../../components/AuthHeroPanel";
+import { PasswordInput } from "../../components/PasswordInput";
+import { ThemeToggle } from "../../components/ThemeToggle";
+import "../../styles/auth.css";
 
-export default function ForgotPasswordPage() {
-  const { forgotPassword } = useAuth();
+function ResetPasswordContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const oobCode = searchParams.get("oobCode");
 
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [checkingCode, setCheckingCode] = useState(true);
+  const [codeValid, setCodeValid] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
-    event.preventDefault();
+  useEffect(() => {
+    if (!oobCode) {
+      setCheckingCode(false);
+      setCodeValid(false);
+      return;
+    }
 
-    setError(null);
-    setSuccess(false);
+    verifyPasswordResetCode(auth, oobCode)
+      .then((verifiedEmail) => {
+        setEmail(verifiedEmail);
+        setCodeValid(true);
+      })
+      .catch(() => {
+        setCodeValid(false);
+      })
+      .finally(() => {
+        setCheckingCode(false);
+      });
+  }, [oobCode]);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (!password || !confirmPassword) {
+      setError("Fill in both fields.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords don't match.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (!oobCode) return;
+
     setSubmitting(true);
-
     try {
-      await forgotPassword(email);
+      await confirmPasswordReset(auth, oobCode, password);
       setSuccess(true);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "We could not send the password reset email.";
-
-      setError(message);
+      setTimeout(() => router.push("/signin"), 2500);
+    } catch (err) {
+      setError("Something went wrong. The link may have expired — request a new one.");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <main className="auth-page">
-      <section
-        className="auth-card"
-        aria-labelledby="forgot-password-title"
-      >
-        <Link href="/signin" className="auth-back">
-          <span aria-hidden="true">←</span>
-          Back to sign in
-        </Link>
+    <div className="auth-shell">
+      <AuthHeroPanel
+        headline="Almost there."
+        subtext="Set a new password to get back into your account."
+      />
 
-        <div className="logo-container">
-          <img
-            src="/images/markit-roofing-white.jpg"
-            alt="Markit Roofing"
-            className="auth-logo"
-          />
+      <div className="auth-form-panel">
+        <div className="auth-theme-toggle">
+          <ThemeToggle />
         </div>
-
-        <h1
-          id="forgot-password-title"
-          className="auth-title"
-        >
-          Forgot Password
-        </h1>
-
-        <p className="auth-subtitle">
-          Enter your email address and we will send you
-          a link to reset your password.
-        </p>
-
-        {error && (
-          <div
-            className="auth-error"
-            role="alert"
-            aria-live="assertive"
-          >
-            {error}
+        <div className="auth-form-inner">
+          <div className="auth-logo-wrap">
+            <AuthLogo panel="form" />
           </div>
-        )}
 
-        {success && (
-          <div
-            className="auth-success"
-            role="status"
-            aria-live="polite"
-          >
-            Check your email for a password reset link.
-            The message may take a few minutes to arrive.
-          </div>
-        )}
+          {checkingCode && <p className="auth-form-subtitle">Checking your reset link...</p>}
 
-        {!success && (
-          <form
-            className="auth-form"
-            onSubmit={handleSubmit}
-          >
-            <div className="auth-field">
-              <label htmlFor="reset-email">
-                Email
-              </label>
+          {!checkingCode && !codeValid && (
+            <>
+              <h1 className="auth-form-title">Link expired</h1>
+              <p className="auth-form-subtitle">
+                This password reset link is invalid or has expired.
+              </p>
+              <Link
+                href="/forgot-password"
+                className="auth-submit"
+                style={{ display: "block", textAlign: "center", textDecoration: "none" }}
+              >
+                Request a new link
+              </Link>
+            </>
+          )}
 
-              <input
-                id="reset-email"
-                name="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(event) =>
-                  setEmail(event.target.value)
-                }
-                required
-              />
-            </div>
+          {!checkingCode && codeValid && !success && (
+            <>
+              <h1 className="auth-form-title">Set a new password</h1>
+              <p className="auth-form-subtitle">Resetting password for {email}.</p>
 
-            <button
-              type="submit"
-              className="auth-submit"
-              disabled={submitting}
-              aria-busy={submitting}
-            >
-              {submitting
-                ? "Sending reset link…"
-                : "Send Reset Link"}
-            </button>
-          </form>
-        )}
+              {error && (
+                <div className="auth-error" role="alert" aria-live="assertive">
+                  {error}
+                </div>
+              )}
 
-        <p className="auth-switch">
-          Remembered your password?{" "}
-          <Link href="/signin">
-            Sign In
-          </Link>
-        </p>
-      </section>
-    </main>
+              <form onSubmit={handleSubmit} noValidate>
+                <div className="auth-field">
+                  <label htmlFor="password">New password</label>
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={setPassword}
+                    autoComplete="new-password"
+                  />
+                </div>
+
+                <div className="auth-field">
+                  <label htmlFor="confirmPassword">Confirm new password</label>
+                  <PasswordInput
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={setConfirmPassword}
+                    autoComplete="new-password"
+                  />
+                </div>
+
+                <button type="submit" className="auth-submit" disabled={submitting} aria-busy={submitting}>
+                  {submitting ? "Saving..." : "Save new password"}
+                </button>
+              </form>
+            </>
+          )}
+
+          {success && (
+            <>
+              <h1 className="auth-form-title">Password updated</h1>
+              <div className="auth-success" role="status" aria-live="polite">
+                Redirecting you to sign in...
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="auth-shell" />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

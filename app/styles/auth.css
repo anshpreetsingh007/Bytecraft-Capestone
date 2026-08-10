@@ -1,0 +1,438 @@
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.auth-hero-panel {
+    display: none;
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0c2d4a, #1f5c99);
+    min-width: 0;
+}
+
+.auth-hero-tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            rgba(12, 45, 74, 0.55) 0%,
+            rgba(12, 45, 74, 0.85) 100%);
+}
+
+.auth-hero-illustration {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.auth-hero-text {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 56px;
+    box-sizing: border-box;
+}
+
+.auth-hero-text h2 {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 12px;
+    max-width: 360px;
+}
+
+.auth-hero-text p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 340px;
+}
+
+/* --- Right: form panel --- */
+
+.auth-form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #ffffff;
+    /* Same min-width fix — this was the actual cause of the horizontal
+       overflow on narrow screens. */
+    min-width: 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.auth-theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.auth-form-inner {
+    width: 100%;
+    max-width: 380px;
+    /* auth-form-inner is itself a flex item of auth-form-panel, so it
+       needs the same override, or it can still refuse to shrink below its
+       content's natural width. */
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.auth-logo-wrap {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-logo-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: #0c2d4a;
+    border-radius: 8px;
+}
+
+.auth-logo-img {
+    display: block;
+    height: auto;
+    max-width: 100%;
+}
+
+.auth-form-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0c2d4a;
+    margin: 0 0 6px;
+}
+
+.auth-form-subtitle {
+    font-size: 14px;
+    color: #4a5c6e;
+    margin: 0 0 32px;
+}
+
+.auth-field {
+    margin-bottom: 18px;
+}
+
+.auth-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0c2d4a;
+    margin-bottom: 6px;
+}
+
+.auth-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 14px;
+    border: 1.5px solid #d2dbe4;
+    border-radius: 8px;
+    background: #f7f9fb;
+    color: #0c2d4a;
+}
+
+.auth-field input:focus {
+    outline: none;
+    border-color: #1f5c99;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(31, 92, 153, 0.15);
+}
+
+/* Per-field error state and message, matching the field-level validation
+   pattern used in sign-up/reset. */
+.auth-field input[aria-invalid="true"] {
+    border-color: #d64545;
+    background: #fdf4f3;
+}
+
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #8c2517;
+    margin: 6px 0 0;
+}
+
+.auth-help {
+    font-size: 12.5px;
+    color: #6b7c8c;
+    margin: 6px 0 0;
+}
+
+.auth-password-wrap {
+    position: relative;
+}
+
+.auth-password-wrap input {
+    padding-right: 44px;
+}
+
+.auth-password-toggle {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #6b7c8c;
+    display: flex;
+    align-items: center;
+}
+
+.auth-password-toggle:hover {
+    color: #1f5c99;
+}
+
+.auth-forgot-link {
+    display: block;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f5c99;
+    text-decoration: none;
+    margin: -8px 0 20px;
+}
+
+.auth-forgot-link:hover {
+    text-decoration: underline;
+}
+
+.auth-error {
+    background: #fdecea;
+    border: 1px solid #f3c3bd;
+    color: #8c2517;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+}
+
+.auth-success {
+    background: #e6f1e9;
+    border: 1px solid #b7dcc1;
+    color: #1f5c2e;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 13px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #0c2d4a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.auth-submit:hover {
+    background: #123a5c;
+}
+
+.auth-submit:disabled {
+    background: #9aa9b6;
+    cursor: not-allowed;
+}
+
+.auth-switch {
+    text-align: center;
+    font-size: 13px;
+    color: #4a5c6e;
+    margin-top: 24px;
+}
+
+.auth-switch a {
+    color: #1f5c99;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.auth-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5c6e;
+    text-decoration: none;
+    margin-bottom: 24px;
+}
+
+.auth-back-link:hover {
+    color: #0c2d4a;
+}
+@media (min-width: 900px) {
+    .auth-hero-panel {
+        display: block;
+    }
+}
+
+@media (max-width: 899px) {
+    .auth-form-panel {
+        align-items: flex-start;
+        padding: 32px 20px;
+        min-height: 100vh;
+    }
+}
+
+/* --- Password show/hide toggle --- */
+
+.password-input-wrap {
+    position: relative;
+}
+
+.password-input-wrap input {
+    padding-right: 44px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #7a8a99;
+    cursor: pointer;
+    display: flex;
+    padding: 4px;
+}
+
+.password-toggle:hover {
+    color: #0c2d4a;
+}
+
+.dark .auth-form-panel {
+    background: #121212;
+    box-shadow: -1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .auth-form-title {
+    color: #f5f5f5;
+    /* 17.18:1 on #121212 */
+}
+
+.dark .auth-form-subtitle,
+.dark .auth-switch,
+.dark .auth-help {
+    color: #a8a8a8;
+    /* 7.88:1 on #121212 */
+}
+
+.dark .auth-field label {
+    color: #f5f5f5;
+}
+
+.dark .auth-field input {
+    background: #1e1e1e;
+    border-color: #333333;
+    color: #f5f5f5;
+    /* 15.29:1 on #1e1e1e */
+}
+
+.dark .auth-field input:focus {
+    border-color: #ff8f4d;
+    background: #232323;
+    box-shadow: 0 0 0 3px rgba(255, 143, 77, 0.2);
+}
+
+.dark .auth-field input[aria-invalid="true"] {
+    border-color: #ff9d8a;
+    background: #2a1714;
+}
+
+.dark .field-error {
+    color: #ff9d8a;
+}
+
+.dark .auth-password-toggle,
+.dark .password-toggle {
+    color: #a8a8a8;
+}
+
+.dark .auth-password-toggle:hover,
+.dark .password-toggle:hover {
+    color: #f5f5f5;
+}
+
+.dark .auth-forgot-link,
+.dark .auth-switch a {
+    color: #ff8f4d;
+    /* 8.29:1 on #121212 */
+}
+
+.dark .auth-error {
+    background: #3a1a16;
+    border-color: #5c2b23;
+    color: #ff9d8a;
+    /* 7.80:1 */
+}
+
+.dark .auth-success {
+    background: #123322;
+    border-color: #1f5237;
+    color: #8fe0b0;
+    /* 8.84:1 */
+}
+
+.dark .auth-submit {
+    background: #ff8f4d;
+    color: #121212;
+}
+
+.dark .auth-submit:hover {
+    background: #ffab73;
+}
+
+.dark .auth-submit:disabled {
+    background: #3a3a3a;
+    color: #808080;
+}
+
+.dark .auth-back-link {
+    color: #a8a8a8;
+}
+
+.dark .auth-back-link:hover {
+    color: #f5f5f5;
+}
+
+.dark .auth-hero-tint {
+    background: linear-gradient(180deg,
+            rgba(10, 10, 10, 0.45) 0%,
+            rgba(10, 10, 10, 0.82) 100%);
+}

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import "../app/globals.css";
 import { Providers } from "./providers";
@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   description: "Authentication App",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export default function RootLayout({
   children,
