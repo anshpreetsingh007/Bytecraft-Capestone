@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import RoofLine from "../components/RoofLine";
+import { useAuth } from "../../../Context/AuthContext";
 
 interface Estimate {
   estimate_id: number;
@@ -25,8 +26,6 @@ const statusStyles: Record<string, string> = {
 function statusClass(status: string) {
   return statusStyles[status?.toLowerCase()] ?? "bg-paper-dim text-ink-soft border-line";
 }
-
-import { useAuth } from "../../../Context/AuthContext";
 
 export default function EstimatePage() {
   const { userId } = useAuth();
@@ -71,7 +70,7 @@ export default function EstimatePage() {
     <>
       <section className="bg-navy text-white pt-[72px] pb-14">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white block mb-3">
             View Estimate
           </span>
           <h1 className="text-white text-[2rem] sm:text-[2.9rem] max-w-[20ch]">
@@ -118,7 +117,7 @@ export default function EstimatePage() {
                       {estimate.first_name} {estimate.last_name}
                     </h3>
                     <span
-                      className={`font-mono text-[0.72rem] uppercase tracking-wider border px-2.5 py-1 rounded-[3px] ${statusClass(
+                      className={`text-[0.72rem] font-semibold uppercase tracking-wider border px-2.5 py-1 rounded-[3px] ${statusClass(
                         estimate.status
                       )}`}
                     >

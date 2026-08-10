@@ -13,15 +13,15 @@ const infoBlocks = [
     title: "Phone",
     body: (
       <>
-        <a href="tel:+14036336300" className="hover:text-copper block">Calgary: (403) 633-6300</a>
-        <a href="tel:+17802575220" className="hover:text-copper block">Edmonton: (780) 257-5220</a>
+        <a href="tel:+14036336300" className="hover:text-navy dark:hover:text-copper block">Calgary: (403) 633-6300</a>
+        <a href="tel:+17802575220" className="hover:text-navy dark:hover:text-copper block">Edmonton: (780) 257-5220</a>
       </>
     ),
     icon: <path d="M5 4H9L11 9L8.5 10.5C9.5 12.5 11.5 14.5 13.5 15.5L15 13L20 15V19C20 20 19 21 18 21C10 21 3 14 3 6C3 5 4 4 5 4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />,
   },
   {
     title: "Email",
-    body: <a href="mailto:info@markitroofing.ca" className="hover:text-copper">info@markitroofing.ca</a>,
+    body: <a href="mailto:info@markitroofing.ca" className="hover:text-navy dark:hover:text-copper">info@markitroofing.ca</a>,
     icon: (
       <>
         <rect x="3" y="5" width="18" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -56,7 +56,7 @@ export default function Contact() {
     <>
       <section className="bg-navy text-white pt-[72px] pb-14">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">Contact</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white block mb-3">Contact</span>
           <h1 className="text-white text-[2rem] sm:text-[2.9rem] max-w-[20ch]">Let&apos;s talk about your roof</h1>
           <p className="text-navy-soft max-w-[50ch] mt-4 mb-0">
             Fill out the form and we&apos;ll follow up within one business day, or call us directly during business hours.
@@ -79,7 +79,7 @@ export default function Contact() {
                     i === infoBlocks.length - 1 ? "border-b" : ""
                   }`}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" className="w-[22px] h-[22px] text-copper shrink-0 mt-0.5">
+                  <svg viewBox="0 0 24 24" fill="none" className="w-[22px] h-[22px] text-navy dark:text-copper shrink-0 mt-0.5">
                     {block.icon}
                   </svg>
                   <div>

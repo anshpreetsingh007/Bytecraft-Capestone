@@ -3,11 +3,11 @@ import Logo from "./Logo";
 
 export default function Footer() {
   return (
-    <footer className="bg-navy text-navy-soft pt-14 pb-7">
+    <footer className="bg-navy dark:bg-background text-navy-soft pt-14 pb-7">
       <div className="max-w-[1120px] mx-auto px-7">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div className="col-span-2 md:col-span-1">
-            <Logo dark />
+            <Logo />
             <p className="text-navy-faint text-sm max-w-[32ch] mt-3.5">
               Residential and commercial roofing, done right and backed by a
               real warranty.

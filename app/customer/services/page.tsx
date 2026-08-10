@@ -68,7 +68,7 @@ export default function Services() {
     <>
       <section className="bg-navy text-white pt-[72px] pb-14">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">Services</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white block mb-3">Services</span>
           <h1 className="text-white text-[2rem] sm:text-[2.9rem] max-w-[20ch]">Every roofing job, one accountable crew</h1>
           <p className="text-navy-soft max-w-[50ch] mt-4 mb-0">
             From a single leak to a full commercial re-roof, we scope the job honestly and put it in writing before we start.
@@ -83,7 +83,7 @@ export default function Services() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {services.map((s) => (
               <div key={s.title} className="bg-background border border-line rounded-[3px] p-8 hover:border-copper hover:-translate-y-0.5 transition-all">
-                <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 mb-[18px] text-copper">{s.icon}</svg>
+                <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 mb-[18px] text-navy dark:text-copper">{s.icon}</svg>
                 <h3 className="text-[1.15rem] mb-2">{s.title}</h3>
                 <p className="text-ink-soft text-[0.96rem] mb-0">{s.body}</p>
               </div>
@@ -95,7 +95,7 @@ export default function Services() {
       <section className="bg-paper-dim py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="max-w-[60ch] mb-12">
-            <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">Materials</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-navy dark:text-copper block mb-3">Materials</span>
             <h2 className="text-[1.7rem] sm:text-[2.3rem]">Choose the roofing system that fits your home</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,7 +115,7 @@ export default function Services() {
           <p className="text-navy-soft max-w-[50ch] mx-auto mt-4 mb-8">
             Tell us what&apos;s going on and we&apos;ll point you toward the right fix — no obligation.
           </p>
-          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-black font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Talk to a Roofer
           </Link>
         </div>

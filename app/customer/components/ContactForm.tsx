@@ -5,30 +5,83 @@ import type { SyntheticEvent } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../Context/AuthContext";
 
+
+const NAME_ALLOWED = /[^a-zA-Z\s'-]/g;
+const PHONE_ALLOWED = /[^0-9]/g;
+
+function handleNameInput(e: React.FormEvent<HTMLInputElement>) {
+  const input = e.currentTarget;
+  const cleaned = input.value.replace(NAME_ALLOWED, "");
+  if (cleaned !== input.value) input.value = cleaned;
+}
+
+function handlePhoneInput(e: React.FormEvent<HTMLInputElement>) {
+  const input = e.currentTarget;
+  const cleaned = input.value.replace(PHONE_ALLOWED, "");
+  if (cleaned !== input.value) input.value = cleaned;
+}
+
+type FormErrors = {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  service?: string;
+};
+
 export default function ContactForm() {
   const { currentUser, role, userId, firstName, lastName } = useAuth();
 
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
 
   // inspection_request.client_id is a real foreign key to the client table,
   // so we need an actual signed-in client — not just "someone is logged in."
   const isSignedInClient = !!currentUser && role === "client" && userId !== null;
 
+  function clearFieldError(field: keyof FormErrors) {
+    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+  }
+
+  function validate(formData: FormData): FormErrors {
+    const errors: FormErrors = {};
+    if (!(formData.get("name") as string)?.trim()) {
+      errors.name = "Please enter your name.";
+    }
+    if (!(formData.get("phone") as string)?.trim()) {
+      errors.phone = "Please enter your phone number.";
+    }
+    if (!(formData.get("email") as string)?.trim()) {
+      errors.email = "Please enter your email.";
+    }
+    if (!(formData.get("address") as string)?.trim()) {
+      errors.address = "Please enter your property address.";
+    }
+    if (!(formData.get("service") as string)?.trim()) {
+      errors.service = "Please let us know what you need.";
+    }
+    return errors;
+  }
+
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    if (!form.checkValidity()) {
-      form.reportValidity();
+    const formData = new FormData(form);
+
+    const errors = validate(formData);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
+    setFieldErrors({});
+
     if (!isSignedInClient) return; // the gate below should prevent this, but just in case
 
     setIsSubmitting(true);
     setError(null);
 
-    const formData = new FormData(form);
     const phone = (formData.get("phone") as string) || "";
     const address = (formData.get("address") as string) || "";
     const service = (formData.get("service") as string) || "";
@@ -100,34 +153,68 @@ export default function ContactForm() {
       )}
       <form onSubmit={handleSubmit} noValidate>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Field label="Full name" htmlFor="name">
+          <Field label="Full name" htmlFor="name" error={fieldErrors.name}>
             <input
               type="text"
               id="name"
               name="name"
-              required
               defaultValue={firstName && lastName ? `${firstName} ${lastName}` : ""}
+              onInput={(e) => { handleNameInput(e); clearFieldError("name"); }}
+              pattern="[A-Za-z\s'-]*"
+              title="Letters only, please — no numbers or symbols."
+              aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={fieldErrors.name ? "name-error" : undefined}
               className={inputClass}
             />
           </Field>
-          <Field label="Phone" htmlFor="phone">
-            <input type="tel" id="phone" name="phone" required className={inputClass} />
+          <Field label="Phone" htmlFor="phone" error={fieldErrors.phone}>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              onInput={(e) => { handlePhoneInput(e); clearFieldError("phone"); }}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              title="Numbers only, please."
+              aria-invalid={Boolean(fieldErrors.phone)}
+              aria-describedby={fieldErrors.phone ? "phone-error" : undefined}
+              className={inputClass}
+            />
           </Field>
-          <Field label="Email" htmlFor="email" full>
+          <Field label="Email" htmlFor="email" full error={fieldErrors.email}>
             <input
               type="email"
               id="email"
               name="email"
-              required
               defaultValue={currentUser?.email ?? ""}
+              onChange={() => clearFieldError("email")}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
               className={inputClass}
             />
           </Field>
-          <Field label="Property address" htmlFor="address" full>
-            <input type="text" id="address" name="address" placeholder="Street, city, state" className={inputClass} />
+          <Field label="Property address" htmlFor="address" full error={fieldErrors.address}>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              placeholder="Street, city, state"
+              onChange={() => clearFieldError("address")}
+              aria-invalid={Boolean(fieldErrors.address)}
+              aria-describedby={fieldErrors.address ? "address-error" : undefined}
+              className={inputClass}
+            />
           </Field>
-          <Field label="What do you need?" htmlFor="service" full>
-            <select id="service" name="service" className={inputClass} defaultValue="">
+          <Field label="What do you need?" htmlFor="service" full error={fieldErrors.service}>
+            <select
+              id="service"
+              name="service"
+              defaultValue=""
+              onChange={() => clearFieldError("service")}
+              aria-invalid={Boolean(fieldErrors.service)}
+              aria-describedby={fieldErrors.service ? "service-error" : undefined}
+              className={inputClass}
+            >
               <option value="">Select a service</option>
               <option>Roof Replacement</option>
               <option>Roof Repair / Leak</option>
@@ -150,7 +237,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors disabled:opacity-60"
+          className="inline-flex items-center bg-copper hover:bg-copper-dark text-black font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors disabled:opacity-60"
         >
           {isSubmitting ? "Submitting…" : "Request Free Quote"}
         </button>
@@ -166,19 +253,26 @@ function Field({
   label,
   htmlFor,
   full = false,
+  error,
   children,
 }: {
   label: string;
   htmlFor: string;
   full?: boolean;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className={`flex flex-col gap-2 mb-5 ${full ? "sm:col-span-2" : ""}`}>
-      <label htmlFor={htmlFor} className="font-mono text-[0.74rem] uppercase tracking-wider text-ink-soft">
+      <label htmlFor={htmlFor} className="text-[0.74rem] font-semibold uppercase tracking-wider text-ink-soft">
         {label}
       </label>
       {children}
+      {error && (
+        <p id={`${htmlFor}-error`} role="alert" className="text-[0.82rem] font-medium text-[#7A2E2E] dark:text-[#F87171] m-0">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

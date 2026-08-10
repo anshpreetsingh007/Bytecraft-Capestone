@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import "../app/globals.css";
 import { Providers } from "./providers";
+import Chatbot from "../components/Chatbot";
 
 export const metadata: Metadata = {
   title: "Markit-Roofing",
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Chatbot />
+        </Providers>
       </body>
     </html>
   );

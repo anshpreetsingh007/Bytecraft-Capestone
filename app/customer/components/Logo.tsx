@@ -1,33 +1,38 @@
-import Link from "next/link";
+"use client";
 
-export default function Logo({ dark = false }: { dark?: boolean }) {
+import Image from "next/image";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+
+const COLOR_LOGO = "/images/SuperMarkit_color.png"; 
+const WHITE_LOGO = "/images/SuperMarkit_transparent.png";
+
+export default function Logo() {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div style={{ width: 140, height: 34 }} aria-hidden="true" />;
+  }
+
+  const src = resolvedTheme === "dark" ? WHITE_LOGO : COLOR_LOGO;
+
   return (
-    <Link
-      href="/customer"
-      className={`font-display font-bold text-xl tracking-tight flex items-center gap-2.5 ${
-        dark ? "text-white" : "text-foreground"
-      }`}
-    >
-      <svg
-        viewBox="0 0 22 18"
-        fill="none"
-        className="w-[22px] h-[18px] shrink-0"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M1 17L11 1L21 17"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M6 17V10H16V17"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-      </svg>
-      Markit Roofing
+    <Link href="/customer" className="flex items-center shrink-0" aria-label="Markit Roofing home">
+
+      <Image
+        src={src}
+        alt="Markit Roofing"
+        width={100}
+        height={88}
+        className="h-8 w-auto"
+        priority
+      />
     </Link>
   );
 }

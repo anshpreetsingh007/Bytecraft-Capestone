@@ -27,7 +27,7 @@ export default function About() {
     <>
       <section className="bg-navy text-white pt-[72px] pb-14">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">About Us</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white block mb-3">About Us</span>
           <h1 className="text-white text-[2rem] sm:text-[2.9rem] max-w-[20ch]">A roofing crew that answers the phone</h1>
           <p className="text-navy-soft max-w-[50ch] mt-4 mb-0">
             Markit Roofing started in Calgary as a three-person crew and grew into a 50+ person team serving Calgary, Edmonton, and the surrounding communities — without losing the habit of showing up when we say we will.
@@ -36,29 +36,27 @@ export default function About() {
       </section>
 
       <RoofLine />
+      
 
-      <section className="py-16">
-        <div className="max-w-[1120px] mx-auto px-7">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-y border-line py-9">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 border-y border-line py-10">
             {[
               ["13+", "Years in business"],
-              ["50+", "Full-time crew"],
+              ["50+", "Team members"],
               ["2", "Alberta offices"],
-              ["24/7", "Emergency response"],
             ].map(([num, label]) => (
               <div key={label} className="text-center">
-                <div className="font-display font-bold text-[2.1rem] text-foreground">{num}</div>
-                <div className="font-mono text-[0.72rem] uppercase tracking-wider text-ink-soft">{label}</div>
+                <div className="font-bold text-[2.3rem] text-foreground leading-none">
+                  {num}
+                </div>
+                <p className="text-ink-soft mt-2">{label}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
       <section className="bg-paper-dim py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="max-w-[60ch] mb-12">
-            <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">Our Approach</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-navy dark:text-copper block mb-3">Our Approach</span>
             <h2 className="text-[1.7rem] sm:text-[2.3rem]">What we believe about roofing work</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -75,14 +73,14 @@ export default function About() {
       <section className="py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="max-w-[60ch] mb-12">
-            <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">Our Story</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-navy dark:text-copper block mb-3">Our Story</span>
             <h2 className="text-[1.7rem] sm:text-[2.3rem]">How Markit Roofing got here</h2>
           </div>
           <div className="border-l-2 border-line pl-7 ml-1.5">
             {timeline.map((item, i) => (
               <div key={item.year} className={`relative ${i === timeline.length - 1 ? "pb-0" : "pb-9"}`}>
-                <span className="absolute -left-[33px] top-1 w-2.5 h-2.5 rounded-full bg-copper" />
-                <span className="font-mono text-[0.8rem] text-copper block mb-1.5">{item.year}</span>
+                <span className="absolute -left-[33px] top-1 w-2.5 h-2.5 rounded-full bg-navy dark:bg-copper" />
+                <span className="text-[0.8rem] font-semibold text-navy dark:text-copper block mb-1.5">{item.year}</span>
                 <h3 className="text-[1.1rem] mb-1">{item.title}</h3>
                 <p className="text-ink-soft mb-0">{item.body}</p>
               </div>
@@ -97,7 +95,7 @@ export default function About() {
           <p className="text-navy-soft max-w-[50ch] mx-auto mt-4 mb-8">
             Reach out for a free estimate — we&apos;ll walk the roof with you and explain exactly what we find.
           </p>
-          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-black font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Request Your Free Quote
           </Link>
         </div>
