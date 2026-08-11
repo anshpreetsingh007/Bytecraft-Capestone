@@ -1,32 +1,51 @@
 @import "tailwindcss";
-
+@custom-variant dark (&:where(.dark, .dark *));
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  --font-mono: var(--font-geist-mono);
-
-  --color-bg: #eaecf0;
-  --color-surface: #ffffff;
-  --color-ink: #000000;
   --color-navy: #233d4d;
-  --color-accent: #fe7f2d;
 
-  --color-muted: rgba(35, 61, 77, 0.6);
-  --color-border: rgba(35, 61, 77, 0.12);
-  --color-navy-tint: rgba(35, 61, 77, 0.08);
-  --color-accent-tint: rgba(254, 127, 45, 0.14);
+  --color-ink: #101828;
+  --color-muted: #475467;
 
-  --sidebar-width: 270px;
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;
+
+  /* Accessible orange text */
+  --color-copper: #b54708;
+  --color-copper-hover: #93370d;
+
+  /* Bright orange for decorative/filled UI */
+  --color-orange-bright: #ff7a1a;
+
+  --color-on-navy: #ffffff;
+  --color-on-navy-muted: #dbeafe;
+
+  --color-border: #d0d5dd;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-ink: #ffffff;
+  --color-navy: #1f2937;
+  --color-accent: #fe7f2d;
+
+  --color-muted: rgba(255, 255, 255, 0.6);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-navy-tint: rgba(255, 255, 255, 0.08);
+  --color-accent-tint: rgba(254, 127, 45, 0.14);
+}
+
+@theme {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-navy: var(--color-navy);
+  --color-accent: var(--color-accent);
+  --color-muted: var(--color-muted);
+  --color-border: var(--color-border);
 }
 
 body {
@@ -34,6 +53,7 @@ body {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-ink);
+  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -113,4 +133,79 @@ body {
 
   z-index: 50;
 
+
+}
+
+.admin-full-page {
+  min-height: 100vh;
+  background: #EAECF0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-header-banner {
+  background: var(--color-navy);
+  color: white;
+  padding: 25px 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.admin-header-banner {
+  background: var(--color-navy);
+  color: white;
+  padding: 25px 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.admin-header-banner h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.admin-header-banner p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.admin-dashboard-body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 25px 40px 25px;
+  box-sizing: border-box;
+}
+
+.page-transition {
+  animation: fadeInSlideUp 0.35s ease-out forwards;
+}
+
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -1,74 +1,176 @@
 "use client";
 
-import InspectorSidebar from "@/components/InspectorSidebar";
-import "./cost-estimate.css";
-
+import { useState } from "react";
+import "../styles/inspector.css";
 
 export default function CostEstimatePage() {
+  const [estimateDate, setEstimateDate] = useState("");
+  const [materialCost, setMaterialCost] = useState("");
+  const [labourCost, setLabourCost] = useState("");
+  const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
 
-return (
+  function handleGenerateEstimate() {
+    setError("");
 
-<main className="estimate-page">
+    const material = Number(materialCost);
+    const labour = Number(labourCost);
 
-<InspectorSidebar />
+    if (!estimateDate) {
+      setError("Please select an estimate date.");
+      return;
+    }
 
-<section className="estimate-content">
+    if (!materialCost || !labourCost) {
+      setError("Please enter both material and labour costs.");
+      return;
+    }
 
-<h1>
-Cost Estimate
-</h1>
+    if (
+      Number.isNaN(material) ||
+      Number.isNaN(labour)
+    ) {
+      setError("Please enter valid dollar amounts.");
+      return;
+    }
 
-<p>
-Create an estimate for the inspection.
-</p>
+    if (material < 0 || labour < 0) {
+      setError("Costs cannot be negative.");
+      return;
+    }
 
+    const total = material + labour;
 
-<div className="estimate-card">
+    console.log({
+      estimateDate,
+      materialCost: material,
+      labourCost: labour,
+      total,
+      notes,
+    });
+  }
 
+  return (
+    <main className="estimate-page">
+      <section className="estimate-content">
+        <div className="estimate-heading">
+          <h1>Cost Estimate</h1>
 
-<label>
-Material Cost
-</label>
+          <p>
+            Create an estimate for the inspection.
+          </p>
+        </div>
 
-<input
-type="number"
-placeholder="Enter material cost"
-/>
+        <div className="estimate-card">
+          {error && (
+            <p
+              className="estimate-error"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
 
+          {/* Date */}
 
+          <label htmlFor="estimateDate">
+            Estimate Date
+          </label>
 
-<label>
-Labour Cost
-</label>
+          <div className="date-input-wrapper">
+            <input
+              id="estimateDate"
+              name="estimateDate"
+              type="date"
+              value={estimateDate}
+              onChange={(event) =>
+                setEstimateDate(event.target.value)
+              }
+            />
+          </div>
 
-<input
-type="number"
-placeholder="Enter labour cost"
-/>
+          {/* Material Cost */}
 
+          <label htmlFor="materialCost">
+            Material Cost
+          </label>
 
+          <div className="currency-input">
+            <span
+              className="currency-symbol"
+              aria-hidden="true"
+            >
+              $
+            </span>
 
-<label>
-Additional Notes
-</label>
+            <input
+              id="materialCost"
+              name="materialCost"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              value={materialCost}
+              onChange={(event) =>
+                setMaterialCost(event.target.value)
+              }
+            />
+          </div>
 
-<textarea
-placeholder="Enter notes"
-/>
+          {/* Labour Cost */}
 
+          <label htmlFor="labourCost">
+            Labour Cost
+          </label>
 
-<button>
-Generate Estimate
-</button>
+          <div className="currency-input">
+            <span
+              className="currency-symbol"
+              aria-hidden="true"
+            >
+              $
+            </span>
 
+            <input
+              id="labourCost"
+              name="labourCost"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              value={labourCost}
+              onChange={(event) =>
+                setLabourCost(event.target.value)
+              }
+            />
+          </div>
 
-</div>
+          {/* Notes */}
 
+          <label htmlFor="notes">
+            Additional Notes
+          </label>
 
-</section>
+          <textarea
+            id="notes"
+            name="notes"
+            placeholder="Enter notes"
+            value={notes}
+            onChange={(event) =>
+              setNotes(event.target.value)
+            }
+          />
 
-</main>
-
-);
-
+          <button
+            type="button"
+            onClick={handleGenerateEstimate}
+          >
+            Generate Estimate
+          </button>
+        </div>
+      </section>
+    </main>
+  );
 }

@@ -9,6 +9,8 @@ const emptyForm = {
   quantity: "",
   unit: "",
   reorderThreshold: "",
+  cost: "",
+  coverageSqft: "",
 };
 
 const statusClassMap: Record<string, string> = {
@@ -16,6 +18,10 @@ const statusClassMap: Record<string, string> = {
   "Low Stock": "status-low",
   "Out of Stock": "status-out",
 };
+
+function formatCurrency(value: number): string {
+  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
 
 export default function InventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -30,7 +36,7 @@ export default function InventoryPage() {
 
   async function fetchInventory() {
     try {
-      const res = await fetch("http://localhost:3003/api/inventory");
+      const res = await fetch("/api/inventory");
       if (res.ok) {
         const data = await res.json();
         setItems(data);
@@ -64,6 +70,8 @@ export default function InventoryPage() {
       quantity: String(item.quantity),
       unit: item.unit,
       reorderThreshold: String(item.reorderThreshold),
+      cost: item.unitCost != null ? String(item.unitCost) : "",
+      coverageSqft: item.coverageSqft != null ? String(item.coverageSqft) : "1",
     });
     setFormOpen(true);
   }
@@ -81,6 +89,8 @@ export default function InventoryPage() {
 
     const quantityNum = parseInt(form.quantity, 10) || 0;
     const thresholdNum = parseInt(form.reorderThreshold, 10) || 0;
+    const costNum = parseFloat(form.cost) || 0;
+    const coverageNum = parseFloat(form.coverageSqft) || 1.0;
 
     const payload = {
       name: form.name,
@@ -88,11 +98,13 @@ export default function InventoryPage() {
       quantity: quantityNum,
       unit: form.unit,
       reorderThreshold: thresholdNum,
+      unitCost: costNum,
+      coverageSqft: coverageNum,
     };
 
     try {
       if (editingId) {
-        const res = await fetch(`http://localhost:3003/api/inventory/${editingId}`, {
+        const res = await fetch(`/api/inventory/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -102,7 +114,7 @@ export default function InventoryPage() {
           setItems((prev) => prev.map((item) => (item.id === editingId ? updated : item)));
         }
       } else {
-        const res = await fetch("http://localhost:3003/api/inventory", {
+        const res = await fetch("/api/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -121,7 +133,7 @@ export default function InventoryPage() {
 
   async function handleDelete(id: string) {
     try {
-      const res = await fetch(`http://localhost:3003/api/inventory/${id}`, {
+      const res = await fetch(`/api/inventory/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -208,6 +220,30 @@ export default function InventoryPage() {
                 placeholder="0"
               />
             </div>
+            <div className="form-field">
+              <label htmlFor="cost">Cost per Unit ($)</label>
+              <input
+                id="cost"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.cost}
+                onChange={(e) => setForm({ ...form, cost: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="coverageSqft">Coverage per Unit (sqft)</label>
+              <input
+                id="coverageSqft"
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={form.coverageSqft}
+                onChange={(e) => setForm({ ...form, coverageSqft: e.target.value })}
+                placeholder="e.g. 33.3"
+              />
+            </div>
           </div>
           <div className="form-actions">
             <button className="btn-secondary" onClick={closeForm} type="button">
@@ -226,6 +262,7 @@ export default function InventoryPage() {
           <span>Category</span>
           <span>Quantity</span>
           <span>Status</span>
+          <span>Cost</span>
           <span></span>
         </div>
 
@@ -242,6 +279,9 @@ export default function InventoryPage() {
                   {item.quantity} {item.unit}
                 </span>
                 <span className={`status-badge ${statusClassMap[status]}`}>{status}</span>
+                <span className="item-cost">
+                  {item.unitCost != null ? formatCurrency(Number(item.unitCost)) : "—"}
+                </span>
                 <span className="row-actions">
                   <button className="link-btn" onClick={() => openEditForm(item)} type="button">
                     Edit
@@ -262,3 +302,4 @@ export default function InventoryPage() {
     </div>
   );
 }
+

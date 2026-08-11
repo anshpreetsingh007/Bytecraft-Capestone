@@ -1,101 +1,135 @@
 import { Request, Response } from 'express';
-import { pool } from '../config/db';
+import * as submissionService from '../services/submission';
 
-export async function getInspectionRequests(req: Request, res: Response) {
+// get all
+export async function getAll(req: Request, res: Response) {
     try {
-        const result = await pool.query(`
-            SELECT ir.request_id, ir.client_id, ir.status, ir.details, ir.scheduled_date,
-                   c.first_name, c.last_name, c.email, c.phone, c.address
-            FROM inspection_request ir
-            JOIN client c ON ir.client_id = c.client_id
-            ORDER BY ir.request_id DESC
-        `);
-        res.json(result.rows);
+        const status = req.query.status as string | undefined;
+        const requests = await submissionService.getAllRequests(status);
+        res.json(requests);
     } catch (error) {
         console.error('Error fetching inspection requests:', error);
         res.status(500).json({ error: 'Failed to fetch inspection requests' });
     }
 }
 
-export async function getInspectionRequestById(req: Request, res: Response) {
+// get by id
+export async function getById(req: Request, res: Response) {
     try {
-        const id = parseInt(req.params.id);
-        const result = await pool.query(`
-            SELECT ir.request_id, ir.client_id, ir.status, ir.details, ir.scheduled_date,
-                   c.first_name, c.last_name, c.email, c.phone, c.address
-            FROM inspection_request ir
-            JOIN client c ON ir.client_id = c.client_id
-            WHERE ir.request_id = $1
-        `, [id]);
-        
-        if (result.rows.length === 0) {
+        const id = parseInt(req.params.id as string);
+        const request = await submissionService.getRequestById(id);
+
+        if (!request) {
             res.status(404).json({ error: 'Inspection request not found' });
             return;
         }
-        res.json(result.rows[0]);
+
+        res.json(request);
     } catch (error) {
-        console.error('Error fetching inspection request by id:', error);
+        console.error('Error fetching inspection request:', error);
         res.status(500).json({ error: 'Failed to fetch inspection request' });
     }
 }
 
-export async function createEstimate(req: Request, res: Response) {
+// get by client
+export async function getByClient(req: Request, res: Response) {
     try {
-        const { order_id, inspector_id, admin_id, details, estimate_date, status } = req.body;
-        
-        // As a shortcut, if order_id isn't provided we create a dummy one or use 1 for the mock data
-        // since the user wants real customer data but didn't specify the full order flow.
-        const actualOrderId = order_id || 1;
-
-        const result = await pool.query(`
-            INSERT INTO cost_estimate (order_id, inspector_id, admin_id, details, estimate_date, status)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING *
-        `, [actualOrderId, inspector_id, admin_id, details, estimate_date, status]);
-
-        res.status(201).json(result.rows[0]);
+        const clientId = parseInt(req.params.clientId as string);
+        const requests = await submissionService.getRequestsByClient(clientId);
+        res.json(requests);
     } catch (error) {
-        console.error('Error creating estimate:', error);
-        res.status(500).json({ error: 'Failed to create estimate' });
+        console.error('Error fetching inspection requests by client:', error);
+        res.status(500).json({ error: 'Failed to fetch inspection requests' });
     }
 }
 
-export async function getEstimates(req: Request, res: Response) {
+// get by inspector
+export async function getByInspector(req: Request, res: Response) {
     try {
-        const result = await pool.query(`
-            SELECT ce.estimate_id, ce.order_id, ce.details, ce.estimate_date, ce.status,
-                   c.first_name, c.last_name, 
-                   i.first_name as inspector_first_name, i.last_name as inspector_last_name
-            FROM cost_estimate ce
-            JOIN orders o ON ce.order_id = o.order_id
-            JOIN client c ON o.client_id = c.client_id
-            JOIN inspector i ON ce.inspector_id = i.inspector_id
-            ORDER BY ce.estimate_id DESC
-        `);
-        res.json(result.rows);
+        const inspectorId = parseInt(req.params.inspectorId as string);
+        const requests = await submissionService.getRequestsByInspector(inspectorId);
+        res.json(requests);
     } catch (error) {
-        console.error('Error fetching estimates:', error);
-        res.status(500).json({ error: 'Failed to fetch estimates' });
+        console.error('Error fetching inspection requests by inspector:', error);
+        res.status(500).json({ error: 'Failed to fetch inspection requests' });
     }
 }
 
-export async function approveEstimate(req: Request, res: Response) {
+// create (client submits a request)
+export async function create(req: Request, res: Response) {
     try {
-        const id = parseInt(req.params.id);
-        const result = await pool.query(`
-            UPDATE cost_estimate
-            SET status = 'approved'
-            WHERE estimate_id = $1
-            RETURNING *
-        `, [id]);
-        
-        if (result.rows.length === 0) {
-            res.status(404).json({ error: 'Estimate not found' });
+        const { client_id, details, status } = req.body;
+
+        if (!client_id || !details) {
+            res.status(400).json({ error: 'Missing required fields: client_id, details' });
             return;
         }
-        res.json(result.rows[0]);
+
+        const newRequest = await submissionService.createRequest({ client_id, details, status });
+        res.status(201).json(newRequest);
     } catch (error) {
-        console.error('Error approving estimate:', error);
-        res.status(500).json({ error: 'Failed to approve estimate' });
+        console.error('Error creating inspection request:', error);
+        res.status(500).json({ error: 'Failed to create inspection request' });
+    }
+}
+
+// update
+export async function update(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id as string);
+        const updated = await submissionService.updateRequest(id, req.body);
+
+        if (!updated) {
+            res.status(404).json({ error: 'Inspection request not found' });
+            return;
+        }
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Error updating inspection request:', error);
+        res.status(500).json({ error: 'Failed to update inspection request' });
+    }
+}
+
+// update status
+export async function updateStatus(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id as string);
+        const { status } = req.body;
+
+        if (!status) {
+            res.status(400).json({ error: 'Missing required field: status' });
+            return;
+        }
+
+        const updated = await submissionService.updateRequestStatus(id, status);
+
+        if (!updated) {
+            res.status(404).json({ error: 'Inspection request not found' });
+            return;
+        }
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Error updating inspection request status:', error);
+        res.status(500).json({ error: 'Failed to update inspection request status' });
+    }
+}
+
+// delete
+export async function remove(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id as string);
+        const deleted = await submissionService.deleteRequest(id);
+
+        if (!deleted) {
+            res.status(404).json({ error: 'Inspection request not found' });
+            return;
+        }
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error deleting inspection request:', error);
+        res.status(500).json({ error: 'Failed to delete inspection request' });
     }
 }

@@ -1,0 +1,143 @@
+.admin-page {
+    padding: 40px;
+    background: var(--color-bg);
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.admin-page h1 {
+    color: var(--color-ink);
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.admin-page p {
+    color: var(--color-muted);
+    margin-bottom: 25px;
+}
+
+.users-section {
+    background: var(--color-surface);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 35px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.users-section h2 {
+    color: var(--color-ink);
+    margin: 0;
+}
+
+.search-input {
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    width: 280px;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: var(--color-navy);
+    color: #fff;
+    padding: 14px;
+    text-align: left;
+}
+
+td {
+    padding: 14px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-ink);
+}
+
+tr:hover {
+    background: var(--color-bg);
+}
+
+select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    margin-right: 10px;
+}
+
+button {
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    padding: 9px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.assignment {
+    background: var(--color-surface);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.assignment h2 {
+    color: var(--color-ink);
+    margin-bottom: 10px;
+}
+
+.assignment button {
+    margin-left: 10px;
+}
+
+.admin-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 40px;
+    box-sizing: border-box;
+    background: var(--color-bg);
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+}
+
+.ladder-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 28px;
+    height: 20px;
+}
+
+.ladder-icon span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: var(--color-ink);
+    border-radius: 2px;
+}

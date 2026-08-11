@@ -1,11 +1,8 @@
 .reports-page {
 
     min-height: 100vh;
-
-    background: #EAECF0;
-
+    background: var(--color-bg);
     padding: 40px;
-
 }
 
 
@@ -13,71 +10,223 @@
 .reports-page h1 {
 
     text-align: center;
-
-    color: #233D4D;
-
+    color: var(--color-ink);
     font-size: 36px;
-
-    margin-bottom: 35px;
-
+    margin-bottom: 8px;
 }
 
+.reports-subtitle {
+
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 14px;
+    margin-bottom: 35px;
+}
 
 
 .reports-grid {
 
     display: grid;
-
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-
     gap: 25px;
-
-    max-width: 900px;
-
-    margin: auto;
-
+    max-width: 1100px;
+    margin: 0 auto 30px;
 }
 
 
 
 .report-card {
 
-    background: white;
-
+    background: var(--color-surface);
     padding: 30px;
-
     border-radius: 16px;
-
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-
 }
 
 
 
 .report-card h2 {
 
-    color: #233D4D;
-
+    color: var(--color-ink);
     margin-bottom: 15px;
-
+    font-size: 18px;
 }
 
 
 
 .report-card p {
 
-    color: #000000;
-
+    color: var(--color-ink);
     margin: 8px 0;
-
+    font-size: 14px;
 }
 
-@media (max-width: 640px) {
-    .reports-page {
-        padding: 20px;
-    }
+.report-card p strong {
 
-    .reports-page h1 {
-        font-size: 26px;
-    }
+    color: var(--color-ink);
+}
+
+/* Wide sections (tables, trend lists) */
+.report-section {
+
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    background: var(--color-surface);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.report-section-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.report-section-header h2 {
+
+    color: var(--color-ink);
+    font-size: 18px;
+    margin: 0;
+}
+
+/* Period selector */
+.period-selector {
+
+    display: flex;
+    gap: 6px;
+    background: var(--color-bg);
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.period-selector button {
+
+    border: none;
+    background: transparent;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.period-selector button.active {
+
+    background: var(--color-navy);
+    color: #fff;
+}
+
+/* Tables */
+.report-table {
+
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.report-table th {
+
+    text-align: left;
+    color: var(--color-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--color-border);
+    background: transparent;
+}
+
+.report-table td {
+
+    padding: 12px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-ink);
+}
+
+.report-table tr:last-child td {
+
+    border-bottom: none;
+}
+
+.report-table td.numeric,
+.report-table th.numeric {
+
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Waste-vs-used mini bar */
+.cost-bar-track {
+
+    width: 100%;
+    height: 6px;
+    background: var(--color-bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cost-bar-fill {
+
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: 4px;
+}
+
+/* Status pills */
+.pill {
+
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pill-good {
+
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.pill-warn {
+
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.pill-bad {
+
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+/* Loading / error / empty states */
+.reports-status {
+
+    max-width: 1100px;
+    margin: 60px auto;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 14px;
+}
+
+.reports-status.error {
+
+    color: #991B1B;
+}
+
+.reports-empty {
+
+    color: var(--color-muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
 }

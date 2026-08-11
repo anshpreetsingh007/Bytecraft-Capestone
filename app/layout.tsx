@@ -1,16 +1,18 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+
 import "../app/globals.css";
+import { Providers } from "./providers";
+import Chatbot from "../components/Chatbot";
 
 export const metadata: Metadata = {
   title: "Markit-Roofing",
   description: "Authentication App",
 };
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter", 
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export default function RootLayout({
   children,
@@ -18,8 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <Providers>
+          {children}
+          <Chatbot />
+        </Providers>
+      </body>
     </html>
   );
 }

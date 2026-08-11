@@ -1,29 +1,25 @@
 "use client";
-
 import "../globals.css";
-import "./admin-layout.css";
-import AdminSidebar from "../../components/admin-sidebar";
+import { LayoutDashboard, Package, Calculator, FileText, BarChart3 } from "lucide-react";
+import { DashboardNav } from "../../components/DashboardNav";
 
+const adminNavItems = [
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Inventory", href: "/admin/inventory", icon: Package },
+  { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
+  { label: "Inspections", href: "/admin/inspection-requests", icon: FileText },
+  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+];
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
-
   return (
-
-    <div>
-
-      <AdminSidebar />
-
-      <main className="admin-main">
-        {children}
-      </main>
-
+    <div className="min-h-screen bg-bg">
+      <DashboardNav roleLabel="Admin" navItems={adminNavItems} />
+      <main className="p-6">{children}</main>
     </div>
-
   );
-
 }

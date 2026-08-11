@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import RoofLine from "../components/RoofLine";
+import { useAuth } from "../../../Context/AuthContext";
 
 interface Estimate {
   estimate_id: number;
@@ -27,6 +28,7 @@ function statusClass(status: string) {
 }
 
 export default function EstimatePage() {
+  const { userId } = useAuth();
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,10 +37,15 @@ export default function EstimatePage() {
     let cancelled = false;
 
     async function fetchEstimates() {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch("http://localhost:3007/api/estimates");
+        const res = await fetch(`/api/estimates/client/${userId}`);
         if (!res.ok) throw new Error("Failed to fetch estimates");
         const data = await res.json();
         if (!cancelled) setEstimates(data);
@@ -57,13 +64,13 @@ export default function EstimatePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [userId]);
 
   return (
     <>
       <section className="bg-navy text-white pt-[72px] pb-14">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-copper block mb-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white block mb-3">
             View Estimate
           </span>
           <h1 className="text-white text-[2rem] sm:text-[2.9rem] max-w-[20ch]">
@@ -103,14 +110,14 @@ export default function EstimatePage() {
               {estimates.map((estimate) => (
                 <div
                   key={estimate.estimate_id}
-                  className="bg-white border border-line rounded-[3px] p-7"
+                  className="bg-background border border-line rounded-[3px] p-7"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[1.05rem] mb-0">
                       {estimate.first_name} {estimate.last_name}
                     </h3>
                     <span
-                      className={`font-mono text-[0.72rem] uppercase tracking-wider border px-2.5 py-1 rounded-[3px] ${statusClass(
+                      className={`text-[0.72rem] font-semibold uppercase tracking-wider border px-2.5 py-1 rounded-[3px] ${statusClass(
                         estimate.status
                       )}`}
                     >

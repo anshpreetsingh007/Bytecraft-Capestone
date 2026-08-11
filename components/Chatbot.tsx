@@ -8,7 +8,7 @@ import { MessageCircle, X, Send } from "lucide-react";
 export default function Chatbot() {
   const { messages, status, sendMessage } = useChat({
     transport: new DefaultChatTransport({
-      api: "http://localhost:3001/api/chat",
+      api: "/api/chat",
     }),
   });
   const [isOpen, setIsOpen] = useState(false);
@@ -27,23 +27,22 @@ export default function Chatbot() {
     setInput("");
   };
 
-
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {isOpen && (
-        <div className="bg-white border border-gray-200 shadow-xl rounded-2xl w-80 sm:w-96 h-[500px] mb-4 flex flex-col overflow-hidden">
+        <div className="bg-[var(--color-surface,#fff)] border border-[var(--color-border,#e5e7eb)] shadow-xl rounded-2xl w-80 sm:w-96 h-[500px] mb-4 flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
+          <div className="bg-[#0c2d4a] text-white p-4 flex justify-between items-center">
             <h3 className="font-semibold text-lg">Markit Assistant</h3>
-            <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-200">
+            <button onClick={() => setIsOpen(false)} className="text-white hover:text-white/70">
               <X size={20} />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--color-bg,#f9fafb)] flex flex-col">
             {messages.length === 0 ? (
-              <p className="text-gray-500 text-center text-sm mt-4">
+              <p className="text-[var(--color-muted,#6b7280)] text-center text-sm mt-4">
                 Hi! I'm the Markit Roofing assistant. How can I help you today?
               </p>
             ) : (
@@ -55,8 +54,8 @@ export default function Chatbot() {
                   <div
                     className={`max-w-[80%] rounded-xl px-4 py-2 ${
                       m.role === "user"
-                        ? "bg-blue-600 text-white"
-                        : "bg-white border border-gray-200 text-gray-800"
+                        ? "bg-orange-700 dark:bg-orange-400 text-white dark:text-slate-900"
+                        : "bg-[var(--color-surface,#fff)] border border-[var(--color-border,#e5e7eb)] text-[var(--color-ink,#1f2937)]"
                     }`}
                   >
                     {m.parts
@@ -70,7 +69,7 @@ export default function Chatbot() {
             )}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-200 text-gray-800 max-w-[80%] rounded-xl px-4 py-2">
+                <div className="bg-[var(--color-surface,#fff)] border border-[var(--color-border,#e5e7eb)] text-[var(--color-ink,#1f2937)] max-w-[80%] rounded-xl px-4 py-2">
                   <span className="animate-pulse">Thinking...</span>
                 </div>
               </div>
@@ -78,18 +77,18 @@ export default function Chatbot() {
           </div>
 
           {/* Input Area */}
-          <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200 bg-white flex gap-2">
+          <form onSubmit={handleSubmit} className="p-3 border-t border-[var(--color-border,#e5e7eb)] bg-[var(--color-surface,#fff)] flex gap-2">
             <input
               type="text"
               value={input}
               onChange={handleInputChange}
               placeholder="Ask me anything..."
-              className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
+              className="flex-1 border border-[var(--color-border,#d1d5db)] rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-700 dark:focus:ring-orange-400 bg-[var(--color-bg,#fff)] text-[var(--color-ink,#000)]"
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="bg-orange-700 dark:bg-orange-400 text-white dark:text-slate-900 p-2 rounded-full hover:bg-orange-800 dark:hover:bg-orange-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <Send size={20} />
             </button>
@@ -101,7 +100,8 @@ export default function Chatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform hover:scale-105"
+          className="bg-orange-700 dark:bg-orange-400 text-white dark:text-slate-900 p-4 rounded-full shadow-lg hover:bg-orange-800 dark:hover:bg-orange-300 transition-transform hover:scale-105"
+          aria-label="Open chat assistant"
         >
           <MessageCircle size={28} />
         </button>

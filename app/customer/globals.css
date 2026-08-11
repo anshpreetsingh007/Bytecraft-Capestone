@@ -1,21 +1,39 @@
 @import "tailwindcss";
-
-/*
-  Markit Roofing — design tokens
-  Palette: light base #EAECF0, ink #000000, navy secondary #233D4D, CTA orange #FE7F2D.
-*/
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #eaecf0; /* light base */
-  --foreground: #000000; /* primary text */
-  --ink-soft: #4b5a63; /* secondary text */
-  --paper-dim: #dee1e7; /* card / section background */
-  --line: #cbcfd7; /* hairline borders */
-  --navy: #233d4d; /* secondary backgrounds — dark sections */
-  --navy-soft: #c7cdd2; /* body text on navy */
-  --navy-faint: #899299; /* muted text on navy */
-  --copper: #fe7f2d; /* CTA buttons / highlights */
-  --copper-dark: #e36a1b;
+  --background: #eaecf0;
+  --foreground: #000000;
+
+  --ink-soft: #4b5a63;
+  --paper-dim: #dee1e7;
+  --line: #cbcfd7;
+
+  --navy: #233d4d;
+
+  /* Text on navy */
+  --navy-soft: #dbe1e5;
+  --navy-faint: #b8c1c7;
+
+  /* Accessible copper/orange for TEXT */
+  --copper: #a83f0b;
+  --copper-dark: #873309;
+
+  /* Bright orange can still be used for fills/icons */
+  --copper-bright: #fe7f2d;
+
+  --focus-ring: var(--navy);
+}
+
+.dark {
+  --background: #181c20;
+  --foreground: #e8eaed;
+  --ink-soft: #9ca3af;
+  --paper-dim: #1f2328;
+  --line: #33383e;
+  --navy-soft: #c7cdd2;
+  --navy-faint: #899299;
+  --focus-ring: var(--copper);
 }
 
 @theme inline {
@@ -30,9 +48,9 @@
   --color-copper: var(--copper);
   --color-copper-dark: var(--copper-dark);
 
-  --font-display: var(--font-space-grotesk);
+  --font-display: var(--font-inter);
   --font-body: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-mono: var(--font-inter);
 }
 
 html {
@@ -43,6 +61,7 @@ html {
   html {
     scroll-behavior: auto;
   }
+
   *,
   *::before,
   *::after {
@@ -75,11 +94,10 @@ button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--navy);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-/* Roofline signature divider — repeating shingle-pitch pattern */
 .roofline {
   width: 100%;
   height: 16px;
@@ -89,6 +107,7 @@ select:focus-visible {
   background-size: 24px 16px;
   background-repeat: repeat-x;
 }
+
 .roofline.on-dark {
   background-image: linear-gradient(135deg, rgba(234, 236, 240, 0.16) 25%, transparent 25.5%),
     linear-gradient(225deg, rgba(234, 236, 240, 0.16) 25%, transparent 25.5%);

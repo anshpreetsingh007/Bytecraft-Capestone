@@ -1,7 +1,8 @@
+
 import { Request, Response } from 'express';
 import * as estimateService from '../services/estimate';
 
-// ─── GET ALL ────────────────────────────────────────────────
+// GET ALL
 export async function getAll(req: Request, res: Response) {
     try {
         // req.query.status comes from the URL: /api/estimates?status=approved
@@ -14,7 +15,7 @@ export async function getAll(req: Request, res: Response) {
     }
 }
 
-// ─── GET BY ID ──────────────────────────────────────────────
+//GET BY ID 
 export async function getById(req: Request, res: Response) {
     try {
         // req.params.id comes from the URL: /api/estimates/5
@@ -33,31 +34,20 @@ export async function getById(req: Request, res: Response) {
     }
 }
 
-// ─── GET BY ORDER ───────────────────────────────────────────
-export async function getByOrder(req: Request, res: Response) {
+
+
+//GET BY CLIENT
+export async function getByClient(req: Request, res: Response) {
     try {
-        const orderId = parseInt(req.params.orderId as string);
-        const estimates = await estimateService.getEstimatesByOrder(orderId);
+        const clientId = parseInt(req.params.clientId as string);
+        const estimates = await estimateService.getEstimatesByClient(clientId);
         res.json(estimates);
     } catch (error) {
-        console.error('Error fetching estimates by order:', error);
+        console.error('Error fetching estimates by client:', error);
         res.status(500).json({ error: 'Failed to fetch estimates' });
     }
 }
 
-// ─── GET BY INSPECTOR ───────────────────────────────────────
-export async function getByInspector(req: Request, res: Response) {
-    try {
-        const inspectorId = parseInt(req.params.inspectorId as string);
-        const estimates = await estimateService.getEstimatesByInspector(inspectorId);
-        res.json(estimates);
-    } catch (error) {
-        console.error('Error fetching estimates by inspector:', error);
-        res.status(500).json({ error: 'Failed to fetch estimates' });
-    }
-}
-
-// ─── CREATE ─────────────────────────────────────────────────
 export async function create(req: Request, res: Response) {
     try {
         // req.body is the JSON the frontend sends in the POST request
@@ -86,7 +76,7 @@ export async function create(req: Request, res: Response) {
     }
 }
 
-// ─── UPDATE ─────────────────────────────────────────────────
+
 export async function update(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -104,7 +94,7 @@ export async function update(req: Request, res: Response) {
     }
 }
 
-// ─── UPDATE STATUS ──────────────────────────────────────────
+
 export async function updateStatus(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
@@ -129,7 +119,7 @@ export async function updateStatus(req: Request, res: Response) {
     }
 }
 
-// ─── DELETE ─────────────────────────────────────────────────
+// DELETE 
 export async function remove(req: Request, res: Response) {
     try {
         const id = parseInt(req.params.id as string);
