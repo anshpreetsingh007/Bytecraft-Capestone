@@ -1,5 +1,12 @@
 import Link from "next/link";
+import { Facebook, Instagram, Linkedin } from "lucide-react";
 import Logo from "./Logo";
+
+const socialLinks = [
+  { label: "Instagram", href: "https://www.instagram.com/markitroofingltd/", icon: Instagram },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/markit-roofing/", icon: Linkedin },
+  { label: "Facebook", href: "https://www.facebook.com/MarkitRoofingltd", icon: Facebook },
+];
 
 export default function Footer() {
   return (
@@ -12,6 +19,20 @@ export default function Footer() {
               Residential and commercial roofing, done right and backed by a
               real warranty.
             </p>
+            <div className="flex items-center gap-3 mt-5">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Markit Roofing on ${label}`}
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 text-navy-soft hover:text-white hover:border-copper hover:bg-copper transition-colors"
+                >
+                  <Icon size={16} />
+                </a>
+              ))}
+            </div>
           </div>
           <div>
             <h4 className="font-mono text-xs uppercase tracking-wider text-white mb-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import "../globals.css";
+import "./admin-layout.css";
 import AdminSidebar from "../../components/admin-sidebar";
 
 
@@ -17,7 +18,7 @@ export default function AdminLayout({
 
       <AdminSidebar />
 
-      <main style={{ marginLeft: "260px" }}>
+      <main className="admin-main">
         {children}
       </main>
 

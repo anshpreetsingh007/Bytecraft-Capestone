@@ -1,0 +1,12 @@
+.admin-main {
+    margin-left: 0;
+    padding-top: 68px;
+    min-width: 0;
+}
+
+@media (min-width: 1024px) {
+    .admin-main {
+        margin-left: var(--sidebar-width, 270px);
+        padding-top: 0;
+    }
+}

@@ -104,3 +104,13 @@
     opacity: 0.9;
 
 }
+
+@media (max-width: 640px) {
+    .assignment-page {
+        padding: 20px;
+    }
+
+    .assignment-card {
+        padding: 22px;
+    }
+}

@@ -6,11 +6,7 @@ export default function InvoicePage(){
 
 return (
 
-<main style={{
-padding:"40px",
-background:"#EAECF0",
-minHeight:"100vh"
-}}>
+<main className="invoice-page">
 
 
 <h1>
@@ -18,12 +14,7 @@ Invoice Generation
 </h1>
 
 
-<div style={{
-background:"white",
-padding:"25px",
-borderRadius:"16px",
-maxWidth:"500px"
-}}>
+<div className="invoice-card">
 
 
 <p>

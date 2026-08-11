@@ -19,7 +19,7 @@
   --color-navy-tint: rgba(35, 61, 77, 0.08);
   --color-accent-tint: rgba(254, 127, 45, 0.14);
 
-  --sidebar-width: 240px;
+  --sidebar-width: 270px;
 }
 
 @media (prefers-color-scheme: dark) {

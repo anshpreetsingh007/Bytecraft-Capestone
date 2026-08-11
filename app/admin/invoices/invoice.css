@@ -102,3 +102,13 @@
     opacity: 0.85;
 
 }
+
+@media (max-width: 640px) {
+    .invoice-page {
+        padding: 20px;
+    }
+
+    .invoice-card {
+        padding: 20px;
+    }
+}

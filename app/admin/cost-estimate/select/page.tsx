@@ -52,7 +52,7 @@ export default function SelectInspectionPage() {
                     <p className="text-gray-500">No pending inspection requests.</p>
                 ) : (
                     requests.map(req => (
-                        <div key={req.request_id} className="bg-white border border-[#233d4d]/12 rounded-xl p-4 flex justify-between items-center hover:border-[#233d4d]/30 transition-all">
+                        <div key={req.request_id} className="bg-white border border-[#233d4d]/12 rounded-xl p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 hover:border-[#233d4d]/30 transition-all">
                             <div>
                                 <h3 className="font-bold text-[16px] m-0">{req.first_name} {req.last_name}</h3>
                                 <p className="text-[12px] text-gray-500 m-0">Address: {req.address}</p>
@@ -61,7 +61,7 @@ export default function SelectInspectionPage() {
                             </div>
                             <button
                                 onClick={() => router.push(`/admin/cost-estimate?requestId=${req.request_id}`)}
-                                className="bg-[#fe7f2d] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#e06d20] transition-colors"
+                                className="self-start sm:self-auto bg-[#fe7f2d] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#e06d20] transition-colors"
                             >
                                 Select
                             </button>

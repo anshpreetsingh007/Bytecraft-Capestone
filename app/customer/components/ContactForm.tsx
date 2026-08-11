@@ -12,9 +12,6 @@ export default function ContactForm() {
       form.reportValidity();
       return;
     }
-    // No backend is wired up yet. In production, replace this block with
-    // a fetch() call to your form endpoint (e.g. Formspree, Netlify Forms,
-    // or your own API route under app/api/).
     setSubmitted(true);
     form.reset();
   }

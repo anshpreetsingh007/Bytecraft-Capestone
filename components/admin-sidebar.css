@@ -32,7 +32,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 270px;
+    width: var(--sidebar-width, 270px);
     height: 100vh;
     background: #233D4D;
     color: white;
@@ -47,6 +47,18 @@
 
 .admin-sidebar.show {
     transform: translateX(0);
+}
+
+/* Desktop: sidebar stays docked open, toggle button hidden */
+@media (min-width: 1024px) {
+    .sidebar-toggle {
+        display: none;
+    }
+
+    .admin-sidebar {
+        transform: translateX(0);
+        box-shadow: none;
+    }
 }
 
 .admin-sidebar h2 {

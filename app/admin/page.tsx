@@ -51,7 +51,7 @@ export default function AdminHomePage() {
 
       <div className="px-6 pb-6">
         {/* Stat Grid */}
-        <div className="grid grid-cols-3 gap-2.5 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-5">
           <div className="bg-white border border-[#233d4d]/12 border-t-[3px] border-t-[#233d4d] rounded-[10px] p-3.5 flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
               <Package size={17} />
@@ -87,7 +87,7 @@ export default function AdminHomePage() {
         <h2 className="text-[15px] font-bold text-black mb-2.5 mt-0">Quick Actions</h2>
 
         {/* Quick Actions Grid */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5">
           <Link href="/admin/inventory" className="bg-white border-2 border-[#233d4d]/12 rounded-xl p-4 flex items-center gap-3 hover:border-[#233d4d]/30 transition-all">
             <div className="w-10 h-10 rounded-[9px] bg-[#233d4d] flex items-center justify-center text-white flex-shrink-0">
               <Package size={19} />
@@ -119,7 +119,7 @@ export default function AdminHomePage() {
             recentEstimates.map((item, index) => (
               <div 
                 key={item.estimate_id} 
-                className={`p-3 text-[13px] flex items-center justify-between ${
+                className={`p-3 text-[13px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 ${
                   index !== recentEstimates.length - 1 ? 'border-b border-[#233d4d]/10' : ''
                 }`}
               >
