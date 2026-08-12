@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import "../app/globals.css";
 import { Providers } from "./providers";
-import Chatbot from "../components/Chatbot";
-
+import ChatbotGate from "../components/ChatbotGate";
 export const metadata: Metadata = {
   title: "Markit-Roofing",
   description: "Authentication App",
@@ -24,7 +23,7 @@ export default function RootLayout({
       <body>
         <Providers>
           {children}
-          <Chatbot />
+          <ChatbotGate />
         </Providers>
       </body>
     </html>
