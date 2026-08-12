@@ -17,7 +17,7 @@ export default function InspectorAssignmentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -41,7 +41,7 @@ export default function InspectorAssignmentPage() {
       return;
     }
 
-    setUpdatingId(user.id);
+    setUpdatingId(user.firebaseUid);
     try {
       const res = await fetch("/api/auth/users/role", {
         method: "PATCH",
@@ -115,7 +115,7 @@ export default function InspectorAssignmentPage() {
             <tbody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
-                  <tr key={user.id}>
+                  <tr key={user.firebaseUid}>
                     <td>{user.firstName} {user.lastName}</td>
                     <td>{user.email}</td>
                     <td>
@@ -124,16 +124,24 @@ export default function InspectorAssignmentPage() {
                       </span>
                     </td>
                     <td>
-                      <select
-                        value={user.role}
-                        disabled={updatingId === user.id || user.role === 'super_admin'}
-                        onChange={(e) => changeRole(user, e.target.value)}
-                      >
-                        <option value="client">Client</option>
-                        <option value="inspector">Inspector</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                      {updatingId === user.id && <span style={{ marginLeft: "10px", fontSize: "0.8rem" }}>Updating...</span>}
+                      {user.role === 'super_admin' ? (
+                        <span style={{ color: "var(--color-muted)", fontSize: "13px", fontStyle: "italic" }}>
+                          No actions available
+                        </span>
+                      ) : (
+                        <>
+                          <select
+                            value={user.role}
+                            disabled={updatingId === user.firebaseUid}
+                            onChange={(e) => changeRole(user, e.target.value)}
+                          >
+                            <option value="client">Client</option>
+                            <option value="inspector">Inspector</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                          {updatingId === user.firebaseUid && <span style={{ marginLeft: "10px", fontSize: "0.8rem" }}>Updating...</span>}
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))

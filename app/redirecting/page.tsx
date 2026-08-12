@@ -23,6 +23,7 @@ export default function RedirectingPage() {
     }
 
     switch (role) {
+      case "super_admin":
       case "admin":
         router.replace("/admin");
         break;

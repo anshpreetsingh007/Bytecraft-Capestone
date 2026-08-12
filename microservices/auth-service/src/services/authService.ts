@@ -9,17 +9,18 @@ export async function resolveByFirebaseUid(
 ): Promise<ResolvedUser | null> {
   const result = await pool.query(
     `
-        SELECT 'super_admin' AS role, super_admin_id AS id, first_name, last_name, email
+        SELECT 'super_admin' AS role, super_admin_id AS id, first_name, last_name, email, 4 AS priority
             FROM super_admin WHERE firebase_uid = $1
         UNION ALL
-        SELECT 'admin' AS role, admin_id AS id, first_name, last_name, email
+        SELECT 'admin' AS role, admin_id AS id, first_name, last_name, email, 3 AS priority
             FROM admin WHERE firebase_uid = $1
         UNION ALL
-        SELECT 'inspector' AS role, inspector_id AS id, first_name, last_name, email
+        SELECT 'inspector' AS role, inspector_id AS id, first_name, last_name, email, 2 AS priority
             FROM inspector WHERE firebase_uid = $1
         UNION ALL
-        SELECT 'client' AS role, client_id AS id, first_name, last_name, email
+        SELECT 'client' AS role, client_id AS id, first_name, last_name, email, 1 AS priority
             FROM client WHERE firebase_uid = $1
+        ORDER BY priority DESC
         LIMIT 1
         `,
     [firebaseUid],
