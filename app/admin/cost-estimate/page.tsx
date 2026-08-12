@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../Context/AuthContext";
+import { Skeleton } from "../../../components/Skeleton";
+import SelectInspectionPage from "./select/page";
 import "./cost-estimate.css";
 
 const laborRatePerSqFt = 3.5;
@@ -254,14 +256,7 @@ function CostEstimateContent() {
   }
 
   if (!orderId) {
-      return (
-          <div className="p-6">
-              <p>No order selected.</p>
-              <button className="text-blue-500 underline mt-2" onClick={() => router.push("/admin/cost-estimate/select")}>
-                  Select an Order
-              </button>
-          </div>
-      );
+      return <SelectInspectionPage />;
   }
 
   if (loadingOrder || loadingInventory || loadingInspectors) return <div className="p-6">Loading data...</div>;
@@ -272,7 +267,7 @@ function CostEstimateContent() {
           <h1 className="page-title m-0">Cost Estimate</h1>
           <button 
               className="text-sm bg-bg border border-border hover:border-navy text-ink py-1 px-3 rounded transition"
-              onClick={() => router.push("/admin/cost-estimate/select")}
+              onClick={() => router.push("/admin/cost-estimate")}
           >
               Change Order
           </button>
