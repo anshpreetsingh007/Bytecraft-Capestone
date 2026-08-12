@@ -1,0 +1,175 @@
+/* Shared styles for the simpler admin pages (invoices, assignment).
+
+   These pages previously shipped no CSS of their own and only looked styled
+   because inspect-assign.css leaked a global `button` rule across the app.
+   That rule is now scoped to .admin-page, so these pages carry their own
+   token-driven styles instead. */
+
+.invoice-page,
+.assignment-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8px 0 40px;
+    color: var(--color-ink);
+}
+
+.invoice-page h1,
+.assignment-page h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 4px;
+}
+
+.invoice-page>p,
+.assignment-subtitle {
+    font-size: 13px;
+    color: var(--color-muted);
+    margin: 0 0 24px;
+}
+
+.invoice-card,
+.assignment-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+}
+
+.assignment-card h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 16px;
+}
+
+/* ============ Invoice ============ */
+
+.invoice-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.invoice-details p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-ink);
+}
+
+.invoice-total {
+    padding: 16px 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+
+.invoice-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-accent-solid);
+    color: var(--color-on-accent);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.invoice-button:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+}
+
+.invoice-button:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.invoice-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ============ Assignment ============ */
+
+.assignment-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg);
+    font-size: 14px;
+    color: var(--color-ink);
+    line-height: 1.6;
+}
+
+.assignment-item select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Native option lists follow the OS palette unless told otherwise, which
+   renders dark-on-dark in some browsers. */
+.assignment-item select option {
+    background: var(--color-surface);
+    color: var(--color-ink);
+}
+
+.assignment-item select:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+}
+
+.assignment-item button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+/* navy sits very close to the dark surface color, so lift it on dark. */
+.dark .assignment-item button {
+    background: var(--color-navy-soft);
+}
+
+.assignment-item button:hover:not(:disabled) {
+    background: var(--color-navy-hover);
+}
+
+.assignment-item button:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.assignment-item button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+
+    .assignment-item select,
+    .assignment-item button {
+        width: 100%;
+    }
+}

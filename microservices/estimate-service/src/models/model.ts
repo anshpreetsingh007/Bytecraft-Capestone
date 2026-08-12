@@ -1,6 +1,23 @@
 // db cost_estimate row
 
-export interface CostEstimate {
+// A single material line stored on the estimate.
+export interface EstimateMaterial {
+    material_id: number;
+    quantity: number;
+    cost: number;
+}
+
+// The roof measurements the estimate was calculated from. Persisted so an
+// estimate can be reopened and edited rather than re-entered from scratch —
+// `details` is only a rendered summary and can't be reversed back into inputs.
+// pitch is optional on the form, hence nullable.
+export interface EstimateDimensions {
+    length_ft: number | null;
+    width_ft: number | null;
+    pitch_ft: number | null;
+}
+
+export interface CostEstimate extends EstimateDimensions {
     estimate_id: number;
     order_id: number;
     inspector_id: number;
@@ -10,7 +27,7 @@ export interface CostEstimate {
     status: string;             // 'draft' | 'submitted' | 'approved' | 'rejected'
     material_id?: number | null;
     material_quantity?: number | null;
-    materials?: any[];
+    materials?: EstimateMaterial[];
 }
 
 // input for new estimate
@@ -24,7 +41,10 @@ export interface CreateEstimateInput {
     status: string;
     material_id?: number | null;
     material_quantity?: number | null;
-    materials?: any[];
+    materials?: EstimateMaterial[];
+    length_ft?: number | null;
+    width_ft?: number | null;
+    pitch_ft?: number | null;
 }
 
 // input for updating estimate
@@ -38,7 +58,10 @@ export interface UpdateEstimateInput {
     status?: string;
     material_id?: number | null;
     material_quantity?: number | null;
-    materials?: any[];
+    materials?: EstimateMaterial[];
+    length_ft?: number | null;
+    width_ft?: number | null;
+    pitch_ft?: number | null;
 }
 
 // estimate with joined names

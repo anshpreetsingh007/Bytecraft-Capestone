@@ -1,8 +1,18 @@
+/* Superadmin user-management page.
+
+   Every selector here is scoped under .admin-page on purpose. This file used
+   to style bare `button`, `table`, `th`, `td` and `select`, and because
+   Next.js treats a plain .css import as global, those rules escaped this page
+   and repainted every button in the app orange — including the nav and the
+   theme toggle. Keep the .admin-page prefix on anything added below. */
+
 .admin-page {
-    padding: 40px;
-    background: var(--color-bg);
+    width: 100%;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
+    padding: 40px;
+    box-sizing: border-box;
+    background: var(--color-bg);
+    color: var(--color-ink);
 }
 
 .admin-page h1 {
@@ -16,12 +26,19 @@
     margin-bottom: 25px;
 }
 
-.users-section {
+/* ============ Panels ============ */
+
+.users-section,
+.assignment {
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     padding: 25px;
     border-radius: 12px;
+    box-shadow: var(--shadow-card);
+}
+
+.users-section {
     margin-bottom: 35px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .section-header {
@@ -33,44 +50,39 @@
     gap: 15px;
 }
 
-.users-section h2 {
+.users-section h2,
+.assignment h2 {
     color: var(--color-ink);
     margin: 0;
 }
 
-.search-input {
+.assignment h2 {
+    margin-bottom: 10px;
+}
+
+/* ============ Inputs ============ */
+
+.admin-page .search-input {
+    width: 280px;
     padding: 10px 14px;
     border-radius: 6px;
     border: 1px solid var(--color-border);
     background: var(--color-bg);
     color: var(--color-ink);
-    width: 280px;
     font-size: 14px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.admin-page .search-input::placeholder {
+    color: var(--color-muted);
 }
 
-th {
-    background: var(--color-navy);
-    color: #fff;
-    padding: 14px;
-    text-align: left;
+.admin-page .search-input:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
 }
 
-td {
-    padding: 14px;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-ink);
-}
-
-tr:hover {
-    background: var(--color-bg);
-}
-
-select {
+.admin-page select {
     padding: 8px;
     border-radius: 6px;
     border: 1px solid var(--color-border);
@@ -79,51 +91,96 @@ select {
     margin-right: 10px;
 }
 
-button {
-    background: var(--color-accent);
-    color: #fff;
+/* Native option lists follow the OS palette unless told otherwise, which
+   renders dark-on-dark in some browsers. */
+.admin-page select option {
+    background: var(--color-surface);
+    color: var(--color-ink);
+}
+
+.admin-page select:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+}
+
+/* ============ Table ============ */
+
+.admin-page table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-page th {
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    padding: 14px;
+    text-align: left;
+}
+
+.dark .admin-page th {
+    background: var(--color-navy-soft);
+}
+
+.admin-page td {
+    padding: 14px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-ink);
+}
+
+.admin-page tbody tr:hover {
+    background: var(--color-navy-tint);
+}
+
+/* ============ Buttons ============ */
+
+.admin-page button {
+    background: var(--color-accent-solid);
+    color: var(--color-on-accent);
     border: none;
     padding: 9px 15px;
     border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 150ms ease;
 }
 
-button:hover {
-    opacity: 0.85;
+.admin-page button:hover:not(:disabled) {
+    background: var(--color-accent-hover);
 }
 
-.assignment {
-    background: var(--color-surface);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+.admin-page button:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
+    cursor: not-allowed;
 }
 
-.assignment h2 {
-    color: var(--color-ink);
-    margin-bottom: 10px;
+.admin-page button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .assignment button {
     margin-left: 10px;
 }
 
-.admin-page {
-    width: 100%;
-    min-height: 100vh;
-    padding: 40px;
-    box-sizing: border-box;
-    background: var(--color-bg);
-}
-
+/* The sidebar toggle is an icon button and must stay transparent — the rule
+   above would otherwise give it an orange block background. */
+.admin-page .sidebar-toggle,
 .sidebar-toggle {
-    background: transparent;
-    border: none;
-    cursor: pointer;
     position: absolute;
     top: 20px;
     left: 20px;
     z-index: 100;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-page .sidebar-toggle:hover:not(:disabled) {
+    background: transparent;
 }
 
 .ladder-icon {
@@ -140,4 +197,14 @@ button:hover {
     width: 100%;
     background-color: var(--color-ink);
     border-radius: 2px;
+}
+
+@media (max-width: 700px) {
+    .admin-page {
+        padding: 24px 16px;
+    }
+
+    .admin-page .search-input {
+        width: 100%;
+    }
 }

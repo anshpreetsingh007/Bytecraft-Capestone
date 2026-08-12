@@ -36,6 +36,7 @@ export default function SelectInspectionPage() {
     useEffect(() => {
         async function fetchOrders() {
             try {
+                // Fetch only orders that need an estimate. The API might filter by the logged in inspector.
                 const res = await fetch("/api/orders?needsEstimate=true");
                 if (!res.ok) throw new Error("Failed to fetch orders");
                 const data = await res.json();
@@ -56,18 +57,13 @@ export default function SelectInspectionPage() {
         <div className="flex-1 min-w-0 p-6">
             <h1 className="text-[21px] font-extrabold text-ink mb-2">Select an Order</h1>
             <p className="text-[14px] text-muted mb-6">
-                Choose an order to create a cost estimate for. Only orders that don&apos;t already have an estimate
-                are shown here — an inspection request has to be converted into an order first.
+                Choose an order to create a cost estimate for. 
             </p>
 
             <div className="grid gap-4">
                 {orders.length === 0 ? (
                     <p className="text-muted">
-                        No orders currently need an estimate.{" "}
-                        <Link href="/admin/inspection-requests" className="text-accent-text underline font-semibold">
-                            Convert an inspection request to an order
-                        </Link>{" "}
-                        first.
+                        No orders currently need an estimate.
                     </p>
                 ) : (
                     orders.map((order) => (
@@ -83,15 +79,9 @@ export default function SelectInspectionPage() {
                                 <p className="text-[12px] text-muted m-0">
                                     Scheduled: {order.request_scheduled_date ? new Date(order.request_scheduled_date).toLocaleDateString() : "Not yet scheduled"}
                                 </p>
-                                <p className="text-[12px] text-muted m-0">
-                                    Inspector: {formatName(order.inspector_first_name, order.inspector_last_name, "Unassigned")}
-                                </p>
-                                {order.request_details && (
-                                    <p className="text-[13px] mt-1 text-muted">Details: {order.request_details}</p>
-                                )}
                             </div>
                             <button
-                                onClick={() => router.push(`/admin/cost-estimate?orderId=${order.order_id}`)}
+                                onClick={() => router.push(`/inspector/cost-estimate?orderId=${order.order_id}`)}
                                 className="bg-accent-solid hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                             >
                                 Select

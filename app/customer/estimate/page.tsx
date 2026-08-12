@@ -4,16 +4,24 @@ import { useEffect, useState } from "react";
 import RoofLine from "../components/RoofLine";
 import { useAuth } from "../../../Context/AuthContext";
 
+/* Field names mirror estimate-service's CostEstimateWithNames exactly.
+   These were previously declared as first_name/last_name, which the API has
+   never returned — so every card rendered a blank customer name. */
 interface Estimate {
   estimate_id: number;
   order_id: number;
   details: string;
   estimate_date: string;
   status: string;
-  first_name: string;
-  last_name: string;
-  inspector_first_name: string;
-  inspector_last_name: string;
+  client_first_name: string | null;
+  client_last_name: string | null;
+  inspector_first_name: string | null;
+  inspector_last_name: string | null;
+}
+
+function formatName(first: string | null, last: string | null, fallback: string): string {
+  const name = `${first ?? ""} ${last ?? ""}`.trim();
+  return name || fallback;
 }
 
 const statusStyles: Record<string, string> = {
@@ -114,7 +122,7 @@ export default function EstimatePage() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[1.05rem] mb-0">
-                      {estimate.first_name} {estimate.last_name}
+                      Estimate #{estimate.estimate_id}
                     </h3>
                     <span
                       className={`text-[0.72rem] font-semibold uppercase tracking-wider border px-2.5 py-1 rounded-[3px] ${statusClass(
@@ -128,8 +136,12 @@ export default function EstimatePage() {
                     {estimate.details}
                   </p>
                   <p className="text-ink-soft text-[0.85rem] mb-0">
-                    Inspector: {estimate.inspector_first_name}{" "}
-                    {estimate.inspector_last_name}
+                    Inspector:{" "}
+                    {formatName(
+                      estimate.inspector_first_name,
+                      estimate.inspector_last_name,
+                      "Not recorded"
+                    )}
                   </p>
                   <p className="text-ink-soft text-[0.85rem] mb-0">
                     Date: {new Date(estimate.estimate_date).toLocaleDateString()}

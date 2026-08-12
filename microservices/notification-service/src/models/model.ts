@@ -18,15 +18,23 @@ export type RecipientType = 'admin' | 'client' | 'inspector';
 
 export type NotificationType =
     | 'estimate_approved'
+    | 'estimate_submitted'
     | 'low_stock'
     | 'inspection_request_submitted';
 
 const VALID_RECIPIENT_TYPES: RecipientType[] = ['admin', 'client', 'inspector'];
 const VALID_NOTIFICATION_TYPES: NotificationType[] = [
     'estimate_approved',
+    // Raised when an inspector sends an estimate for approval, or edits a
+    // settled one back into the queue. Broadcast to admins.
+    'estimate_submitted',
     'low_stock',
     'inspection_request_submitted',
 ];
+
+// Single source of truth for the validation error message, so the list can't
+// drift out of sync with VALID_NOTIFICATION_TYPES the way it did before.
+export const NOTIFICATION_TYPE_ERROR = `Invalid type. Must be one of: ${VALID_NOTIFICATION_TYPES.map((t) => `'${t}'`).join(', ')}.`;
 
 export function isValidRecipientType(value: string): value is RecipientType {
     return VALID_RECIPIENT_TYPES.includes(value as RecipientType);

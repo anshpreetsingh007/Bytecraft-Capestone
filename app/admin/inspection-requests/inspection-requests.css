@@ -18,11 +18,12 @@
     display: flex;
     gap: 6px;
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     padding: 4px;
     border-radius: 10px;
     width: fit-content;
     margin-bottom: 25px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-card);
     flex-wrap: wrap;
 }
 
@@ -35,12 +36,27 @@
     font-weight: 600;
     color: var(--color-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.request-filters button:hover:not(.active) {
+    background: var(--color-navy-tint);
+    color: var(--color-ink);
 }
 
 .request-filters button.active {
     background: var(--color-navy);
-    color: #fff;
+    color: var(--color-on-navy);
+}
+
+.dark .request-filters button.active {
+    background: var(--color-navy-soft);
+    color: var(--color-on-navy);
+}
+
+.request-filters button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
 }
 
 .request-list {
@@ -52,9 +68,10 @@
 
 .request-card {
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     padding: 25px;
     border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-card-lg);
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -119,89 +136,60 @@
 }
 
 .pill-pending {
-
-    background: #FEF3C7;
-
-    color: #92400E;
-
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
 }
 
 .pill-assigned {
-
-    background: #E6F1FB;
-
-    color: #0C447C;
-
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
 }
 
 .pill-in_progress {
-
-    background: #E6F1FB;
-
-    color: #0C447C;
-
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
 }
 
 .pill-completed {
-
-    background: #DCFCE7;
-
-    color: #166534;
-
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .pill-cancelled {
-
-    background: #FEE2E2;
-
-    color: #991B1B;
-
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
 }
 
 .pill-converted {
-
-    background: var(--color-bg);
-
-    color: var(--color-muted);
-
+    background: var(--color-neutral-bg);
+    color: var(--color-neutral-text);
 }
 
-
-
 .btn-convert {
-
     border: none;
-
-    background: var(--color-accent);
-
-    color: #fff;
-
+    background: var(--color-accent-solid);
+    color: var(--color-on-accent);
     padding: 10px 20px;
-
     border-radius: 8px;
-
     font-size: 13px;
-
     font-weight: 700;
-
     cursor: pointer;
-
-    transition: opacity 0.15s ease;
-
+    transition: background-color 150ms ease;
 }
 
 .btn-convert:hover:not(:disabled) {
-
-    opacity: 0.9;
-
+    background: var(--color-accent-hover);
 }
 
 .btn-convert:disabled {
-
-    opacity: 0.6;
-
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
     cursor: default;
+}
 
+.btn-convert:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .requests-status {
@@ -217,25 +205,17 @@
 }
 
 .requests-status.error {
-
-    color: #991B1B;
-
+    color: var(--color-danger-text);
 }
 
 .requests-empty {
-
     text-align: center;
-
     color: var(--color-muted);
-
     font-size: 13px;
-
     background: var(--color-surface);
-
+    border: 1px solid var(--color-border);
     border-radius: 16px;
-
     padding: 40px 20px;
-
 }
 
 /* ── Assignment controls ── */
@@ -270,28 +250,51 @@
 }
 
 .assign-select:focus {
-    outline: none;
-    border-color: var(--color-navy);
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+}
+
+/* Native <option> popups inherit the OS palette, not the page, so they need
+   explicit colors or dark mode renders dark-on-dark in some browsers. */
+.assign-select option {
+    background: var(--color-surface);
+    color: var(--color-ink);
 }
 
 .btn-assign {
     border: none;
     background: var(--color-navy);
-    color: #fff;
+    color: var(--color-on-navy);
     padding: 8px 18px;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.15s ease, transform 0.1s ease;
+    transition: background-color 150ms ease, transform 100ms ease;
+}
+
+.dark .btn-assign {
+    background: var(--color-navy-soft);
 }
 
 .btn-assign:hover:not(:disabled) {
-    opacity: 0.9;
+    background: var(--color-navy-hover);
     transform: translateY(-1px);
 }
 
+.dark .btn-assign:hover:not(:disabled) {
+    background: var(--color-navy-soft);
+    filter: brightness(1.15);
+}
+
 .btn-assign:disabled {
-    opacity: 0.5;
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
     cursor: default;
+}
+
+.btn-assign:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }

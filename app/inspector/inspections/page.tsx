@@ -82,23 +82,19 @@ export default function InspectorInspectionsPage() {
                 <p style={{ fontSize: "13px", color: "var(--color-muted)" }}>{request.details}</p>
               </div>
               
-              <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
-                <Link
-                  href="/inspector/inspection"
-                  className="inspection-button"
-                >
-                  Start Report
-                </Link>
-                {request.existing_order_id && (
+              {/* "Start Report" used to sit here pointing at /inspector/inspection,
+                  a route that never existed. Removed along with the rest of the
+                  unbacked report feature. */}
+              {request.existing_order_id && (
+                <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
                   <Link
                     href={`/inspector/cost-estimate?orderId=${request.existing_order_id}`}
                     className="inspection-button"
-                    style={{ background: "var(--color-navy)" }}
                   >
                     Cost Estimate
                   </Link>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

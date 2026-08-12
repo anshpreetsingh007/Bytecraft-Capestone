@@ -117,11 +117,26 @@ CREATE TABLE cost_estimate (
     status VARCHAR(30),
     material_id INTEGER,
     material_quantity NUMERIC,
+    -- Material lines: [{ material_id, quantity, cost }, ...]
+    materials JSONB NOT NULL DEFAULT '[]'::jsonb,
+    -- Roof dimensions as entered on the estimate form. Kept so an estimate
+    -- can be reopened and edited instead of rebuilt from scratch.
+    length_ft NUMERIC(10, 2),
+    width_ft NUMERIC(10, 2),
+    pitch_ft NUMERIC(10, 2),
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id),
     FOREIGN KEY (admin_id) REFERENCES admin(admin_id),
-    FOREIGN KEY (material_id) REFERENCES items(item_id)
+    FOREIGN KEY (material_id) REFERENCES items(item_id),
+    CONSTRAINT cost_estimate_dimensions_positive CHECK (
+        (length_ft IS NULL OR length_ft > 0) AND
+        (width_ft  IS NULL OR width_ft  > 0) AND
+        (pitch_ft  IS NULL OR pitch_ft >= 0)
+    )
 );
+
+CREATE INDEX idx_cost_estimate_status ON cost_estimate (status);
+CREATE INDEX idx_cost_estimate_inspector ON cost_estimate (inspector_id, estimate_date DESC);
 -- =====================================================
 -- 10. INVOICE TABLE
 -- =====================================================

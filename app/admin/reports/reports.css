@@ -38,9 +38,10 @@
 .report-card {
 
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     padding: 30px;
     border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-card-lg);
 }
 
 
@@ -72,9 +73,10 @@
     max-width: 1100px;
     margin: 0 auto 30px;
     background: var(--color-surface);
+    border: 1px solid var(--color-border);
     padding: 30px;
     border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-card-lg);
 }
 
 .report-section-header {
@@ -100,6 +102,7 @@
     display: flex;
     gap: 6px;
     background: var(--color-bg);
+    border: 1px solid var(--color-border);
     padding: 4px;
     border-radius: 10px;
 }
@@ -114,13 +117,31 @@
     font-weight: 600;
     color: var(--color-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.period-selector button:hover:not(.active) {
+
+    background: var(--color-navy-tint);
+    color: var(--color-ink);
 }
 
 .period-selector button.active {
 
     background: var(--color-navy);
-    color: #fff;
+    color: var(--color-on-navy);
+}
+
+.dark .period-selector button.active {
+
+    background: var(--color-navy-soft);
+    color: var(--color-on-navy);
+}
+
+.period-selector button:focus-visible {
+
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
 }
 
 /* Tables */
@@ -173,10 +194,12 @@
     overflow: hidden;
 }
 
+/* Decorative fill — no text sits on it, so the bright brand orange is safe
+   here and reads well against both the light and dark track. */
 .cost-bar-fill {
 
     height: 100%;
-    background: var(--color-accent);
+    background: var(--color-accent-bright);
     border-radius: 4px;
 }
 
@@ -192,20 +215,20 @@
 
 .pill-good {
 
-    background: #DCFCE7;
-    color: #166534;
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .pill-warn {
 
-    background: #FEF3C7;
-    color: #92400E;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
 }
 
 .pill-bad {
 
-    background: #FEE2E2;
-    color: #991B1B;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
 }
 
 /* Loading / error / empty states */
@@ -220,7 +243,7 @@
 
 .reports-status.error {
 
-    color: #991B1B;
+    color: var(--color-danger-text);
 }
 
 .reports-empty {

@@ -126,6 +126,59 @@ function CostEstimateContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Editing an existing estimate. `existingStatus` drives the re-approval
+  // warning: the server sends an approved estimate back to 'submitted' on any
+  // content edit, so the admin needs to know before they save.
+  const [loadingEstimate, setLoadingEstimate] = useState(!!estimateId);
+  const [existingStatus, setExistingStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!estimateId) {
+      setLoadingEstimate(false);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function fetchEstimate() {
+      try {
+        const res = await fetch(`/api/estimates/${estimateId}`, { signal: controller.signal });
+        if (!res.ok) throw new Error(`Failed to load estimate (${res.status})`);
+        const data = await res.json();
+
+        setExistingStatus(typeof data.status === "string" ? data.status : null);
+
+        // Dimensions come back as numeric strings from pg; the inputs are
+        // controlled text fields, so normalise to string and skip nulls
+        // (estimates created before dimensions were stored have none).
+        if (data.length_ft !== null && data.length_ft !== undefined) setLength(String(data.length_ft));
+        if (data.width_ft !== null && data.width_ft !== undefined) setWidth(String(data.width_ft));
+        if (data.pitch_ft !== null && data.pitch_ft !== undefined) setHeight(String(data.pitch_ft));
+
+        if (data.inspector_id) setInspectorId(data.inspector_id);
+
+        // materials is jsonb: [{ material_id, quantity, cost }, ...]
+        if (Array.isArray(data.materials)) {
+          const ids = data.materials
+            .map((m: { material_id?: number }) => m?.material_id)
+            .filter((id: unknown): id is number => typeof id === "number");
+          setSelectedMaterialIds(ids);
+        }
+      } catch (err: unknown) {
+        if ((err as Error)?.name === "AbortError") return;
+        console.error("Failed to load estimate for editing:", err);
+        setError(
+          "Couldn't load this estimate to edit. Saving now would overwrite it, so please reload before making changes."
+        );
+      } finally {
+        setLoadingEstimate(false);
+      }
+    }
+
+    fetchEstimate();
+    return () => controller.abort();
+  }, [estimateId]);
+
   useEffect(() => {
     async function fetchInventory() {
       try {
@@ -171,7 +224,9 @@ function CostEstimateContent() {
             setOrderData(data);
             // Default the dropdown to whichever inspector was already on the
             // inspection request, if any — the admin can still change it.
-            if (data.inspector_id) {
+            // Skipped when editing: the estimate's own inspector is the
+            // authoritative value and these two fetches race otherwise.
+            if (data.inspector_id && !estimateId) {
                 setInspectorId(data.inspector_id);
             }
         } catch (err: any) {
@@ -181,7 +236,7 @@ function CostEstimateContent() {
         }
     }
     fetchOrder();
-  }, [orderId]);
+  }, [orderId, estimateId]);
 
   const lengthNum = parseFloat(length) || 0;
   const widthNum = parseFloat(width) || 0;
@@ -232,7 +287,12 @@ function CostEstimateContent() {
           status: "submitted",
           materials: apiMaterials,
           material_id: null,
-          material_quantity: null
+          material_quantity: null,
+          // Persisted so this estimate can be reopened and edited later
+          // instead of rebuilt from scratch. Pitch is optional.
+          length_ft: lengthNum,
+          width_ft: widthNum,
+          pitch_ft: heightNum > 0 ? heightNum : null,
         }),
       });
 
@@ -240,7 +300,22 @@ function CostEstimateContent() {
         throw new Error(`Server returned ${response.status}: ${await response.text()}`);
       }
 
-      alert(estimateId ? "Estimate updated successfully!" : "Estimate submitted successfully!");
+      // The server owns the final status — editing a settled estimate forces
+      // it back to 'submitted' for re-approval, so report what actually landed
+      // rather than assuming the update stuck as-is.
+      const saved = await response.json().catch(() => null);
+      const landedStatus: string | null =
+        saved && typeof saved.status === "string" ? saved.status : null;
+
+      const wasSettled = existingStatus === "approved" || existingStatus === "rejected";
+
+      alert(
+        !estimateId
+          ? "Estimate submitted successfully!"
+          : wasSettled && landedStatus === "submitted"
+            ? "Estimate updated. Because it had already been reviewed, it's been sent back for approval."
+            : "Estimate updated successfully!"
+      );
 
       setSubmitted(true);
       setTimeout(() => {
@@ -259,12 +334,30 @@ function CostEstimateContent() {
       return <SelectInspectionPage />;
   }
 
-  if (loadingOrder || loadingInventory || loadingInspectors) return <div className="p-6">Loading data...</div>;
+  if (loadingOrder || loadingInventory || loadingInspectors || loadingEstimate) {
+    return <div className="p-6">Loading data...</div>;
+  }
 
   return (
     <div className="estimate-page">
+      {/* An approved estimate is what the customer currently sees. Saving an
+          edit pulls it back into the review queue, so say so up front rather
+          than surprising the admin after the fact. */}
+      {existingStatus === "approved" && (
+        <div className="submit-banner" role="status">
+          This estimate is already approved and visible to the customer. Saving
+          changes will return it to the review queue for re-approval.
+        </div>
+      )}
+
+      {existingStatus === "rejected" && (
+        <div className="submit-banner" role="status">
+          This estimate was rejected. Saving changes will resubmit it for review.
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
-          <h1 className="page-title m-0">Cost Estimate</h1>
+          <h1 className="page-title m-0">{estimateId ? "Edit Cost Estimate" : "Cost Estimate"}</h1>
           <button 
               className="text-sm bg-bg border border-border hover:border-navy text-ink py-1 px-3 rounded transition"
               onClick={() => router.push("/admin/cost-estimate")}
@@ -281,7 +374,7 @@ function CostEstimateContent() {
         </p>
 
         {inspectors.length === 0 ? (
-          <p className="section-subtitle" style={{ color: "var(--color-accent)" }}>
+          <p className="section-subtitle" style={{ color: "var(--color-accent-text)" }}>
             No inspectors exist yet — one needs to be added before an estimate can be submitted.
           </p>
         ) : (
@@ -392,7 +485,7 @@ function CostEstimateContent() {
                     <span style={{ fontWeight: 500, color: "var(--color-ink)" }}>{m.name}</span>
                     <button 
                       type="button" 
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
+                      className="text-danger-text hover:underline text-sm font-medium"
                       onClick={() => setSelectedMaterialIds(selectedMaterialIds.filter(id => id !== m.id))}
                     >
                       Remove

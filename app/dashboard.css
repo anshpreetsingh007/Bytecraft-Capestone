@@ -87,13 +87,13 @@
 }
 
 .icon-chip-accent {
-    background: var(--color-accent);
-    color: #fff;
+    background: var(--color-accent-solid);
+    color: var(--color-on-accent);
 }
 
 .icon-chip-navy {
     background: var(--color-navy);
-    color: #fff;
+    color: var(--color-on-navy);
 }
 
 /* ============ Search / inputs ============ */
@@ -111,7 +111,7 @@
 }
 
 .search-input:focus {
-    outline: 2px solid var(--color-accent-solid);
+    outline: 2px solid var(--color-primary);
     outline-offset: 1px;
 }
 
@@ -144,7 +144,7 @@
 
 .form-field input:focus,
 .form-field select:focus {
-    outline: 2px solid var(--color-accent-solid);
+    outline: 2px solid var(--color-primary);
     outline-offset: 1px;
     background: var(--color-surface);
 }
@@ -156,40 +156,56 @@
 }
 
 /* ============ Buttons ============
-   btn-primary uses --color-accent-solid, NOT --color-accent — this is
-   the fix for the white-text-on-orange contrast failure. */
+   Filled buttons pair a *-solid background with --color-on-* text.
+   Outline/ghost buttons pair a surface background with a *-text foreground.
+   Never mix the two — that is what made buttons vanish in light mode. */
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-accent,
+.btn-danger {
     padding: 9px 18px;
     font-size: 14px;
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
     border: none;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
 .btn-primary {
     background: var(--color-navy);
-    color: #fff;
+    color: var(--color-on-navy);
 }
 
-.btn-primary:hover {
-    background: #1a2e3a;
+.btn-primary:hover:not(:disabled) {
+    background: var(--color-navy-hover);
 }
 
-.btn-primary:disabled {
-    background: var(--color-muted);
+.btn-primary:disabled,
+.btn-accent:disabled,
+.btn-danger:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
     cursor: not-allowed;
 }
 
 .btn-accent {
     background: var(--color-accent-solid);
-    color: #fff;
+    color: var(--color-on-accent);
 }
 
-.btn-accent:hover {
-    background: #a53a0c;
+.btn-accent:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+}
+
+.btn-danger {
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--color-danger-hover);
 }
 
 .btn-secondary {
@@ -198,9 +214,23 @@
     border: 1px solid var(--color-border);
 }
 
-.btn-secondary:hover {
-    border-color: var(--color-accent-solid);
+.btn-secondary:hover:not(:disabled) {
+    background: var(--color-surface-2);
+    border-color: var(--color-accent-text);
     color: var(--color-accent-text);
+}
+
+.btn-secondary:disabled {
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-accent:focus-visible,
+.btn-danger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 /* ============ Tables ============ */
@@ -241,6 +271,8 @@
     justify-content: flex-end;
 }
 
+/* On dark, --color-navy is a near-black surface color and is unreadable as
+   link text, so links use --color-ink there instead. */
 .link-btn {
     background: none;
     border: none;
@@ -251,16 +283,32 @@
     padding: 0;
 }
 
-.link-btn:hover {
-    color: var(--color-accent-text);
+.dark .link-btn {
+    color: var(--color-ink);
 }
 
-.link-btn-danger {
+.link-btn:hover {
+    color: var(--color-accent-text);
+    text-decoration: underline;
+}
+
+.link-btn-danger,
+.dark .link-btn-danger {
     color: var(--color-danger-text);
 }
 
 .link-btn-danger:hover {
-    color: #6b1c11;
+    color: var(--color-danger);
+}
+
+.dark .link-btn-danger:hover {
+    color: #fecaca;
+}
+
+.link-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 3px;
 }
 
 /* ============ Status badges ============

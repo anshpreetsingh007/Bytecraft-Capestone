@@ -1,51 +1,208 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
-:root {
-  --color-navy: #233d4d;
 
+/* ==========================================================================
+   COLOR SYSTEM
+   --------------------------------------------------------------------------
+   Every token is defined for BOTH light (:root) and dark (.dark). If you add
+   a token to one block you MUST add it to the other, or that surface will
+   silently fall back to transparent/inherited and the UI will break in one
+   theme only.
+
+   Naming rules — read before using a token:
+     *-solid  -> a filled background that ALWAYS carries white (--color-on-*)
+                 text. Contrast-checked at >= 4.5:1 in both themes.
+     *-text   -> a foreground color meant to sit on --color-bg / --color-surface.
+     *-tint   -> a low-alpha wash for badge/banner backgrounds. Never a text color.
+     *-bg + *-text pairs (success/warning/danger/info) are checked as a PAIR.
+
+   Do not put white text on a *-text token, and do not use a *-solid token as
+   a text color. That mix is what broke the admin buttons originally.
+   ========================================================================== */
+
+:root {
+  --background: #ffffff;
+  --foreground: #101828;
+
+  /* Surfaces */
+  --color-bg: #f2f4f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f9fafb;
+
+  /* Text */
   --color-ink: #101828;
+  --color-ink-soft: #344054;
   --color-muted: #475467;
 
+  /* Lines */
+  --color-border: #d0d5dd;
+  --color-line: #e4e7ec;
+
+  /* Brand navy */
+  --color-navy: #233d4d;
+  --color-navy-hover: #1a2e3a;
+  --color-navy-soft: #34576d;
+  --color-navy-tint: rgba(35, 61, 77, 0.08);
+  --color-navy-faint: rgba(35, 61, 77, 0.04);
+
+  /* Brand orange.
+     accent-solid = fill under white text (4.6:1). accent-text = orange on a
+     light surface (4.6:1). accent-bright is DECORATIVE ONLY — icon chips,
+     bar fills, illustrations. Never text, never a text background. */
+  --color-accent-solid: #b54708;
+  --color-accent-hover: #93370d;
+  --color-accent-text: #b54708;
+  --color-accent-bright: #fe7f2d;
+  --color-accent-tint: rgba(181, 71, 8, 0.1);
+  /* Legacy alias: older rules use --color-accent as a button fill, so it must
+     stay contrast-safe under white text. */
+  --color-accent: #b54708;
+
+  /* Blue */
   --color-primary: #1d4ed8;
   --color-primary-hover: #1e40af;
 
-  /* Accessible orange text */
+  /* Copper (legacy alias kept for existing call sites) */
   --color-copper: #b54708;
   --color-copper-hover: #93370d;
+  --color-copper-dark: #7a2e0a;
+  --color-orange-bright: #fe7f2d;
 
-  /* Bright orange for decorative/filled UI */
-  --color-orange-bright: #ff7a1a;
-
+  /* Foregrounds for filled surfaces */
   --color-on-navy: #ffffff;
   --color-on-navy-muted: #dbeafe;
+  --color-on-accent: #ffffff;
+  --color-on-danger: #ffffff;
 
-  --color-border: #d0d5dd;
+  /* Destructive */
+  --color-danger: #b42318;
+  --color-danger-hover: #912018;
+
+  /* Status pairs (bg + text checked together) */
+  --color-success-bg: #dcfce7;
+  --color-success-text: #166534;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #991b1b;
+  --color-info-bg: #e0f2fe;
+  --color-info-text: #075985;
+  --color-neutral-bg: #eaecf0;
+  --color-neutral-text: #475467;
+
+  /* Elevation */
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-card-lg: 0 5px 15px rgba(16, 24, 40, 0.08);
+  --shadow-modal: 0 20px 50px rgba(16, 24, 40, 0.3);
 }
 
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
 
+  /* Surfaces */
   --color-bg: #121212;
   --color-surface: #1e1e1e;
-  --color-ink: #ffffff;
-  --color-navy: #1f2937;
-  --color-accent: #fe7f2d;
+  --color-surface-2: #262626;
 
-  --color-muted: rgba(255, 255, 255, 0.6);
-  --color-border: rgba(255, 255, 255, 0.12);
+  /* Text */
+  --color-ink: #ffffff;
+  --color-ink-soft: rgba(255, 255, 255, 0.78);
+  --color-muted: rgba(255, 255, 255, 0.62);
+
+  /* Lines */
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-line: rgba(255, 255, 255, 0.08);
+
+  /* Brand navy */
+  --color-navy: #1f2937;
+  --color-navy-hover: #2b3948;
+  --color-navy-soft: #374b5e;
   --color-navy-tint: rgba(255, 255, 255, 0.08);
-  --color-accent-tint: rgba(254, 127, 45, 0.14);
+  --color-navy-faint: rgba(255, 255, 255, 0.04);
+
+  /* Brand orange. Fill darkens so white text still clears 4.5:1; text
+     lightens so orange copy clears 4.5:1 on the dark surface. */
+  --color-accent-solid: #c2410c;
+  --color-accent-hover: #9a3412;
+  --color-accent-text: #fdba74;
+  --color-accent-bright: #fe7f2d;
+  --color-accent-tint: rgba(254, 127, 45, 0.16);
+  --color-accent: #c2410c;
+
+  /* Blue */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+
+  /* Copper (legacy alias) */
+  --color-copper: #fdba74;
+  --color-copper-hover: #fed7aa;
+  --color-copper-dark: #c2410c;
+  --color-orange-bright: #fe7f2d;
+
+  /* Foregrounds for filled surfaces */
+  --color-on-navy: #ffffff;
+  --color-on-navy-muted: #cbd5e1;
+  --color-on-accent: #ffffff;
+  --color-on-danger: #ffffff;
+
+  /* Destructive */
+  --color-danger: #c5372c;
+  --color-danger-hover: #a32b1e;
+
+  /* Status pairs */
+  --color-success-bg: rgba(34, 197, 94, 0.16);
+  --color-success-text: #86efac;
+  --color-warning-bg: rgba(245, 158, 11, 0.16);
+  --color-warning-text: #fcd34d;
+  --color-danger-bg: rgba(239, 68, 68, 0.16);
+  --color-danger-text: #fca5a5;
+  --color-info-bg: rgba(56, 189, 248, 0.16);
+  --color-info-text: #7dd3fc;
+  --color-neutral-bg: rgba(255, 255, 255, 0.08);
+  --color-neutral-text: rgba(255, 255, 255, 0.62);
+
+  /* Elevation — shadows read as near-invisible on dark, so lean on borders */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-card-lg: 0 5px 15px rgba(0, 0, 0, 0.45);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.65);
 }
 
-@theme {
+/* Map the tokens above onto Tailwind utilities (bg-surface, text-ink, ...).
+   `inline` matters: it makes utilities emit var(--color-x) directly instead of
+   re-declaring --color-x in :root. Re-declaring is what previously produced
+   `--color-bg: var(--color-bg)` — a self-reference that resolves to nothing,
+   which is why light mode had no backgrounds while dark mode looked fine. */
+@theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
   --color-ink: var(--color-ink);
-  --color-navy: var(--color-navy);
-  --color-accent: var(--color-accent);
+  --color-ink-soft: var(--color-ink-soft);
   --color-muted: var(--color-muted);
   --color-border: var(--color-border);
+  --color-line: var(--color-line);
+  --color-navy: var(--color-navy);
+  --color-navy-hover: var(--color-navy-hover);
+  --color-accent: var(--color-accent);
+  --color-accent-solid: var(--color-accent-solid);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-text: var(--color-accent-text);
+  --color-accent-bright: var(--color-accent-bright);
+  --color-accent-tint: var(--color-accent-tint);
+  --color-primary: var(--color-primary);
+  --color-danger: var(--color-danger);
+  --color-danger-hover: var(--color-danger-hover);
+  --color-success-bg: var(--color-success-bg);
+  --color-success-text: var(--color-success-text);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-warning-text: var(--color-warning-text);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-danger-text: var(--color-danger-text);
+  --color-info-bg: var(--color-info-bg);
+  --color-info-text: var(--color-info-text);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
 }
 
 body {
@@ -58,87 +215,52 @@ body {
 }
 
 .page-container {
-
   min-height: 100vh;
-
-  background: #EAECF0;
-
+  background: var(--color-bg);
   padding: 40px;
-
 }
-
 
 .page-content {
-
   max-width: 900px;
-
   margin: auto;
-
 }
-
 
 .page-title {
-
-  color: #233D4D;
-
+  color: var(--color-ink);
   text-align: center;
-
   font-size: 36px;
-
   margin-bottom: 15px;
-
 }
-
 
 .page-subtitle {
-
   text-align: center;
-
-  color: #555;
-
+  color: var(--color-muted);
   margin-bottom: 35px;
-
 }
 
-
 .card {
-
-  background: white;
-
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-
   padding: 35px;
-
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-
+  box-shadow: var(--shadow-card-lg);
 }
 
 .role-badge {
-
   position: fixed;
-
   top: 20px;
-
   right: 30px;
-
-  background: #233D4D;
-
-  color: white;
-
+  background: var(--color-navy);
+  color: var(--color-on-navy);
   padding: 10px 22px;
-
   border-radius: 20px;
-
   font-weight: 600;
-
   z-index: 50;
-
-
 }
 
 .admin-full-page {
   min-height: 100vh;
-  background: #EAECF0;
+  background: var(--color-bg);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -146,22 +268,7 @@ body {
 
 .admin-header-banner {
   background: var(--color-navy);
-  color: white;
-  padding: 25px 30px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  box-sizing: border-box;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.admin-header-banner {
-  background: var(--color-navy);
-  color: white;
+  color: var(--color-on-navy);
   padding: 25px 30px;
   width: 100%;
   display: flex;
@@ -178,12 +285,12 @@ body {
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  color: white;
+  color: var(--color-on-navy);
 }
 
 .admin-header-banner p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-on-navy-muted);
   font-size: 14px;
 }
 

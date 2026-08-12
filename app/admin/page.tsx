@@ -60,8 +60,8 @@ export default function AdminHomePage() {
             </div>
           </div>
 
-          <div className="bg-surface border border-border border-t-[3px] border-t-accent rounded-[10px] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
+          <div className="bg-surface border border-border border-t-[3px] border-t-accent-solid rounded-[10px] p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-accent-solid flex items-center justify-center text-white flex-shrink-0">
               <AlertTriangle size={18} />
             </div>
             <div>
@@ -96,8 +96,8 @@ export default function AdminHomePage() {
             </div>
           </Link>
 
-          <Link href="/admin/cost-estimate/select" className="bg-surface border-2 border-border rounded-xl p-4 flex items-center gap-3.5 hover:border-accent transition-all">
-            <div className="w-11 h-11 rounded-[10px] bg-[#fe7f2d] flex items-center justify-center text-white flex-shrink-0">
+          <Link href="/admin/cost-estimate/select" className="bg-surface border-2 border-border rounded-xl p-4 flex items-center gap-3.5 hover:border-accent-solid transition-all">
+            <div className="w-11 h-11 rounded-[10px] bg-accent-solid flex items-center justify-center text-white flex-shrink-0">
               <Calculator size={20} />
             </div>
             <div>

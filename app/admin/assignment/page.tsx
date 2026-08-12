@@ -1,5 +1,6 @@
 "use client";
 
+import "../admin-shared.css";
 
 export default function AssignmentPage() {
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as notificationService from '../services/notificationService';
-import { isValidRecipientType, isValidNotificationType } from '../models/model';
+import { isValidRecipientType, isValidNotificationType, NOTIFICATION_TYPE_ERROR } from '../models/model';
 
 // create (single recipient)
 export async function create(req: Request, res: Response) {
@@ -16,7 +16,7 @@ export async function create(req: Request, res: Response) {
             return;
         }
         if (!isValidNotificationType(type)) {
-            res.status(400).json({ error: "Invalid type. Must be 'estimate_approved', 'low_stock', or 'inspection_request_submitted'." });
+            res.status(400).json({ error: NOTIFICATION_TYPE_ERROR });
             return;
         }
 
@@ -47,7 +47,7 @@ export async function broadcastAdmins(req: Request, res: Response) {
             return;
         }
         if (!isValidNotificationType(type)) {
-            res.status(400).json({ error: "Invalid type. Must be 'estimate_approved', 'low_stock', or 'inspection_request_submitted'." });
+            res.status(400).json({ error: NOTIFICATION_TYPE_ERROR });
             return;
         }
 

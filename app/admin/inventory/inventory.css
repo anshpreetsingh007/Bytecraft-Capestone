@@ -38,7 +38,7 @@
 }
 
 .search-input:focus {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-primary);
     outline-offset: 1px;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .form-field input:focus {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-primary);
     outline-offset: 1px;
     background: var(--color-surface);
 }
@@ -104,15 +104,22 @@
     border-radius: 6px;
     cursor: pointer;
     border: none;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
 .btn-primary {
     background: var(--color-navy);
-    color: #fff;
+    color: var(--color-on-navy);
 }
 
-.btn-primary:hover {
-    opacity: 0.9;
+.btn-primary:hover:not(:disabled) {
+    background: var(--color-navy-hover);
+}
+
+.btn-primary:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
+    cursor: not-allowed;
 }
 
 .btn-secondary {
@@ -121,9 +128,21 @@
     border: 1px solid var(--color-border);
 }
 
-.btn-secondary:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
+.btn-secondary:hover:not(:disabled) {
+    background: var(--color-surface-2);
+    border-color: var(--color-accent-text);
+    color: var(--color-accent-text);
+}
+
+.btn-secondary:disabled {
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 /* --- Table --- */
@@ -178,18 +197,18 @@
 }
 
 .status-in-stock {
-    background: rgba(47, 122, 65, 0.12);
-    color: #2f7a41;
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .status-low {
-    background: var(--color-accent-tint);
-    color: var(--color-accent);
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
 }
 
 .status-out {
-    background: rgba(179, 49, 31, 0.12);
-    color: #b3311f;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
 }
 
 .row-actions {
@@ -208,16 +227,33 @@
     padding: 0;
 }
 
-.link-btn:hover {
-    color: var(--color-accent);
+/* navy is a dark surface color in dark mode — unreadable as link text there. */
+.dark .link-btn {
+    color: var(--color-ink);
 }
 
-.link-btn-danger {
-    color: #b3311f;
+.link-btn:hover {
+    color: var(--color-accent-text);
+    text-decoration: underline;
+}
+
+.link-btn-danger,
+.dark .link-btn-danger {
+    color: var(--color-danger-text);
 }
 
 .link-btn-danger:hover {
-    color: #8c2517;
+    color: var(--color-danger);
+}
+
+.dark .link-btn-danger:hover {
+    color: #fecaca;
+}
+
+.link-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 3px;
 }
 
 .empty-state {

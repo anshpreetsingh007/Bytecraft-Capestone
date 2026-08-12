@@ -1,6 +1,6 @@
 "use client";
 import "../globals.css";
-import { LayoutDashboard, Package, Calculator, FileText, BarChart3, Shield } from "lucide-react";
+import { LayoutDashboard, Package, Calculator, ClipboardCheck, FileText, BarChart3, Shield } from "lucide-react";
 import { DashboardNav } from "../../components/DashboardNav";
 import { RoleGuard } from "../../components/RoleGuard";
 import { useAuth } from "../../Context/AuthContext";
@@ -8,8 +8,12 @@ import { useAuth } from "../../Context/AuthContext";
 const adminNavItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
-  { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
   { label: "Inspections", href: "/admin/inspection-requests", icon: FileText },
+  // The approve/reject queue for estimates inspectors have submitted. This
+  // was previously reachable only by typing the URL, which left submitted
+  // estimates with no way of being actioned.
+  { label: "Estimates", href: "/admin/estimates", icon: ClipboardCheck },
+  { label: "New Estimate", href: "/admin/cost-estimate", icon: Calculator },
   { label: "Reports", href: "/admin/reports", icon: BarChart3 },
 ];
 

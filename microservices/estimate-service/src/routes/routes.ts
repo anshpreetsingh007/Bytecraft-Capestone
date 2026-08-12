@@ -10,6 +10,9 @@ router.get('/', estimateController.getAll);
 // GET /api/estimates/client/3 — get all estimates for client #3
 router.get('/client/:clientId', estimateController.getByClient);
 
+// GET /api/estimates/inspector/3?limit=5 — estimates authored by inspector #3
+router.get('/inspector/:inspectorId', estimateController.getByInspector);
+
 // GET /api/estimates/7 — get estimate #7
 router.get('/:id', estimateController.getById);
 
