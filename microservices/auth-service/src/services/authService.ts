@@ -81,3 +81,77 @@ export async function getAllInspectors(): Promise<ResolvedUser[]> {
   }));
 }
 
+// ─── GET ALL USERS (FOR SUPER ADMIN) ───
+export async function getAllUsers(): Promise<(ResolvedUser & { firebaseUid: string })[]> {
+  const result = await pool.query(
+    `
+        SELECT 'super_admin' AS role, super_admin_id AS id, first_name, last_name, email, firebase_uid
+            FROM super_admin
+        UNION ALL
+        SELECT 'admin' AS role, admin_id AS id, first_name, last_name, email, firebase_uid
+            FROM admin
+        UNION ALL
+        SELECT 'inspector' AS role, inspector_id AS id, first_name, last_name, email, firebase_uid
+            FROM inspector
+        UNION ALL
+        SELECT 'client' AS role, client_id AS id, first_name, last_name, email, firebase_uid
+            FROM client
+        `
+  );
+
+  // Since a user might exist in multiple tables (e.g. client and inspector), 
+  // we will deduplicate them by firebase_uid, keeping the highest privilege role.
+  // The UNION ALL order doesn't guarantee final result order, so we do it in code.
+  const rolePriority: Record<string, number> = {
+    'super_admin': 4,
+    'admin': 3,
+    'inspector': 2,
+    'client': 1
+  };
+
+  const userMap = new Map<string, any>();
+  for (const row of result.rows) {
+    const existing = userMap.get(row.firebase_uid);
+    if (!existing || rolePriority[row.role] > rolePriority[existing.role]) {
+      userMap.set(row.firebase_uid, row);
+    }
+  }
+
+  return Array.from(userMap.values()).map(row => ({
+    role: row.role,
+    id: row.id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+    firebaseUid: row.firebase_uid
+  }));
+}
+
+// ─── ASSIGN ROLE (FOR SUPER ADMIN) ───
+export async function assignRole(firebaseUid: string, newRole: string, firstName: string, lastName: string, email: string): Promise<void> {
+  // We only support promoting to inspector or admin. 
+  // Super admin should be done directly in DB. Client is default.
+  if (newRole === 'inspector') {
+    await pool.query(
+      `INSERT INTO inspector (firebase_uid, first_name, last_name, email, role_inspector)
+       VALUES ($1, $2, $3, $4, 'inspector')
+       ON CONFLICT (firebase_uid) DO NOTHING`,
+      [firebaseUid, firstName, lastName, email]
+    );
+  } else if (newRole === 'admin') {
+    await pool.query(
+      `INSERT INTO admin (firebase_uid, first_name, last_name, email, role_admin)
+       VALUES ($1, $2, $3, $4, 'admin')
+       ON CONFLICT (firebase_uid) DO NOTHING`,
+      [firebaseUid, firstName, lastName, email]
+    );
+  } else if (newRole === 'client') {
+    // Demoting back to client: we delete them from admin/inspector if they exist there.
+    // They should already have a client record from when they first signed up.
+    await pool.query(`DELETE FROM admin WHERE firebase_uid = $1`, [firebaseUid]);
+    await pool.query(`DELETE FROM inspector WHERE firebase_uid = $1`, [firebaseUid]);
+  } else {
+    throw new Error(`Unsupported role assignment: ${newRole}`);
+  }
+}
+

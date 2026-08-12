@@ -18,6 +18,7 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  exact?: boolean;
 }
 
 export function DashboardNav({
@@ -35,10 +36,13 @@ export function DashboardNav({
   const router = useRouter();
   const { logOut } = useAuth();
 
-  function isActive(href: string) {
+  function isActive(item: NavItem) {
+    if (item.exact) {
+      return pathname === item.href;
+    }
     return (
-      pathname === href ||
-      pathname.startsWith(`${href}/`)
+      pathname === item.href ||
+      pathname.startsWith(`${item.href}/`)
     );
   }
 
@@ -63,22 +67,22 @@ export function DashboardNav({
           aria-label={`${roleLabel} navigation`}
         >
           {navItems.map(
-            ({ label, href, icon: Icon }) => (
+            (item) => (
               <Link
-                key={href}
-                href={href}
+                key={item.href}
+                href={item.href}
                 className={`topnav-link ${
-                  isActive(href)
+                  isActive(item)
                     ? "topnav-link-active"
                     : ""
                 }`}
               >
-                <Icon
+                <item.icon
                   size={18}
                   aria-hidden="true"
                 />
 
-                <span>{label}</span>
+                <span>{item.label}</span>
               </Link>
             )
           )}
@@ -161,25 +165,25 @@ export function DashboardNav({
               aria-label={`${roleLabel} mobile navigation`}
             >
               {navItems.map(
-                ({ label, href, icon: Icon }) => (
+                (item) => (
                   <Link
-                    key={href}
-                    href={href}
+                    key={item.href}
+                    href={item.href}
                     onClick={() =>
                       setMobileOpen(false)
                     }
                     className={`mobile-menu-link ${
-                      isActive(href)
+                      isActive(item)
                         ? "mobile-menu-link-active"
                         : ""
                     }`}
                   >
-                    <Icon
+                    <item.icon
                       size={20}
                       aria-hidden="true"
                     />
 
-                    <span>{label}</span>
+                    <span>{item.label}</span>
                   </Link>
                 )
               )}

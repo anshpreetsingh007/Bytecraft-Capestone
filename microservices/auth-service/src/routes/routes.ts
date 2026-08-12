@@ -12,4 +12,10 @@ router.post('/register', authController.register);
 // GET /api/auth/inspectors — get all inspectors
 router.get('/inspectors', authController.getInspectors);
 
+// GET /api/auth/users — get all users (super admin only)
+router.get('/users', authController.getAllUsers);
+
+// PATCH /api/auth/users/role — assign a new role to a user
+router.patch('/users/role', authController.assignRole);
+
 export default router;

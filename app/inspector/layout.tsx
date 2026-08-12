@@ -17,6 +17,7 @@ const inspectorNavItems = [
     label: "Dashboard",
     href: "/inspector/dashboard",
     icon: LayoutDashboard,
+    exact: true,
   },
   {
     label: "Inspections",

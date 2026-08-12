@@ -1,10 +1,12 @@
 "use client";
 import "../globals.css";
-import { LayoutDashboard, Package, Calculator, FileText, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Package, Calculator, FileText, BarChart3, Shield } from "lucide-react";
 import { DashboardNav } from "../../components/DashboardNav";
+import { RoleGuard } from "../../components/RoleGuard";
+import { useAuth } from "../../Context/AuthContext";
 
 const adminNavItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
   { label: "Estimate", href: "/admin/cost-estimate", icon: Calculator },
   { label: "Inspections", href: "/admin/inspection-requests", icon: FileText },
@@ -16,10 +18,23 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { role } = useAuth();
+  
+  const navItems = [...adminNavItems];
+  if (role === "super_admin") {
+    navItems.push({
+      label: "Super Admin",
+      href: "/admin/superadmin",
+      icon: Shield,
+    });
+  }
+
   return (
-    <div className="min-h-screen bg-bg">
-      <DashboardNav roleLabel="Admin" navItems={adminNavItems} />
-      <main className="p-6">{children}</main>
-    </div>
+    <RoleGuard allowedRoles={["admin", "super_admin"]}>
+      <div className="min-h-screen bg-bg">
+        <DashboardNav roleLabel={role === "super_admin" ? "Super Admin" : "Admin"} navItems={navItems} />
+        <main className="p-6">{children}</main>
+      </div>
+    </RoleGuard>
   );
 }

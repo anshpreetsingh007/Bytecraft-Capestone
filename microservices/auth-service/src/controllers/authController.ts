@@ -66,3 +66,33 @@ export async function getInspectors(req: Request, res: Response) {
     }
 }
 
+// getAllUsers
+// GET /api/auth/users
+export async function getAllUsers(req: Request, res: Response) {
+    try {
+        const users = await authService.getAllUsers();
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching all users:', error);
+        res.status(500).json({ error: 'Failed to fetch all users' });
+    }
+}
+
+// assignRole
+// PATCH /api/auth/users/role
+export async function assignRole(req: Request, res: Response) {
+    try {
+        const { firebase_uid, role, first_name, last_name, email } = req.body;
+
+        if (!firebase_uid || !role || !first_name || !last_name || !email) {
+            res.status(400).json({ error: 'Missing required fields: firebase_uid, role, first_name, last_name, email' });
+            return;
+        }
+
+        await authService.assignRole(firebase_uid, role, first_name, last_name, email);
+        res.status(200).json({ success: true, message: `Successfully assigned role ${role}` });
+    } catch (error: any) {
+        console.error('Error assigning role:', error);
+        res.status(500).json({ error: error.message || 'Failed to assign role' });
+    }
+}
