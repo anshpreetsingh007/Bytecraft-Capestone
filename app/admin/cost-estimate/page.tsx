@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../Context/AuthContext";
-import { Skeleton } from "../../../components/Skeleton";
+
 import SelectInspectionPage from "./select/page";
 import "./cost-estimate.css";
 
