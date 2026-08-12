@@ -9,7 +9,7 @@ import { AuthLogo } from "../../components/AuthLogo";
 import { AuthHeroPanel } from "../../components/AuthHeroPanel";
 import { PasswordInput } from "../../components/PasswordInput";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import "../../styles/auth.css";
+import "../styles/auth.css";
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
