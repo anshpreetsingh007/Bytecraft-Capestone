@@ -119,7 +119,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/customer/contact"
-              className="inline-flex items-center justify-center bg-[#ff7a1a] hover:bg-[#e96a10] text-white font-bold px-[26px] py-3.5 rounded-md transition-colors"
+              className="inline-flex items-center justify-center bg-copper hover:bg-copper-dark text-white font-bold px-[26px] py-3.5 rounded-md transition-colors"
             >
               Get a Free Quote
             </Link>
@@ -372,7 +372,7 @@ export default function Home() {
 
           <Link
             href="/customer/contact"
-            className="inline-flex items-center justify-center bg-[#ff7a1a] hover:bg-[#e96a10] text-white font-bold px-[26px] py-3.5 rounded-md transition-colors"
+            className="inline-flex items-center justify-center bg-copper hover:bg-copper-dark text-white font-bold px-[26px] py-3.5 rounded-md transition-colors"
           >
             Request Your Free Quote
           </Link>

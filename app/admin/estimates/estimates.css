@@ -62,7 +62,7 @@
    outline to stay distinguishable from its inactive siblings. */
 .dark .estimate-filters button.active {
 
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
     color: var(--color-on-navy);
 }
 

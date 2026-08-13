@@ -119,7 +119,7 @@
 }
 
 .dark .admin-page th {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
 }
 
 .admin-page td {

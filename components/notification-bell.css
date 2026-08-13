@@ -165,7 +165,10 @@
 .notif-bell-item-title svg {
 
     flex-shrink: 0;
-    color: var(--color-accent);
+    /* --color-accent is the button-fill orange and only reaches 3.22:1 as a
+       foreground on the dark surface. This icon carries meaning (it flags the
+       notification type), so it uses the text-tuned orange instead. */
+    color: var(--color-accent-text);
 }
 
 .notif-bell-item-message {

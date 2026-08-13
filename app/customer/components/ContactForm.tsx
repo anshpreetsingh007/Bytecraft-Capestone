@@ -237,7 +237,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center bg-copper hover:bg-copper-dark text-black font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors disabled:opacity-60"
+          className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors disabled:opacity-60"
         >
           {isSubmitting ? "Submitting…" : "Request Free Quote"}
         </button>

@@ -10,6 +10,10 @@
     --auth-primary: #010000;
     --auth-primary-hover: #000000;
     --auth-primary-active: #7a2e0e;
+    /* Link foregrounds on the light page — see the .dark block for why these
+       are separate from --auth-primary. */
+    --auth-link: #b54708;
+    --auth-link-hover: #7a2e0e;
     
 
     --auth-focus: #005fcc;
@@ -28,15 +32,24 @@
     --auth-text: var(--color-ink);
     --auth-text-secondary: var(--color-muted);
     --auth-border: rgba(255, 255, 255, 0.2);
-    --auth-primary: #fe7f2d;
-    --auth-primary-hover: #e06f20;
-    --auth-primary-active: #c55e18;
+    /* The submit button puts white text on --auth-primary. The bright brand
+       orange (#fe7f2d) only reaches 2.53:1 against white, so the fill is
+       darkened here to clear 4.5:1 while staying recognisably orange.
+       Use the bright tone for decorative fills only, never behind text. */
+    --auth-primary: #c2410c;
+    --auth-primary-hover: #9a3412;
+    --auth-primary-active: #7c2d12;
+    /* Links use the orange as a FOREGROUND on the dark page, which needs the
+       opposite adjustment — a lighter tone. One token can't do both jobs. */
+    --auth-link: #fdba74;
+    --auth-link-hover: #fed7aa;
     --auth-focus: #60a5fa;
     --auth-error: #f87171;
     --auth-error-background: rgba(248, 113, 113, 0.1);
     --auth-error-border: rgba(248, 113, 113, 0.3);
     --auth-disabled-background: #3a3f47;
-    --auth-disabled-text: #9ca3af;
+    /* was #9ca3af — 4.17:1 on the disabled fill */
+    --auth-disabled-text: #a8afb8;
 }
 
 /* Page background */
@@ -229,7 +242,7 @@
 .auth-link,
 .auth-switch a,
 .auth-back {
-    color: var(--auth-primary);
+    color: var(--auth-link);
     font-weight: 700;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -239,7 +252,7 @@
 .auth-link:hover,
 .auth-switch a:hover,
 .auth-back:hover {
-    color: var(--auth-primary-hover);
+    color: var(--auth-link-hover);
     text-decoration-thickness: 2px;
 }
 
@@ -433,7 +446,7 @@
 .auth-switch a,
 .auth-link,
 .auth-back {
-    color: var(--auth-primary);
+    color: var(--auth-link);
 }
 
 .auth-submit:hover:not(:disabled) {

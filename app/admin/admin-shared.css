@@ -148,7 +148,7 @@
 
 /* navy sits very close to the dark surface color, so lift it on dark. */
 .dark .assignment-item button {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
 }
 
 .assignment-item button:hover:not(:disabled) {

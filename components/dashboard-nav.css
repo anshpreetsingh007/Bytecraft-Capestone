@@ -93,7 +93,7 @@
 }
 
 .topnav-link-active {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
     color: #ffffff;
 }
 
@@ -307,7 +307,7 @@
 }
 
 .mobile-menu-link-active {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
 }
 
 .mobile-menu-logout {

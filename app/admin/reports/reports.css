@@ -134,7 +134,7 @@
 
 .dark .period-selector button.active {
 
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
     color: var(--color-on-navy);
 }
 

@@ -14,6 +14,7 @@ export function AuthHeroPanel({ headline, subtext, imageSrc }: AuthHeroPanelProp
           src={imageSrc}
           alt=""
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="auth-hero-illustration"
           style={{ objectFit: "cover" }}
           priority

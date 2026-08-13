@@ -115,7 +115,7 @@ export default function Services() {
           <p className="text-navy-soft max-w-[50ch] mx-auto mt-4 mb-8">
             Tell us what&apos;s going on and we&apos;ll point you toward the right fix — no obligation.
           </p>
-          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-black font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Talk to a Roofer
           </Link>
         </div>

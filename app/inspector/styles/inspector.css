@@ -345,7 +345,7 @@
 }
 
 .dark .dash-stat-icon-navy {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
 }
 
 .dash-stat-icon-accent {
@@ -615,7 +615,7 @@
 }
 
 .dark .dash-btn-primary {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
 }
 
 .dash-btn-primary:hover:not(:disabled) {

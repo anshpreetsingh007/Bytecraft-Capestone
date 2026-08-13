@@ -37,6 +37,7 @@ export function AuthLogo({ panel }: AuthLogoProps) {
       width={160}
       height={40}
       className="auth-logo-img"
+      style={{ width: 'auto', height: 'auto' }}
       priority
     />
   );

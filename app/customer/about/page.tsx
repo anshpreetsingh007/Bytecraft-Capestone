@@ -95,7 +95,7 @@ export default function About() {
           <p className="text-navy-soft max-w-[50ch] mx-auto mt-4 mb-8">
             Reach out for a free estimate — we&apos;ll walk the roof with you and explain exactly what we find.
           </p>
-          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-black font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
+          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
             Request Your Free Quote
           </Link>
         </div>

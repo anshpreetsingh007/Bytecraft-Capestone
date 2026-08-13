@@ -50,7 +50,7 @@
 }
 
 .dark .request-filters button.active {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
     color: var(--color-on-navy);
 }
 
@@ -275,7 +275,7 @@
 }
 
 .dark .btn-assign {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
 }
 
 .btn-assign:hover:not(:disabled) {
@@ -284,7 +284,7 @@
 }
 
 .dark .btn-assign:hover:not(:disabled) {
-    background: var(--color-navy-soft);
+    background: var(--color-navy-raised);
     filter: brightness(1.15);
 }
 

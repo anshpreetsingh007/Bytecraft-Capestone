@@ -41,7 +41,7 @@
   /* Brand navy */
   --color-navy: #233d4d;
   --color-navy-hover: #1a2e3a;
-  --color-navy-soft: #34576d;
+  --color-navy-raised: #34576d;
   --color-navy-tint: rgba(35, 61, 77, 0.08);
   --color-navy-faint: rgba(35, 61, 77, 0.04);
 
@@ -75,8 +75,8 @@
   --color-on-danger: #ffffff;
 
   /* Destructive */
-  --color-danger: #b42318;
-  --color-danger-hover: #912018;
+  --color-danger: #9a1f15;
+  --color-danger-hover: #7f1a11;
 
   /* Status pairs (bg + text checked together) */
   --color-success-bg: #dcfce7;
@@ -117,7 +117,7 @@
   /* Brand navy */
   --color-navy: #1f2937;
   --color-navy-hover: #2b3948;
-  --color-navy-soft: #374b5e;
+  --color-navy-raised: #2c3e50;
   --color-navy-tint: rgba(255, 255, 255, 0.08);
   --color-navy-faint: rgba(255, 255, 255, 0.04);
 
@@ -147,8 +147,8 @@
   --color-on-danger: #ffffff;
 
   /* Destructive */
-  --color-danger: #c5372c;
-  --color-danger-hover: #a32b1e;
+  --color-danger: #a82a20;
+  --color-danger-hover: #8c2219;
 
   /* Status pairs */
   --color-success-bg: rgba(34, 197, 94, 0.16);
@@ -203,6 +203,9 @@
   --color-info-text: var(--color-info-text);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+
+  /* Trimmed system font stack — max 7 entries */
+  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
 }
 
 body {

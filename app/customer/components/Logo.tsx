@@ -30,7 +30,8 @@ export default function Logo() {
         alt="Markit Roofing"
         width={100}
         height={88}
-        className="h-8 w-auto"
+        className="h-8"
+        style={{ width: 'auto', height: 'auto' }}
         priority
       />
     </Link>
