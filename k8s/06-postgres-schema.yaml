@@ -1,4 +1,4 @@
-﻿apiVersion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init-script
@@ -123,31 +123,6 @@ data:
         request_id INTEGER,
         order_date DATE,
         status VARCHAR(30),
-        FOREIGN KEY (client_id) REFERENCES client(client_id),
-        FOREIGN KEY (request_id) REFERENCES inspection_request(request_id)
-    );
-    -- =====================================================
-    -- 10. COST ESTIMATE TABLE
-    -- =====================================================
-    CREATE TABLE cost_estimate (
-        estimate_id SERIAL PRIMARY KEY,
-        order_id INTEGER,
-        inspector_id INTEGER,
-        admin_id INTEGER,
-        details TEXT,
-        estimate_date DATE,
-        status VARCHAR(30),
-        material_id INTEGER,
-        material_quantity NUMERIC,
-        FOREIGN KEY (order_id) REFERENCES orders(order_id),
-        FOREIGN KEY (inspector_id) REFERENCES inspector(inspector_id),
-        FOREIGN KEY (admin_id) REFERENCES admin(admin_id)
-    );
-    -- =====================================================
-    -- 11. INVOICE TABLE
-    -- =====================================================
-    CREATE TABLE invoice (
-        invoice_id SERIAL PRIMARY KEY,
         order_id INTEGER,
         client_id INTEGER,
         estimate_id INTEGER,
