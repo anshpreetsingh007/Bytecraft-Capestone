@@ -84,10 +84,48 @@
     color: var(--color-ink);
 }
 
+.form-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    cursor: pointer;
+}
+
+.form-field select:focus,
 .form-field input:focus {
     outline: 2px solid var(--color-primary);
     outline-offset: 1px;
     background: var(--color-surface);
+}
+
+.new-category-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    margin-top: 8px;
+}
+
+.new-category-input:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    background: var(--color-surface);
+}
+
+.field-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-top: 5px;
 }
 
 .form-actions {
@@ -145,6 +183,105 @@
     outline-offset: 2px;
 }
 
+.btn-danger {
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    background: var(--color-danger);
+    color: #ffffff;
+    transition: background-color 150ms ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--color-danger-hover);
+}
+
+.btn-danger:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.btn-danger:focus-visible {
+    outline: 2px solid var(--color-danger);
+    outline-offset: 2px;
+}
+
+/* --- Confirmation modals (save / delete) --- */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 24, 40, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.modal-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0 0 10px;
+}
+
+.modal-title-danger {
+    color: var(--color-danger-text);
+}
+
+.modal-body {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+
+.modal-confirm-label {
+    display: block;
+    font-size: 13px;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+}
+
+.modal-confirm-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-danger);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    margin-bottom: 18px;
+}
+
+.modal-confirm-input:focus {
+    outline: 2px solid var(--color-danger);
+    outline-offset: 1px;
+    background: var(--color-surface);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 /* --- Table --- */
 
 .inventory-table {
@@ -157,7 +294,7 @@
 .table-header-row,
 .table-row {
     display: grid;
-    grid-template-columns: 2fr 1.3fr 1.2fr 1fr auto;
+    grid-template-columns: 2fr 1.3fr 1.2fr 1fr 1fr auto;
     align-items: center;
     gap: 12px;
     padding: 12px 18px;
