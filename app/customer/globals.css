@@ -1,9 +1,21 @@
 @import "tailwindcss";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  /* =========================
+     TYPOGRAPHY
+  ========================= */
+
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+
+  /* =========================
+     LIGHT MODE
+  ========================= */
+
   --background: #eaecf0;
-  --foreground: #000000;
+  --foreground: #101828;
 
   --ink-soft: #4b5a63;
   --paper-dim: #dee1e7;
@@ -15,47 +27,147 @@
   --navy-soft: #dbe1e5;
   --navy-faint: #b8c1c7;
 
-  /* Accessible copper/orange for TEXT */
+  /* Accessible orange for text */
   --copper: #a83f0b;
   --copper-dark: #873309;
 
-  /* Bright orange can still be used for fills/icons */
+  /* Bright orange for decorative use / fills */
   --copper-bright: #fe7f2d;
 
   --focus-ring: var(--navy);
 }
 
 .dark {
+  /* =========================
+     DARK MODE
+  ========================= */
+
   --background: #181c20;
   --foreground: #e8eaed;
-  --ink-soft: #9ca3af;
+
+  --ink-soft: #c5cad1;
   --paper-dim: #1f2328;
-  --line: #33383e;
-  --navy-soft: #c7cdd2;
-  --navy-faint: #899299;
-  --focus-ring: var(--copper);
+  --line: #454b52;
+
+  --navy: #233d4d;
+
+  --navy-soft: #dbe1e5;
+  --navy-faint: #c0c7cd;
+
+  --copper: #fdba74;
+  --copper-dark: #fb923c;
+  --copper-bright: #fe7f2d;
+
+  --focus-ring: #60a5fa;
 }
+
+/* =========================
+   TAILWIND THEME TOKENS
+========================= */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-ink-soft: var(--ink-soft);
   --color-paper-dim: var(--paper-dim);
   --color-line: var(--line);
+
   --color-navy: var(--navy);
   --color-navy-soft: var(--navy-soft);
   --color-navy-faint: var(--navy-faint);
+
   --color-copper: var(--copper);
   --color-copper-dark: var(--copper-dark);
+  --color-copper-bright: var(--copper-bright);
 
-  --font-display: var(--font-inter);
-  --font-body: var(--font-inter);
-  --font-mono: var(--font-inter);
+  --font-display: Arial, Helvetica, sans-serif;
+  --font-body: Arial, Helvetica, sans-serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+}
+
+/* =========================
+   GLOBAL RESET
+========================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  font-family: var(--font-sans);
 }
+
+body {
+  margin: 0;
+
+  background: var(--background);
+  color: var(--foreground);
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.55;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin-top: 0;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font-size: inherit;
+}
+
+/* =========================
+   ACCESSIBLE FOCUS
+========================= */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* =========================
+   REDUCED MOTION
+========================= */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -71,44 +183,33 @@ html {
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body), Arial, Helvetica, sans-serif;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-}
-
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
+/* =========================
+   ROOF LINE
+========================= */
 
 .roofline {
   width: 100%;
   height: 16px;
-  background-image: linear-gradient(135deg, var(--line) 25%, transparent 25.5%),
-    linear-gradient(225deg, var(--line) 25%, transparent 25.5%);
+
+  background-image:
+    linear-gradient(135deg,
+      var(--line) 25%,
+      transparent 25.5%),
+    linear-gradient(225deg,
+      var(--line) 25%,
+      transparent 25.5%);
+
   background-position: 0 0;
   background-size: 24px 16px;
   background-repeat: repeat-x;
 }
 
 .roofline.on-dark {
-  background-image: linear-gradient(135deg, rgba(234, 236, 240, 0.16) 25%, transparent 25.5%),
-    linear-gradient(225deg, rgba(234, 236, 240, 0.16) 25%, transparent 25.5%);
+  background-image:
+    linear-gradient(135deg,
+      rgba(234, 236, 240, 0.16) 25%,
+      transparent 25.5%),
+    linear-gradient(225deg,
+      rgba(234, 236, 240, 0.16) 25%,
+      transparent 25.5%);
 }

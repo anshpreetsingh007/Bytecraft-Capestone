@@ -92,44 +92,73 @@ export default function Home() {
       ========================= */}
 
       <section className="relative overflow-hidden">
+        {/* Background */}
         <div className="absolute inset-0">
           <Image
             src="/images/home/hero.jpg"
-            alt="Close-up of textured asphalt roofing shingles"
+            alt="Residential roofing"
             fill
             priority
             className="object-cover"
           />
 
-          <div className="absolute inset-0 bg-navy/90 dark:bg-navy/90" />
+          {/* Overall tint */}
+          <div className="absolute inset-0 bg-navy/50 dark:bg-navy/65" />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent dark:to-navy/40" />
+          {/* Stronger contrast behind text */}
+          <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/60 to-navy/20" />
         </div>
 
-        <div className="relative max-w-[1120px] mx-auto px-7 pt-40 pb-24">
-          <h1 className="font-bold text-white text-[2.4rem] sm:text-5xl lg:text-[4rem] max-w-[14ch] leading-[1.05]">
-            Roofing inspections, simplified.
-          </h1>
+        {/* Hero content */}
+        <div className="relative z-10 max-w-[1120px] mx-auto px-7 py-28 sm:py-32 lg:py-36">
+          <div className="max-w-[620px]">
+            <h1 className="font-bold !text-white text-[2.6rem] sm:text-5xl lg:text-[4rem] max-w-[13ch] leading-[1.05] tracking-[-0.02em]">
+              Roofing inspections, simplified.
+            </h1>
 
-          <p className="text-white/85 text-lg max-w-[46ch] mt-6 mb-8">
-            Capture findings, manage inspections, and build estimates with a
-            faster, more organized workflow.
-          </p>
+            <p className="!text-white/90 text-lg max-w-[44ch] mt-6 mb-8 leading-relaxed">
+              Capture findings, manage inspections, and build estimates with a
+              faster, more organized workflow.
+            </p>
 
-          <div className="flex flex-wrap gap-4">
-            <Link
-              href="/customer/contact"
-              className="inline-flex items-center justify-center bg-copper hover:bg-copper-dark text-white font-bold px-[26px] py-3.5 rounded-md transition-colors"
-            >
-              Get a Free Quote
-            </Link>
+            {/* Same button style for BOTH */}
+            <div className="flex flex-wrap gap-4">
+              <Link
+                href="/customer/contact"
+                className="
+                  inline-flex items-center justify-center
+                  min-h-[46px]
+                  hover:bg-[#1a2e3a]
+                  border border-[#233d4d]
+                  text-white
+                  font-bold
+                  px-7 py-3
+                  rounded-md
+                  shadow-sm
+                  transition-colors
+                "
+              >
+                Get a Free Quote
+              </Link>
 
-            <Link
-              href="/customer/services"
-              className="inline-flex items-center justify-center border border-white/35 hover:border-white hover:bg-white/10 text-white font-semibold px-[26px] py-3.5 rounded-md transition-colors"
-            >
-              See Our Services
-            </Link>
+              <Link
+                href="/customer/services"
+                className="
+                  inline-flex items-center justify-center
+                  min-h-[46px]
+                  hover:bg-[#1a2e3a]
+                  border border-[#233d4d]
+                  text-white
+                  font-bold
+                  px-7 py-3
+                  rounded-md
+                  shadow-sm
+                  transition-colors
+                "
+              >
+                See Our Services
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -137,22 +166,19 @@ export default function Home() {
       <RoofLine />
 
       {/* =========================
-          TRUST / STATS
+          TRUST / CERTIFICATIONS
       ========================= */}
 
       <section className="bg-background py-14">
         <div className="max-w-[1120px] mx-auto px-7">
-        
-          {/* Certifications */}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex items-start gap-4 bg-paper-dim border border-line rounded-lg p-6">
               <div className="shrink-0 w-11 h-11 rounded-full bg-navy text-white flex items-center justify-center font-bold text-sm">
                 SC
               </div>
 
               <div>
-                <h3 className="text-[1.05rem] font-bold mb-1">
+                <h3 className="text-[1.05rem] font-bold mb-1 text-foreground">
                   SeCOR Certified
                 </h3>
 
@@ -169,7 +195,7 @@ export default function Home() {
               </div>
 
               <div>
-                <h3 className="text-[1.05rem] font-bold mb-1">
+                <h3 className="text-[1.05rem] font-bold mb-1 text-foreground">
                   AARA Member Since 2019
                 </h3>
 
@@ -190,11 +216,11 @@ export default function Home() {
       <section className="bg-paper-dim py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="max-w-[60ch] mb-12">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-copper block mb-3">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
               What We Do
             </span>
 
-            <h2 className="font-bold text-[1.7rem] sm:text-[2.3rem]">
+            <h2 className="font-bold text-foreground text-[1.7rem] sm:text-[2.3rem]">
               Everything your roof needs, handled.
             </h2>
           </div>
@@ -215,17 +241,17 @@ export default function Home() {
                 </div>
 
                 <div className="p-7">
-                  <h3 className="text-[1.15rem] font-bold mb-2">
+                  <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
                     {service.title}
                   </h3>
 
-                  <p className="text-ink-soft text-[0.96rem]">
+                  <p className="text-ink-soft text-[0.96rem] leading-relaxed">
                     {service.body}
                   </p>
 
                   <Link
                     href="/customer/services"
-                    className="inline-block mt-3.5 text-sm font-semibold text-navy dark:text-copper hover:text-copper dark:hover:text-[#ff9d5c]"
+                    className="inline-block mt-3.5 text-sm font-bold text-navy dark:text-white hover:underline"
                   >
                     Learn more →
                   </Link>
@@ -240,14 +266,14 @@ export default function Home() {
           PROCESS
       ========================= */}
 
-      <section className="bg-paper-dim py-[88px]">
+      <section className="bg-background py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="max-w-[60ch] mb-12">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-copper block mb-3">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
               How It Works
             </span>
 
-            <h2 className="font-bold text-[1.7rem] sm:text-[2.3rem]">
+            <h2 className="font-bold text-foreground text-[1.7rem] sm:text-[2.3rem]">
               From first call to final walkthrough
             </h2>
           </div>
@@ -260,16 +286,16 @@ export default function Home() {
                   index === steps.length - 1 ? "border-b" : ""
                 }`}
               >
-                <span className="font-bold text-navy dark:text-copper text-[2rem] leading-none">
+                <span className="font-bold text-navy dark:text-white text-[2rem] leading-none">
                   {step.num}
                 </span>
 
                 <div>
-                  <h3 className="text-[1.1rem] font-bold mb-1">
+                  <h3 className="text-foreground text-[1.1rem] font-bold mb-1">
                     {step.title}
                   </h3>
 
-                  <p className="text-ink-soft m-0">
+                  <p className="text-ink-soft m-0 leading-relaxed">
                     {step.body}
                   </p>
                 </div>
@@ -283,14 +309,14 @@ export default function Home() {
           TESTIMONIALS
       ========================= */}
 
-      <section className="py-[88px]">
+      <section className="bg-paper-dim py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="max-w-[60ch] mx-auto text-center mb-12">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-copper block mb-3">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
               Customer Reviews
             </span>
 
-            <h2 className="font-bold text-[1.7rem] sm:text-[2.3rem]">
+            <h2 className="font-bold text-foreground text-[1.7rem] sm:text-[2.3rem]">
               What homeowners say about us
             </h2>
           </div>
@@ -299,9 +325,9 @@ export default function Home() {
             {testimonials.map((testimonial) => (
               <div
                 key={testimonial.who}
-                className="bg-paper-dim border border-line border-l-[3px] border-l-copper rounded-lg p-7"
+                className="bg-background border border-line border-l-[3px] border-l-navy rounded-lg p-7"
               >
-                <p className="text-foreground mb-[18px]">
+                <p className="text-foreground mb-[18px] leading-relaxed">
                   &quot;{testimonial.quote}&quot;
                 </p>
 
@@ -318,14 +344,14 @@ export default function Home() {
           FAQ
       ========================= */}
 
-      <section className="bg-paper-dim py-[88px]">
+      <section className="bg-background py-[88px]">
         <div className="max-w-[820px] mx-auto px-7">
           <div className="mb-10">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-copper block mb-3">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
               Questions
             </span>
 
-            <h2 className="font-bold text-[1.7rem] sm:text-[2.3rem]">
+            <h2 className="font-bold text-foreground text-[1.7rem] sm:text-[2.3rem]">
               Frequently asked questions
             </h2>
           </div>
@@ -341,12 +367,12 @@ export default function Home() {
                 <summary className="flex items-center justify-between gap-4 cursor-pointer list-none text-[1.02rem] font-semibold text-foreground">
                   {item.q}
 
-                  <span className="shrink-0 text-navy dark:text-copper text-xl leading-none group-open:rotate-45 transition-transform">
+                  <span className="shrink-0 text-navy dark:text-white text-xl leading-none group-open:rotate-45 transition-transform">
                     +
                   </span>
                 </summary>
 
-                <p className="text-ink-soft mt-3 mb-0">
+                <p className="text-ink-soft mt-3 mb-0 leading-relaxed">
                   {item.a}
                 </p>
               </details>
@@ -361,11 +387,11 @@ export default function Home() {
 
       <section className="bg-navy text-white text-center py-20">
         <div className="max-w-[1120px] mx-auto px-7">
-          <h2 className="font-bold text-white text-[1.7rem] sm:text-[2.4rem]">
+          <h2 className="font-bold !text-white text-[1.7rem] sm:text-[2.4rem]">
             Get a free, no-pressure roof quote
           </h2>
 
-          <p className="text-white/80 max-w-[50ch] mx-auto mt-4 mb-8">
+          <p className="!text-white/90 max-w-[50ch] mx-auto mt-4 mb-8">
             Tell us a little about your roof and we&apos;ll get back to you
             within one business day with next steps.
           </p>

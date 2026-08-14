@@ -1,24 +1,7 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ==========================================================================
-   COLOR SYSTEM
-   --------------------------------------------------------------------------
-   Every token is defined for BOTH light (:root) and dark (.dark). If you add
-   a token to one block you MUST add it to the other, or that surface will
-   silently fall back to transparent/inherited and the UI will break in one
-   theme only.
 
-   Naming rules — read before using a token:
-     *-solid  -> a filled background that ALWAYS carries white (--color-on-*)
-                 text. Contrast-checked at >= 4.5:1 in both themes.
-     *-text   -> a foreground color meant to sit on --color-bg / --color-surface.
-     *-tint   -> a low-alpha wash for badge/banner backgrounds. Never a text color.
-     *-bg + *-text pairs (success/warning/danger/info) are checked as a PAIR.
-
-   Do not put white text on a *-text token, and do not use a *-solid token as
-   a text color. That mix is what broke the admin buttons originally.
-   ========================================================================== */
 
 :root {
   --background: #ffffff;
@@ -94,6 +77,16 @@
   --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow-card-lg: 0 5px 15px rgba(16, 24, 40, 0.08);
   --shadow-modal: 0 20px 50px rgba(16, 24, 40, 0.3);
+
+  /* Typography */
+    --font-sans: Arial, Helvetica, sans-serif;
+  
+    --font-xs: 0.75rem;
+    --font-sm: 0.875rem;
+    --font-md: 1rem;
+    --font-lg: 1.25rem;
+    --font-xl: 1.75rem;
+    --font-2xl: 2rem;
 }
 
 .dark {
@@ -203,18 +196,81 @@
   --color-info-text: var(--color-info-text);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+<<<<<<< Updated upstream
 
   /* Trimmed system font stack — max 7 entries */
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+=======
+  --font-sans: var(--font-sans);
+    --font-display: var(--font-sans);
+    --font-body: var(--font-sans);
+>>>>>>> Stashed changes
 }
 
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 body {
+  margin: 0;
+
   font-family: var(--font-sans);
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 400;
+  line-height: 1.55;
+
   color: var(--color-ink);
   background-color: var(--color-bg);
+
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .page-container {
