@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -56,6 +57,19 @@ export function DashboardNav({
       <header className="topnav">
         {/* LEFT BRAND */}
         <div className="topnav-brand-group">
+          {/* White/orange transparent logo — matches the auth pages' logic:
+              this topnav is dark navy (per the dashboard screenshots), so
+              the same dark-background-safe file used there is correct here
+              too. If your topnav background is ever changed to something
+              light, swap to the navy/orange version instead. */}
+          <Image
+            src="/images/SuperMarkit_transparent.png"
+            alt="SuperMarkit"
+            width={28}
+            height={28}
+            style={{ display: "block", flexShrink: 0 }}
+            priority
+          />
           <span className="topnav-brand">
             SUPERMARKIT
           </span>
@@ -136,6 +150,13 @@ export function DashboardNav({
 
             <div className="mobile-menu-header">
               <div className="mobile-brand-group">
+                <Image
+                  src="/images/SuperMarkit_transparent.png"
+                  alt="SuperMarkit"
+                  width={24}
+                  height={24}
+                  style={{ display: "block", flexShrink: 0 }}
+                />
                 <span className="topnav-brand">
                   SUPERMARKIT
                 </span>
