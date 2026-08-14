@@ -25,9 +25,7 @@ export type UserRole =
   | "admin"
   | "super_admin";
 
-const AUTH_SERVICE_URL =
-  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL ||
-  "http://localhost:3004";
+
 
 interface SignUpDetails {
   firstName: string;
@@ -90,7 +88,7 @@ async function resolveUser(
 } | null> {
   try {
     const response = await fetch(
-      `${AUTH_SERVICE_URL}/api/auth/resolve/${firebaseUid}`
+      `/api/auth/resolve/${firebaseUid}`
     );
 
     if (!response.ok) {
@@ -153,7 +151,7 @@ export function AuthProvider({
       );
 
     const response = await fetch(
-      `${AUTH_SERVICE_URL}/api/auth/register`,
+      `/api/auth/register`,
       {
         method: "POST",
         headers: {
