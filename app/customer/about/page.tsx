@@ -201,26 +201,7 @@ export default function About() {
             Reach out for a free estimate — we&apos;ll walk the roof with you
             and explain exactly what we find.
           </p>
-<<<<<<< Updated upstream
           <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
-=======
-
-          <Link
-            href="/customer/contact"
-            className="
-              inline-flex items-center justify-center
-              min-h-[46px]
-              bg-[#233d4d]
-              hover:bg-[#1a2e3a]
-              border border-white/30
-              text-white
-              font-bold
-              px-7 py-3
-              rounded-md
-              transition-colors
-            "
-          >
->>>>>>> Stashed changes
             Request Your Free Quote
           </Link>
         </div>

@@ -196,15 +196,9 @@
   --color-info-text: var(--color-info-text);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-<<<<<<< Updated upstream
 
   /* Trimmed system font stack — max 7 entries */
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
-=======
-  --font-sans: var(--font-sans);
-    --font-display: var(--font-sans);
-    --font-body: var(--font-sans);
->>>>>>> Stashed changes
 }
 
 html {
