@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RoofLine from "../components/RoofLine";
+import { ScrollReveal } from "../../../components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -135,18 +136,24 @@ export default function Services() {
       {/* HERO */}
       <section className="bg-navy text-white pt-[72px] pb-14">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] !text-white block mb-3">
-            Services
-          </span>
+          <ScrollReveal direction="left" duration={700}>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] !text-white block mb-3">
+              Services
+            </span>
+          </ScrollReveal>
 
-          <h1 className="!text-white font-bold text-[2rem] sm:text-[2.9rem] max-w-[20ch] leading-[1.1]">
-            Every roofing job, one accountable crew.
-          </h1>
+          <ScrollReveal direction="left" delay={100} duration={800}>
+            <h1 className="!text-white font-bold text-[2rem] sm:text-[2.9rem] max-w-[20ch] leading-[1.1]">
+              Every roofing job, one accountable crew.
+            </h1>
+          </ScrollReveal>
 
-          <p className="!text-white/90 max-w-[50ch] mt-4 mb-0 leading-relaxed">
-            From a single leak to a full commercial re-roof, we assess the
-            problem clearly and explain the work before we start.
-          </p>
+          <ScrollReveal direction="left" delay={200} duration={800}>
+            <p className="!text-white/90 max-w-[50ch] mt-4 mb-0 leading-relaxed">
+              From a single leak to a full commercial re-roof, we assess the
+              problem clearly and explain the work before we start.
+            </p>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -156,40 +163,46 @@ export default function Services() {
       <section className="bg-background py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {services.map((service) => (
-              <div
+            {services.map((service, i) => (
+              <ScrollReveal
                 key={service.title}
-                className="
-                  bg-background
-                  border border-line
-                  rounded-xl
-                  p-8
-                  shadow-sm
-                  hover:shadow-lg
-                  hover:-translate-y-1
-                  transition-all
-                  duration-300
-                "
+                direction="up"
+                delay={i * 120}
+                duration={700}
               >
-                <div className="w-12 h-12 rounded-xl bg-[#dbeafe] dark:bg-[#172554] flex items-center justify-center mb-5">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="w-7 h-7 text-[#1d4ed8] dark:text-[#93c5fd]"
-                    aria-hidden="true"
-                  >
-                    {service.icon}
-                  </svg>
+                <div
+                  className="
+                    bg-background
+                    border border-line
+                    rounded-xl
+                    p-8
+                    shadow-sm
+                    card-hover-glow
+                    hover-tilt
+                    group
+                    h-full
+                  "
+                >
+                  <div className="w-12 h-12 rounded-xl bg-[#dbeafe] dark:bg-[#172554] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="w-7 h-7 text-[#1d4ed8] dark:text-[#93c5fd]"
+                      aria-hidden="true"
+                    >
+                      {service.icon}
+                    </svg>
+                  </div>
+
+                  <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
+                    {service.title}
+                  </h3>
+
+                  <p className="text-ink-soft text-[0.96rem] leading-relaxed mb-0">
+                    {service.body}
+                  </p>
                 </div>
-
-                <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
-                  {service.title}
-                </h3>
-
-                <p className="text-ink-soft text-[0.96rem] leading-relaxed mb-0">
-                  {service.body}
-                </p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -198,51 +211,70 @@ export default function Services() {
       {/* MATERIALS */}
       <section className="bg-paper-dim py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
-          <div className="max-w-[60ch] mb-12">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
-              Materials
-            </span>
+          <ScrollReveal direction="up" duration={700}>
+            <div className="max-w-[60ch] mb-12">
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
+                Materials
+              </span>
 
-            <h2 className="text-foreground font-bold text-[1.7rem] sm:text-[2.3rem]">
-              Choose the roofing system that fits your property.
-            </h2>
-          </div>
+              <h2 className="text-foreground font-bold text-[1.7rem] sm:text-[2.3rem]">
+                Choose the roofing system that fits your property.
+              </h2>
+            </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {materials.map((material) => (
-              <div
+            {materials.map((material, i) => (
+              <ScrollReveal
                 key={material.title}
-                className="bg-background border border-line rounded-xl p-8"
+                direction={i % 2 === 0 ? "left" : "right"}
+                delay={i * 100}
+                duration={700}
               >
-                <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
-                  {material.title}
-                </h3>
+                <div className="bg-background border border-line rounded-xl p-8 card-hover-glow h-full">
+                  <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
+                    {material.title}
+                  </h3>
 
-                <p className="text-ink-soft text-[0.96rem] leading-relaxed mb-0">
-                  {material.body}
-                </p>
-              </div>
+                  <p className="text-ink-soft text-[0.96rem] leading-relaxed mb-0">
+                    {material.body}
+                  </p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-navy text-white text-center py-20">
-        <div className="max-w-[1120px] mx-auto px-7">
-          <h2 className="!text-white font-bold text-[1.7rem] sm:text-[2.4rem]">
-            Not sure which service you need?
-          </h2>
+      <ScrollReveal direction="none" duration={800}>
+        <section className="cta-gradient-bg text-white text-center py-20 relative overflow-hidden">
+          {/* Decorative floating shapes */}
+          <div className="absolute top-8 left-[10%] w-20 h-20 rounded-full bg-white/5 animate-float" style={{ animationDelay: "0s" }} />
+          <div className="absolute bottom-12 right-[15%] w-14 h-14 rounded-full bg-white/5 animate-float" style={{ animationDelay: "1.5s" }} />
 
-          <p className="!text-white/90 max-w-[50ch] mx-auto mt-4 mb-8">
-            Tell us what&apos;s going on and we&apos;ll point you toward the
-            right fix — no obligation.
-          </p>
-          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
-            Talk to a Roofer
-          </Link>
-        </div>
-      </section>
+          <div className="max-w-[1120px] mx-auto px-7 relative z-10">
+            <ScrollReveal direction="up" duration={600}>
+              <h2 className="!text-white font-bold text-[1.7rem] sm:text-[2.4rem]">
+                Not sure which service you need?
+              </h2>
+            </ScrollReveal>
+
+            <ScrollReveal direction="up" delay={150} duration={600}>
+              <p className="!text-white/90 max-w-[50ch] mx-auto mt-4 mb-8">
+                Tell us what&apos;s going on and we&apos;ll point you toward the
+                right fix — no obligation.
+              </p>
+            </ScrollReveal>
+
+            <ScrollReveal direction="up" delay={300} duration={600}>
+              <Link href="/customer/contact" className="btn-shimmer inline-flex items-center bg-copper-fill hover:bg-copper-fill-hover text-white font-semibold px-[26px] py-3.5 rounded-md transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                Talk to a Roofer
+              </Link>
+            </ScrollReveal>
+          </div>
+        </section>
+      </ScrollReveal>
     </>
   );
 }

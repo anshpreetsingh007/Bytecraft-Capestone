@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./estimates.css";
 import { EstimateWithNames, EstimateStatus } from "../types/estimate";
 
@@ -97,8 +98,12 @@ export default function EstimatesPage() {
 
   return (
     <main className="estimates-page">
-      <h1>Estimates</h1>
-      <p className="estimates-subtitle">Review inspection estimates and approve or reject them.</p>
+      <AdminPageHeader
+        eyebrow="Review queue"
+        title="Estimates"
+        subtitle="Review the estimates inspectors have submitted, then approve or reject them."
+        chips={[{ label: "In view", value: loading ? "—" : estimates.length }]}
+      />
 
       <div className="estimate-filters">
         {FILTERS.map((f) => (

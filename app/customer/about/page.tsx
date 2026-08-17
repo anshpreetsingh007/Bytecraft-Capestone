@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import RoofLine from "../components/RoofLine";
+import { ScrollReveal, CountUp } from "../../../components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "About",
@@ -58,45 +59,62 @@ export default function About() {
       ========================= */}
       <section className="bg-navy text-white pt-[72px] pb-16">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] !text-white block mb-3">
-            About Us
-          </span>
+          <ScrollReveal direction="left" duration={700}>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] !text-white block mb-3">
+              About Us
+            </span>
+          </ScrollReveal>
 
-          <h1 className="!text-white font-bold text-[2.2rem] sm:text-[3rem] max-w-[18ch] leading-[1.08]">
-            A roofing crew that answers the phone.
-          </h1>
+          <ScrollReveal direction="left" delay={100} duration={800}>
+            <h1 className="!text-white font-bold text-[2.2rem] sm:text-[3rem] max-w-[18ch] leading-[1.08]">
+              A roofing crew that answers the phone.
+            </h1>
+          </ScrollReveal>
 
-          <p className="!text-white/90 max-w-[52ch] mt-5 mb-0 leading-relaxed">
-            Markit Roofing started in Calgary as a three-person crew and grew
-            into a 50+ person team serving Calgary, Edmonton, and surrounding
-            communities — without losing the habit of showing up when we say
-            we will.
-          </p>
+          <ScrollReveal direction="left" delay={200} duration={800}>
+            <p className="!text-white/90 max-w-[52ch] mt-5 mb-0 leading-relaxed">
+              Markit Roofing started in Calgary as a three-person crew and grew
+              into a 50+ person team serving Calgary, Edmonton, and surrounding
+              communities — without losing the habit of showing up when we say
+              we will.
+            </p>
+          </ScrollReveal>
         </div>
       </section>
 
       <RoofLine />
 
       {/* =========================
-          STATS
+          STATS — with animated counters
       ========================= */}
       <section className="bg-background py-12">
         <div className="max-w-[1120px] mx-auto px-7">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 border-y border-line py-10">
             {[
-              ["13+", "Years in business"],
-              ["50+", "Team members"],
-              ["2", "Alberta offices"],
-            ].map(([num, label]) => (
-              <div key={label} className="text-center">
-                <div className="font-bold text-[2.3rem] text-foreground leading-none">
-                  {num}
-                </div>
+              { end: 13, suffix: "+", label: "Years in business" },
+              { end: 50, suffix: "+", label: "Team members" },
+              { end: 2, suffix: "", label: "Alberta offices" },
+            ].map((stat, i) => (
+              <ScrollReveal
+                key={stat.label}
+                direction="up"
+                delay={i * 150}
+                duration={700}
+              >
+                <div className="text-center">
+                  <div className="font-bold text-[2.3rem] text-foreground leading-none">
+                    <CountUp
+                      end={stat.end}
+                      suffix={stat.suffix}
+                      duration={2000}
+                    />
+                  </div>
 
-                <p className="text-ink-soft mt-2 mb-0 text-sm">
-                  {label}
-                </p>
-              </div>
+                  <p className="text-ink-soft mt-2 mb-0 text-sm">
+                    {stat.label}
+                  </p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -107,105 +125,132 @@ export default function About() {
       ========================= */}
       <section className="bg-paper-dim py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
-          <div className="max-w-[60ch] mb-12">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
-              Our Approach
-            </span>
+          <ScrollReveal direction="up" duration={700}>
+            <div className="max-w-[60ch] mb-12">
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
+                Our Approach
+              </span>
 
-            <h2 className="text-foreground font-bold text-[1.7rem] sm:text-[2.3rem]">
-              What we believe about roofing work.
-            </h2>
-          </div>
+              <h2 className="text-foreground font-bold text-[1.7rem] sm:text-[2.3rem]">
+                What we believe about roofing work.
+              </h2>
+            </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {values.map((value) => (
-              <div
+            {values.map((value, i) => (
+              <ScrollReveal
                 key={value.title}
-                className="
-                  bg-background
-                  border border-line
-                  rounded-xl
-                  p-8
-                  shadow-sm
-                  hover:shadow-lg
-                  hover:-translate-y-1
-                  transition-all
-                  duration-300
-                "
+                direction={i % 2 === 0 ? "left" : "right"}
+                delay={i * 120}
+                duration={700}
               >
-                <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
-                  {value.title}
-                </h3>
+                <div
+                  className="
+                    bg-background
+                    border border-line
+                    rounded-xl
+                    p-8
+                    shadow-sm
+                    card-hover-glow
+                    h-full
+                  "
+                >
+                  <h3 className="text-foreground text-[1.15rem] font-bold mb-2">
+                    {value.title}
+                  </h3>
 
-                <p className="text-ink-soft text-[0.96rem] leading-relaxed mb-0">
-                  {value.body}
-                </p>
-              </div>
+                  <p className="text-ink-soft text-[0.96rem] leading-relaxed mb-0">
+                    {value.body}
+                  </p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* =========================
-          OUR STORY
+          OUR STORY — animated timeline
       ========================= */}
       <section className="bg-background py-[88px]">
         <div className="max-w-[1120px] mx-auto px-7">
-          <div className="max-w-[60ch] mb-12">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
-              Our Story
-            </span>
+          <ScrollReveal direction="up" duration={700}>
+            <div className="max-w-[60ch] mb-12">
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
+                Our Story
+              </span>
 
-            <h2 className="text-foreground font-bold text-[1.7rem] sm:text-[2.3rem]">
-              How Markit Roofing got here.
-            </h2>
-          </div>
+              <h2 className="text-foreground font-bold text-[1.7rem] sm:text-[2.3rem]">
+                How Markit Roofing got here.
+              </h2>
+            </div>
+          </ScrollReveal>
 
           <div className="border-l-2 border-line pl-8 ml-2">
             {timeline.map((item, index) => (
-              <div
+              <ScrollReveal
                 key={item.year}
-                className={`relative ${
-                  index === timeline.length - 1 ? "pb-0" : "pb-10"
-                }`}
+                direction="left"
+                delay={index * 150}
+                distance={30}
+                duration={650}
               >
-                <span className="absolute -left-[39px] top-1.5 w-3 h-3 rounded-full bg-navy dark:bg-white border-2 border-background" />
+                <div
+                  className={`relative ${
+                    index === timeline.length - 1 ? "pb-0" : "pb-10"
+                  }`}
+                >
+                  <span className="absolute -left-[39px] top-1.5 w-3 h-3 rounded-full bg-navy dark:bg-white border-2 border-background" />
 
-                <span className="text-[0.8rem] font-bold text-navy dark:text-white block mb-1.5">
-                  {item.year}
-                </span>
+                  <span className="text-[0.8rem] font-bold text-navy dark:text-white block mb-1.5">
+                    {item.year}
+                  </span>
 
-                <h3 className="text-foreground text-[1.1rem] font-bold mb-1">
-                  {item.title}
-                </h3>
+                  <h3 className="text-foreground text-[1.1rem] font-bold mb-1">
+                    {item.title}
+                  </h3>
 
-                <p className="text-ink-soft mb-0 leading-relaxed max-w-[65ch]">
-                  {item.body}
-                </p>
-              </div>
+                  <p className="text-ink-soft mb-0 leading-relaxed max-w-[65ch]">
+                    {item.body}
+                  </p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* =========================
-          CTA
+          CTA — gradient animation
       ========================= */}
-      <section className="bg-navy text-white text-center py-20">
-        <div className="max-w-[1120px] mx-auto px-7">
-          <h2 className="!text-white font-bold text-[1.7rem] sm:text-[2.4rem]">
-            Ready to talk about your roof?
-          </h2>
+      <ScrollReveal direction="none" duration={800}>
+        <section className="cta-gradient-bg text-white text-center py-20 relative overflow-hidden">
+          <div className="absolute top-8 left-[10%] w-20 h-20 rounded-full bg-white/5 animate-float" style={{ animationDelay: "0s" }} />
+          <div className="absolute bottom-12 right-[15%] w-14 h-14 rounded-full bg-white/5 animate-float" style={{ animationDelay: "1.5s" }} />
 
-          <p className="!text-white/90 max-w-[50ch] mx-auto mt-4 mb-8 leading-relaxed">
-            Reach out for a free estimate — we&apos;ll walk the roof with you
-            and explain exactly what we find.
-          </p>
-          <Link href="/customer/contact" className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors">
-            Request Your Free Quote
-          </Link>
-        </div>
-      </section>
+          <div className="max-w-[1120px] mx-auto px-7 relative z-10">
+            <ScrollReveal direction="up" duration={600}>
+              <h2 className="!text-white font-bold text-[1.7rem] sm:text-[2.4rem]">
+                Ready to talk about your roof?
+              </h2>
+            </ScrollReveal>
+
+            <ScrollReveal direction="up" delay={150} duration={600}>
+              <p className="!text-white/90 max-w-[50ch] mx-auto mt-4 mb-8 leading-relaxed">
+                Reach out for a free estimate — we&apos;ll walk the roof with you
+                and explain exactly what we find.
+              </p>
+            </ScrollReveal>
+
+            <ScrollReveal direction="up" delay={300} duration={600}>
+              <Link href="/customer/contact" className="btn-shimmer inline-flex items-center bg-copper-fill hover:bg-copper-fill-hover text-white font-semibold px-[26px] py-3.5 rounded-md transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                Request Your Free Quote
+              </Link>
+            </ScrollReveal>
+          </div>
+        </section>
+      </ScrollReveal>
     </>
   );
 }

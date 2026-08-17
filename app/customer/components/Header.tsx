@@ -95,7 +95,7 @@ export default function Header() {
         <div className="hidden lg:flex items-center gap-3">
           <Link
             href="/customer/contact"
-            className="bg-navy text-white hover:bg-copper hover:text-foreground px-5 py-2.5 rounded-[3px] text-sm font-semibold transition-colors whitespace-nowrap"
+            className="bg-navy text-white hover:bg-copper-fill px-5 py-2.5 rounded-[3px] text-sm font-semibold transition-colors whitespace-nowrap"
           >
             Get a Free Quote
           </Link>

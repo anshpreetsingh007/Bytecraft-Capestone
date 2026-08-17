@@ -1,0 +1,312 @@
+/* =============================================================================
+   TOP NAV — visual upgrade layer
+   -----------------------------------------------------------------------------
+   Appended after the base rules in dashboard-nav.css so it wins on equal
+   specificity. Structure, breakpoints and the mobile drawer are untouched;
+   this only restyles the desktop bar's surface, links and controls.
+   ========================================================================== */
+
+.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+
+    height: 68px;
+    min-height: 68px;
+
+    gap: 18px;
+    padding: 0 24px;
+
+    /* Layered: gradient base + a soft orange bloom behind the brand. */
+    background:
+        radial-gradient(520px 140px at 6% 120%, rgba(254, 127, 45, .22), transparent 70%),
+        linear-gradient(120deg, #16272f 0%, #233d4d 46%, #2c5064 100%);
+
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, .06) inset,
+        0 8px 24px -12px rgba(0, 0, 0, .55);
+
+    backdrop-filter: saturate(1.2);
+    -webkit-backdrop-filter: saturate(1.2);
+}
+
+.dark .topnav {
+    background:
+        radial-gradient(520px 140px at 6% 120%, rgba(254, 127, 45, .18), transparent 70%),
+        linear-gradient(120deg, #0d171d 0%, #16272f 46%, #1e3946 100%);
+}
+
+/* Hairline accent rule along the very bottom edge */
+.topnav::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    background: linear-gradient(90deg, #fe7f2d 0%, #f26516 22%, rgba(48, 90, 111, .5) 60%, transparent 100%);
+    opacity: .9;
+    pointer-events: none;
+}
+
+/* ── Brand ─────────────────────────────────────────────────────────────── */
+
+.topnav-brand {
+    font-size: 17px;
+    font-weight: 850;
+    letter-spacing: .06em;
+    background: linear-gradient(100deg, #ffffff 0%, #ffe6d2 55%, #fe7f2d 130%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+}
+
+.topnav-brand-group {
+    padding-right: 18px;
+    margin-right: 2px;
+    border-right: 1px solid rgba(255, 255, 255, .1);
+}
+
+/* ── Links ─────────────────────────────────────────────────────────────── */
+
+.topnav-links {
+    gap: 3px;
+}
+
+.topnav-link {
+    position: relative;
+    min-height: 40px;
+    padding: 0 13px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: -.005em;
+    color: rgba(255, 255, 255, .74);
+    white-space: nowrap;
+    transition:
+        background-color 200ms ease,
+        color 200ms ease,
+        transform 260ms cubic-bezier(.16, 1, .3, 1);
+}
+
+/* Underline indicator — grows from the centre */
+.topnav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    bottom: -14px;
+    height: 3px;
+    border-radius: 999px 999px 0 0;
+    background: linear-gradient(90deg, #fe7f2d, #f26516);
+    transition: left 280ms cubic-bezier(.16, 1, .3, 1), right 280ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.topnav-link:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.topnav-link:hover::after {
+    left: 30%;
+    right: 30%;
+}
+
+.topnav-link-active {
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        0 4px 12px -6px rgba(0, 0, 0, .6);
+}
+
+.topnav-link-active::after {
+    left: 18%;
+    right: 18%;
+    box-shadow: 0 0 12px -1px rgba(254, 127, 45, .9);
+}
+
+.topnav-link svg {
+    opacity: .85;
+    transition: opacity 200ms ease;
+}
+
+.topnav-link-active svg,
+.topnav-link:hover svg {
+    opacity: 1;
+}
+
+/* ── Role chip ─────────────────────────────────────────────────────────── */
+
+.topnav-role {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .16);
+    color: rgba(255, 255, 255, .86);
+    font-size: 10.5px;
+    font-weight: 750;
+    letter-spacing: .1em;
+    white-space: nowrap;
+}
+
+/* ── Logout ────────────────────────────────────────────────────────────── */
+
+.topnav-logout {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 650;
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .16),
+        0 4px 14px -6px rgba(154, 31, 21, .8);
+    transition:
+        transform 220ms cubic-bezier(.16, 1, .3, 1),
+        filter 200ms ease,
+        box-shadow 240ms ease;
+}
+
+.topnav-logout:hover {
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        0 8px 20px -6px rgba(154, 31, 21, .9);
+}
+
+.topnav-logout:active {
+    transform: translateY(0) scale(.98);
+}
+
+/* ── Theme toggle (the unclassed button between role and logout) ───────── */
+
+.topnav > button:not(.topnav-hamburger):not(.topnav-logout) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 200ms ease, transform 220ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.topnav > button:not(.topnav-hamburger):not(.topnav-logout):hover {
+    background: rgba(255, 255, 255, .16);
+    transform: translateY(-1px);
+}
+
+/* ── Hamburger ─────────────────────────────────────────────────────────── */
+
+.topnav-hamburger {
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, .14) !important;
+}
+
+/* ── Mobile drawer surface, matched to the new bar ─────────────────────── */
+
+.mobile-menu {
+    background:
+        radial-gradient(420px 240px at 100% 0%, rgba(254, 127, 45, .18), transparent 68%),
+        linear-gradient(160deg, #16272f 0%, #233d4d 55%, #1a2e3a 100%);
+    border-right: 1px solid rgba(255, 255, 255, .1);
+}
+
+.mobile-menu-link {
+    border-radius: 10px;
+    color: rgba(255, 255, 255, .82);
+    transition: background-color 200ms ease, color 200ms ease;
+}
+
+.mobile-menu-link:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+
+.mobile-menu-link-active {
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+    box-shadow: inset 3px 0 0 #fe7f2d;
+}
+
+.mobile-menu-logout {
+    border-radius: 10px;
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+}
+
+/* ── Modal polish ──────────────────────────────────────────────────────── */
+
+.logout-confirm-overlay {
+    background: rgba(10, 18, 24, .62);
+    backdrop-filter: blur(6px) saturate(1.1);
+    -webkit-backdrop-filter: blur(6px) saturate(1.1);
+}
+
+.logout-confirm-modal {
+    border-radius: 20px;
+    box-shadow: 0 24px 64px -16px rgba(0, 0, 0, .6);
+}
+
+.logout-confirm-modal h2 {
+    font-size: 21px;
+    font-weight: 780;
+    letter-spacing: -.02em;
+}
+
+.logout-confirm-button {
+    border-radius: 10px;
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    box-shadow: 0 6px 16px -8px rgba(154, 31, 21, .9);
+}
+
+.logout-confirm-button:hover {
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    filter: brightness(1.1);
+}
+
+.logout-cancel-button {
+    border-radius: 10px;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 1180px) {
+    .topnav {
+        gap: 12px;
+        padding: 0 16px;
+    }
+
+    .topnav-link {
+        padding: 0 10px;
+        font-size: 13px;
+    }
+
+    .topnav-brand-group {
+        padding-right: 12px;
+    }
+}
+
+@media (max-width: 800px) {
+    .topnav {
+        height: 64px;
+        min-height: 64px;
+    }
+
+    .topnav-brand {
+        font-size: 16px;
+    }
+
+    .topnav-brand-group {
+        border-right: none;
+        padding-right: 0;
+    }
+}

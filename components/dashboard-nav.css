@@ -221,9 +221,24 @@
     width: 100vw;
     height: 100dvh;
 
-    background: rgba(16, 24, 40, 0.65);
+    background: rgba(16, 24, 40, 0);
 
     z-index: 9998;
+
+    animation: overlayFadeIn 300ms ease forwards;
+}
+
+@keyframes overlayFadeIn {
+    to { background: rgba(16, 24, 40, 0.65); }
+}
+
+.mobile-menu-overlay.closing {
+    animation: overlayFadeOut 250ms ease forwards;
+}
+
+@keyframes overlayFadeOut {
+    from { background: rgba(16, 24, 40, 0.65); }
+    to { background: rgba(16, 24, 40, 0); }
 }
 
 .mobile-menu {
@@ -248,6 +263,43 @@
     z-index: 9999;
 
     overflow-y: auto;
+
+    transform: translateX(-100%);
+    animation: menuSlideIn 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes menuSlideIn {
+    to { transform: translateX(0); }
+}
+
+.mobile-menu.closing {
+    animation: menuSlideOut 250ms ease forwards;
+}
+
+@keyframes menuSlideOut {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+.mobile-menu-link {
+    transform: translateX(-20px);
+    opacity: 0;
+    animation: menuItemSlideIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 100ms; }
+.mobile-menu-link:nth-child(2) { animation-delay: 150ms; }
+.mobile-menu-link:nth-child(3) { animation-delay: 200ms; }
+.mobile-menu-link:nth-child(4) { animation-delay: 250ms; }
+.mobile-menu-link:nth-child(5) { animation-delay: 300ms; }
+.mobile-menu-link:nth-child(6) { animation-delay: 350ms; }
+.mobile-menu-link:nth-child(7) { animation-delay: 400ms; }
+
+@keyframes menuItemSlideIn {
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 .mobile-menu-header {

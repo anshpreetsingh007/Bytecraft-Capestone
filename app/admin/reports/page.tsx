@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./reports.css";
 import {
   ReportOverview,
@@ -93,7 +94,11 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <main className="reports-page">
-        <h1>Reports Dashboard</h1>
+        <AdminPageHeader
+          eyebrow="Business intelligence"
+          title="Reports"
+          subtitle="Material wastage, profit, and activity across the business."
+        />
         <p className="reports-status">Loading reports…</p>
       </main>
     );
@@ -102,7 +107,11 @@ export default function ReportsPage() {
   if (error) {
     return (
       <main className="reports-page">
-        <h1>Reports Dashboard</h1>
+        <AdminPageHeader
+          eyebrow="Business intelligence"
+          title="Reports"
+          subtitle="Material wastage, profit, and activity across the business."
+        />
         <p className="reports-status error">{error}</p>
       </main>
     );
@@ -110,8 +119,19 @@ export default function ReportsPage() {
 
   return (
     <main className="reports-page">
-      <h1>Reports Dashboard</h1>
-      <p className="reports-subtitle">Material wastage, profit, and activity across the business</p>
+      <AdminPageHeader
+        eyebrow="Business intelligence"
+        title="Reports"
+        subtitle="Material wastage, profit, and activity across the business."
+        chips={
+          overview
+            ? [
+                { label: "Inspections", value: overview.inspections.total },
+                { label: "This month", value: currency.format(overview.revenue.thisMonth) },
+              ]
+            : undefined
+        }
+      />
 
       {/* ─── Overview cards ─────────────────────────── */}
       {overview && (
@@ -142,7 +162,7 @@ export default function ReportsPage() {
 
       {/* ─── Financial trend (material waste + profit) ─── */}
       <div className="report-section">
-        <div className="report-section-header">
+        <div className="report-section-header adm-section-head">
           <h2>Financial Trends — Material Waste &amp; Profit</h2>
           <div className="period-selector">
             {(["month", "quarter", "year"] as ReportPeriod[]).map((p) => (
@@ -197,7 +217,7 @@ export default function ReportsPage() {
 
       {/* ─── Inspector performance ──────────────────── */}
       <div className="report-section">
-        <div className="report-section-header">
+        <div className="report-section-header adm-section-head">
           <h2>Inspector Performance</h2>
         </div>
 
@@ -268,7 +288,7 @@ export default function ReportsPage() {
       {/* ─── Overdue invoice list ────────────────────── */}
       {invoices && invoices.overdueInvoices.length > 0 && (
         <div className="report-section">
-          <div className="report-section-header">
+          <div className="report-section-header adm-section-head">
             <h2>Overdue Invoices</h2>
           </div>
           <table className="report-table">

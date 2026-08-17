@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../Context/AuthContext";
 
 import SelectInspectionPage from "./select/page";
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./cost-estimate.css";
 
 const laborRatePerSqFt = 3.5;
@@ -356,15 +357,20 @@ function CostEstimateContent() {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
-          <h1 className="page-title m-0">{estimateId ? "Edit Cost Estimate" : "Cost Estimate"}</h1>
-          <button 
-              className="text-sm bg-bg border border-border hover:border-navy text-ink py-1 px-3 rounded transition"
-              onClick={() => router.push("/admin/cost-estimate")}
+      <AdminPageHeader
+        eyebrow={estimateId ? "Editing" : "New estimate"}
+        title={estimateId ? "Edit Cost Estimate" : "Cost Estimate"}
+        subtitle="Pick materials, set the roof area, and the totals update as you go."
+        actions={
+          <button
+            type="button"
+            className="adm-hero-btn adm-hero-btn-ghost"
+            onClick={() => router.push("/admin/cost-estimate")}
           >
-              Change Order
+            Change Order
           </button>
-      </div>
+        }
+      />
 
       {/* --- Inspector assignment --- */}
       <section className="info-card">

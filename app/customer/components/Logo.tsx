@@ -17,21 +17,19 @@ export default function Logo() {
   }, []);
 
   if (!mounted) {
-    return <div style={{ width: 140, height: 34 }} aria-hidden="true" />;
+    return <div className="h-[50px] w-[56px]" aria-hidden="true" />;
   }
 
   const src = resolvedTheme === "dark" ? WHITE_LOGO : COLOR_LOGO;
 
   return (
     <Link href="/customer" className="flex items-center shrink-0" aria-label="Markit Roofing home">
-
       <Image
         src={src}
         alt="Markit Roofing"
         width={100}
         height={88}
-        className="h-8"
-        style={{ width: 'auto', height: 'auto' }}
+        className="h-[50px] w-auto"
         priority
       />
     </Link>

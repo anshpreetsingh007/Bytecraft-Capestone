@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import RoofLine from "../components/RoofLine";
 import ContactForm from "../components/ContactForm";
+import { ScrollReveal } from "../../../components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -122,18 +123,24 @@ export default function Contact() {
 
       <section className="bg-navy text-white pt-[72px] pb-16">
         <div className="max-w-[1120px] mx-auto px-7">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] !text-white block mb-3">
-            Contact
-          </span>
+          <ScrollReveal direction="left" duration={700}>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] !text-white block mb-3">
+              Contact
+            </span>
+          </ScrollReveal>
 
-          <h1 className="!text-white font-bold text-[2.2rem] sm:text-[3rem] max-w-[18ch] leading-[1.08]">
-            Let&apos;s talk about your roof.
-          </h1>
+          <ScrollReveal direction="left" delay={100} duration={800}>
+            <h1 className="!text-white font-bold text-[2.2rem] sm:text-[3rem] max-w-[18ch] leading-[1.08]">
+              Let&apos;s talk about your roof.
+            </h1>
+          </ScrollReveal>
 
-          <p className="!text-white/90 max-w-[50ch] mt-5 mb-0 leading-relaxed">
-            Fill out the form and we&apos;ll follow up within one business day,
-            or call us directly during business hours.
-          </p>
+          <ScrollReveal direction="left" delay={200} duration={800}>
+            <p className="!text-white/90 max-w-[50ch] mt-5 mb-0 leading-relaxed">
+              Fill out the form and we&apos;ll follow up within one business day,
+              or call us directly during business hours.
+            </p>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -148,69 +155,78 @@ export default function Contact() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
 
             {/* CONTACT FORM */}
-
-            <div className="bg-background border border-line rounded-xl p-6 sm:p-8 shadow-sm">
-              <ContactForm />
-            </div>
+            <ScrollReveal direction="left" duration={700}>
+              <div className="bg-background border border-line rounded-xl p-6 sm:p-8 shadow-sm card-hover-glow">
+                <ContactForm />
+              </div>
+            </ScrollReveal>
 
             {/* CONTACT INFO */}
+            <ScrollReveal direction="right" delay={150} duration={700}>
+              <div>
+                <div className="mb-8">
+                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
+                    Contact Details
+                  </span>
 
-            <div>
-              <div className="mb-8">
-                <span className="text-xs font-bold uppercase tracking-[0.14em] text-navy dark:text-white block mb-3">
-                  Contact Details
-                </span>
+                  <h2 className="text-foreground font-bold text-[1.6rem] sm:text-[2rem] mb-3">
+                    We&apos;re here when you need us.
+                  </h2>
 
-                <h2 className="text-foreground font-bold text-[1.6rem] sm:text-[2rem] mb-3">
-                  We&apos;re here when you need us.
-                </h2>
+                  <p className="text-ink-soft leading-relaxed">
+                    Reach our Calgary or Edmonton team by phone or email, or send
+                    us your project details through the form.
+                  </p>
+                </div>
 
-                <p className="text-ink-soft leading-relaxed">
-                  Reach our Calgary or Edmonton team by phone or email, or send
-                  us your project details through the form.
-                </p>
-              </div>
-
-              <div className="border-t border-line">
-                {infoBlocks.map((block, index) => (
-                  <div
-                    key={block.title}
-                    className={`flex gap-4 py-6 ${
-                      index === infoBlocks.length - 1
-                        ? "border-b border-line"
-                        : "border-b border-line"
-                    }`}
-                  >
-                    <div className="w-11 h-11 shrink-0 rounded-xl bg-[#dbeafe] dark:bg-[#172554] flex items-center justify-center">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="w-6 h-6 text-[#1d4ed8] dark:text-[#93c5fd]"
-                        aria-hidden="true"
+                <div className="border-t border-line">
+                  {infoBlocks.map((block, index) => (
+                    <ScrollReveal
+                      key={block.title}
+                      direction="right"
+                      delay={300 + index * 120}
+                      distance={25}
+                      duration={600}
+                    >
+                      <div
+                        className={`flex gap-4 py-6 ${
+                          index === infoBlocks.length - 1
+                            ? "border-b border-line"
+                            : "border-b border-line"
+                        } hover:bg-paper-dim/50 transition-colors duration-200 rounded-lg px-2 -mx-2`}
                       >
-                        {block.icon}
-                      </svg>
-                    </div>
-
-                    <div>
-                      <h3 className="text-foreground text-[1rem] font-bold mb-1">
-                        {block.title}
-                      </h3>
-
-                      {typeof block.body === "string" ? (
-                        <p className="text-ink-soft text-[0.92rem] leading-relaxed mb-0">
-                          {block.body}
-                        </p>
-                      ) : (
-                        <div className="text-[0.92rem] leading-relaxed">
-                          {block.body}
+                        <div className="w-11 h-11 shrink-0 rounded-xl bg-[#dbeafe] dark:bg-[#172554] flex items-center justify-center">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            className="w-6 h-6 text-[#1d4ed8] dark:text-[#93c5fd]"
+                            aria-hidden="true"
+                          >
+                            {block.icon}
+                          </svg>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+
+                        <div>
+                          <h3 className="text-foreground text-[1rem] font-bold mb-1">
+                            {block.title}
+                          </h3>
+
+                          {typeof block.body === "string" ? (
+                            <p className="text-ink-soft text-[0.92rem] leading-relaxed mb-0">
+                              {block.body}
+                            </p>
+                          ) : (
+                            <div className="text-[0.92rem] leading-relaxed">
+                              {block.body}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </ScrollReveal>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
           </div>
         </div>

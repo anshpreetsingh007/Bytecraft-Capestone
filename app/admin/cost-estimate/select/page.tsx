@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowRight, ClipboardList } from "lucide-react";
+import { AdminPageHeader } from "../../../../components/AdminPageHeader";
 
 interface OrderWithDetails {
     order_id: number;
@@ -49,57 +51,104 @@ export default function SelectInspectionPage() {
         fetchOrders();
     }, []);
 
-    if (loading) return <div className="p-6">Loading orders...</div>;
-    if (error) return <div className="p-6 text-danger-text">Error: {error}</div>;
+    const header = (
+        <AdminPageHeader
+            eyebrow="New estimate"
+            title="Select an Order"
+            subtitle="Choose an order to build a cost estimate for. Only orders without an estimate are listed — an inspection request has to be converted into an order first."
+            chips={loading ? undefined : [{ label: "Awaiting", value: orders.length }]}
+        />
+    );
+
+    if (loading) {
+        return (
+            <div className="cost-estimate-page">
+                {header}
+                <p className="reports-status">Loading orders…</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="cost-estimate-page">
+                {header}
+                <p className="reports-status error">Error: {error}</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="flex-1 min-w-0 p-6">
-            <h1 className="text-[21px] font-extrabold text-ink mb-2">Select an Order</h1>
-            <p className="text-[14px] text-muted mb-6">
-                Choose an order to create a cost estimate for. Only orders that don&apos;t already have an estimate
-                are shown here — an inspection request has to be converted into an order first.
-            </p>
+        <div className="cost-estimate-page">
+            {header}
 
-            <div className="grid gap-4">
-                {orders.length === 0 ? (
-                    <p className="text-muted">
+            <div className="adm-section-head">
+                <h2>Orders awaiting an estimate</h2>
+                <hr className="adm-section-line" />
+                {orders.length > 0 && <span className="adm-section-count">{orders.length}</span>}
+            </div>
+
+            {orders.length === 0 ? (
+                <div className="adm-panel adm-feed">
+                    <div className="adm-feed-empty">
                         No orders currently need an estimate.{" "}
-                        <Link href="/admin/inspection-requests" className="text-accent-text underline font-semibold">
+                        <Link href="/admin/inspection-requests" className="adm-inline-link">
                             Convert an inspection request to an order
                         </Link>{" "}
                         first.
-                    </p>
-                ) : (
-                    orders.map((order) => (
-                        <div
-                            key={order.order_id}
-                            className="bg-surface border border-border rounded-xl p-4 flex justify-between items-center hover:border-navy transition-all"
-                        >
-                            <div>
-                                <h3 className="font-bold text-[16px] text-ink m-0">
-                                    Order #{order.order_id} — {formatName(order.client_first_name, order.client_last_name, "Unknown client")}
-                                </h3>
-                                <p className="text-[12px] text-muted m-0">Address: {order.client_address || "—"}</p>
-                                <p className="text-[12px] text-muted m-0">
-                                    Scheduled: {order.request_scheduled_date ? new Date(order.request_scheduled_date).toLocaleDateString() : "Not yet scheduled"}
-                                </p>
-                                <p className="text-[12px] text-muted m-0">
-                                    Inspector: {formatName(order.inspector_first_name, order.inspector_last_name, "Unassigned")}
-                                </p>
-                                {order.request_details && (
-                                    <p className="text-[13px] mt-1 text-muted">Details: {order.request_details}</p>
-                                )}
+                    </div>
+                </div>
+            ) : (
+                <div className="adm-order-grid">
+                    {orders.map((order) => (
+                        <article className="adm-order-card" key={order.order_id}>
+                            <div className="adm-order-head">
+                                <div className="adm-icon adm-icon-sm adm-icon-accent">
+                                    <ClipboardList size={16} aria-hidden="true" />
+                                </div>
+                                <div className="adm-order-title-wrap">
+                                    <h3 className="adm-order-title">
+                                        {formatName(order.client_first_name, order.client_last_name, "Unknown client")}
+                                    </h3>
+                                    <span className="adm-order-id">Order #{order.order_id}</span>
+                                </div>
                             </div>
+
+                            <dl className="adm-order-meta">
+                                <div>
+                                    <dt>Address</dt>
+                                    <dd>{order.client_address || "—"}</dd>
+                                </div>
+                                <div>
+                                    <dt>Scheduled</dt>
+                                    <dd>
+                                        {order.request_scheduled_date
+                                            ? new Date(order.request_scheduled_date).toLocaleDateString()
+                                            : "Not yet scheduled"}
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Inspector</dt>
+                                    <dd>{formatName(order.inspector_first_name, order.inspector_last_name, "Unassigned")}</dd>
+                                </div>
+                            </dl>
+
+                            {order.request_details && (
+                                <p className="adm-order-details">{order.request_details}</p>
+                            )}
+
                             <button
+                                type="button"
                                 onClick={() => router.push(`/admin/cost-estimate?orderId=${order.order_id}`)}
-                                className="bg-accent-solid hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                                className="btn-accent adm-order-cta"
                             >
-                                Select
+                                Build estimate
+                                <ArrowRight size={16} aria-hidden="true" />
                             </button>
-                        </div>
-                    ))
-                )}
-            </div>
+                        </article>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +14,9 @@ import {
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "../Context/AuthContext";
 import "./dashboard-nav.css";
+// Visual layer on top of the base nav rules — imported second so it wins on
+// equal specificity without needing !important everywhere.
+import "./dashboard-nav-theme.css";
 
 export interface NavItem {
   label: string;
@@ -30,8 +33,19 @@ export function DashboardNav({
   navItems: NavItem[];
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileClosing, setMobileClosing] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] =
     useState(false);
+  // React 19's useRef requires an explicit initial value.
+  const closingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileClosing(true);
+    closingTimer.current = setTimeout(() => {
+      setMobileOpen(false);
+      setMobileClosing(false);
+    }, 250);
+  }, []);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -145,8 +159,14 @@ export function DashboardNav({
       ========================= */}
 
       {mobileOpen && (
-        <div className="mobile-menu-overlay">
-          <div className="mobile-menu">
+        <div
+          className={`mobile-menu-overlay ${mobileClosing ? "closing" : ""}`}
+          onClick={closeMobileMenu}
+        >
+          <div
+            className={`mobile-menu ${mobileClosing ? "closing" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
 
             <div className="mobile-menu-header">
               <div className="mobile-brand-group">
@@ -169,9 +189,7 @@ export function DashboardNav({
               <button
                 type="button"
                 className="mobile-menu-close"
-                onClick={() =>
-                  setMobileOpen(false)
-                }
+                onClick={closeMobileMenu}
                 aria-label="Close navigation menu"
               >
                 <X
@@ -190,9 +208,7 @@ export function DashboardNav({
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() =>
-                      setMobileOpen(false)
-                    }
+                    onClick={closeMobileMenu}
                     className={`mobile-menu-link ${
                       isActive(item)
                         ? "mobile-menu-link-active"
@@ -214,7 +230,7 @@ export function DashboardNav({
               type="button"
               className="mobile-menu-logout"
               onClick={() => {
-                setMobileOpen(false);
+                closeMobileMenu();
                 setShowLogoutConfirm(true);
               }}
             >

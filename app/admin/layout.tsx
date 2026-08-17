@@ -1,5 +1,6 @@
 "use client";
 import "../globals.css";
+import "./admin-theme.css";
 import { LayoutDashboard, Package, Calculator, ClipboardCheck, FileText, BarChart3, Shield } from "lucide-react";
 import { DashboardNav } from "../../components/DashboardNav";
 import { RoleGuard } from "../../components/RoleGuard";
@@ -23,7 +24,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { role } = useAuth();
-  
+
   const navItems = [...adminNavItems];
   if (role === "super_admin") {
     navItems.push({
@@ -37,7 +38,10 @@ export default function AdminLayout({
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
       <div className="min-h-screen bg-bg">
         <DashboardNav roleLabel={role === "super_admin" ? "Super Admin" : "Admin"} navItems={navItems} />
-        <main className="p-6">{children}</main>
+        {/* `adm` is the hook every rule in admin-theme.css hangs off — it is
+            scoped that way so the shared styles outrank the per-page
+            stylesheets regardless of CSS chunk order. */}
+        <main className="adm">{children}</main>
       </div>
     </RoleGuard>
   );

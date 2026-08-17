@@ -34,6 +34,10 @@
   /* Bright orange for decorative use / fills */
   --copper-bright: #fe7f2d;
 
+  /* Button-fill orange — same as copper in light mode */
+  --copper-fill: #a83f0b;
+  --copper-fill-hover: #873309;
+
   --focus-ring: var(--navy);
 }
 
@@ -54,9 +58,14 @@
   --navy-soft: #dbe1e5;
   --navy-faint: #c0c7cd;
 
+  /* Text-safe orange (light on dark) — for headings, links, accents */
   --copper: #fdba74;
   --copper-dark: #fb923c;
   --copper-bright: #fe7f2d;
+
+  /* Button-fill orange — contrast-safe under white text (≥ 4.5:1) */
+  --copper-fill: #c2410c;
+  --copper-fill-hover: #9a3412;
 
   --focus-ring: #60a5fa;
 }
@@ -80,6 +89,8 @@
   --color-copper: var(--copper);
   --color-copper-dark: var(--copper-dark);
   --color-copper-bright: var(--copper-bright);
+  --color-copper-fill: var(--copper-fill);
+  --color-copper-fill-hover: var(--copper-fill-hover);
 
   --font-display: Arial, Helvetica, sans-serif;
   --font-body: Arial, Helvetica, sans-serif;

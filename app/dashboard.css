@@ -40,6 +40,20 @@
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 350ms ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 24, 40, 0.08);
+    border-color: var(--color-accent-tint);
+}
+
+.dark .card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(254, 127, 45, 0.12);
 }
 
 /* ============ Stat cards (dashboards) ============ */
@@ -58,6 +72,45 @@
     display: flex;
     align-items: center;
     gap: 14px;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 300ms ease;
+    animation: statCardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0ms; }
+.stat-card:nth-child(2) { animation-delay: 100ms; }
+.stat-card:nth-child(3) { animation-delay: 200ms; }
+.stat-card:nth-child(4) { animation-delay: 300ms; }
+
+@keyframes statCardEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1);
+    border-color: var(--color-accent-tint);
+}
+
+.dark .stat-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    border-color: rgba(254, 127, 45, 0.12);
+}
+
+.stat-card:hover .icon-chip {
+    transform: scale(1.1) rotate(-3deg);
+}
+
+.stat-card:hover .stat-value {
+    color: var(--color-accent-text);
 }
 
 .stat-label {
@@ -72,6 +125,7 @@
     font-weight: 800;
     color: var(--color-ink);
     margin: 0;
+    transition: color 300ms ease;
 }
 
 /* Icon chips — decorative, so raw --color-accent is fine here. Never put
@@ -84,6 +138,8 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 350ms ease;
 }
 
 .icon-chip-accent {
@@ -233,6 +289,34 @@
     outline-offset: 2px;
 }
 
+.btn-primary:active,
+.btn-secondary:active,
+.btn-accent:active,
+.btn-danger:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-accent,
+.btn-danger {
+    transform: scale(1);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-accent:hover:not(:disabled),
+.btn-danger:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
+}
+
+.dark .btn-primary:hover:not(:disabled),
+.dark .btn-accent:hover:not(:disabled),
+.dark .btn-danger:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 /* ============ Tables ============ */
 
 .data-table {
@@ -263,6 +347,12 @@
     font-size: 14px;
     color: var(--color-ink);
     border-top: 1px solid var(--color-border);
+    transition: background-color 200ms ease, transform 200ms ease;
+}
+
+.table-row:hover {
+    background: var(--color-surface-2);
+    transform: translateX(2px);
 }
 
 .row-actions {
@@ -323,6 +413,12 @@
     border-radius: 999px;
     text-align: center;
     white-space: nowrap;
+    transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 250ms ease;
+}
+
+.status-badge:hover {
+    transform: scale(1.05);
 }
 
 .status-success {
@@ -355,6 +451,18 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 12px;
+    animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* ============ Responsive ============ */

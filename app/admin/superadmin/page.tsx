@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./inspect-assign.css";
 
 type User = {
@@ -83,14 +84,18 @@ export default function InspectorAssignmentPage() {
 
   return (
     <main className="admin-page">
-      <h1>Inspector Assignment</h1>
-      <p>Manage users, assign roles, and search system accounts.</p>
+      <AdminPageHeader
+        eyebrow="Super admin"
+        title="User Management"
+        subtitle="Manage users, assign roles, and search system accounts."
+        chips={[{ label: "Accounts", value: loading ? "\u2014" : users.length }]}
+      />
 
       {error && <div style={{ color: "red", marginBottom: "1rem" }}>Error: {error}</div>}
 
       <section className="users-section">
-        <div className="section-header">
-          <h2>User Management</h2>
+        <div className="section-header adm-section-head">
+          <h2>All Users</h2>
           <input
             type="text"
             placeholder="Search user by name or email..."

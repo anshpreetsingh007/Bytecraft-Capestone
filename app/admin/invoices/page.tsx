@@ -1,12 +1,16 @@
 "use client";
 
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "../admin-shared.css";
 
 export default function InvoicePage() {
   return (
     <main className="invoice-page">
-      <h1>Invoice Generation</h1>
-      <p>Preview and generate a customer invoice.</p>
+      <AdminPageHeader
+        eyebrow="Billing"
+        title="Invoice Generation"
+        subtitle="Preview and generate a customer invoice."
+      />
 
       <div className="invoice-card">
         <div className="invoice-details">

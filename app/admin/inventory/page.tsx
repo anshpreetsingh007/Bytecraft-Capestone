@@ -1,6 +1,8 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
+import { Plus, Search } from "lucide-react";
 import { InventoryItem, getStockStatus } from "../types/inventory";
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./inventory.css";
 
 const emptyForm = {
@@ -117,6 +119,13 @@ export default function InventoryPage() {
         item.category.toLowerCase().includes(query)
     );
   }, [items, search]);
+
+  // Shown in the banner so the admin sees the reorder pressure without
+  // scanning the table. Same rule the dashboard uses.
+  const lowStockCount = useMemo(
+    () => items.filter((item) => item.quantity <= (item.reorderThreshold || 0)).length,
+    [items]
+  );
 
   function openAddForm() {
     setEditingId(null);
@@ -259,23 +268,37 @@ export default function InventoryPage() {
 
   return (
     <div className="inventory-page">
-      <div className="inventory-header">
-        <div>
-          <h1 className="page-title">Inventory</h1>
-          <p className="page-subtitle">{items.length} items tracked</p>
-        </div>
-        <button className="btn-primary" onClick={openAddForm} type="button">
-          + Add Item
-        </button>
-      </div>
-
-      <input
-        className="search-input"
-        type="text"
-        placeholder="Search by name or category..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+      <AdminPageHeader
+        eyebrow="Stock control"
+        title="Inventory"
+        subtitle="Everything you carry, what it costs, and what needs reordering."
+        chips={[
+          { label: "Items", value: items.length },
+          { label: "Low stock", value: lowStockCount },
+        ]}
+        actions={
+          <button className="adm-hero-btn" onClick={openAddForm} type="button">
+            <Plus size={17} aria-hidden="true" />
+            Add Item
+          </button>
+        }
       />
+
+      <div className="adm-toolbar">
+        <div className="adm-search">
+          <Search size={16} aria-hidden="true" />
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Search by name or category…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <span className="adm-toolbar-count">
+          {filteredItems.length} of {items.length} shown
+        </span>
+      </div>
 
       {formOpen && (
         <div className="item-form-card">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./inspection-requests.css";
 
 interface InspectionRequestWithDetails {
@@ -153,10 +154,15 @@ export default function InspectionRequestsPage() {
 
   return (
     <main className="requests-page">
-      <h1>Inspection Requests</h1>
-      <p className="requests-subtitle">
-        Review submitted requests and convert them into orders so estimates can be created.
-      </p>
+      <AdminPageHeader
+        eyebrow="Intake"
+        title="Inspection Requests"
+        subtitle="Review submitted requests, assign an inspector, and convert them into orders so estimates can be created."
+        chips={[
+          { label: "In view", value: loading ? "—" : requests.length },
+          { label: "Inspectors", value: inspectors.length },
+        ]}
+      />
 
       <div className="request-filters">
         {FILTERS.map((f) => (

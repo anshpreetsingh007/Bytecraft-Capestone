@@ -51,6 +51,10 @@
   --color-copper-dark: #7a2e0a;
   --color-orange-bright: #fe7f2d;
 
+  /* Copper fill — contrast-safe under white text in both modes */
+  --color-copper-fill: #b54708;
+  --color-copper-fill-hover: #93370d;
+
   /* Foregrounds for filled surfaces */
   --color-on-navy: #ffffff;
   --color-on-navy-muted: #dbeafe;
@@ -127,11 +131,15 @@
   --color-primary: #3b82f6;
   --color-primary-hover: #60a5fa;
 
-  /* Copper (legacy alias) */
+  /* Copper (legacy alias — text-safe in dark mode) */
   --color-copper: #fdba74;
   --color-copper-hover: #fed7aa;
   --color-copper-dark: #c2410c;
   --color-orange-bright: #fe7f2d;
+
+  /* Copper fill — contrast-safe under white text */
+  --color-copper-fill: #c2410c;
+  --color-copper-fill-hover: #9a3412;
 
   /* Foregrounds for filled surfaces */
   --color-on-navy: #ffffff;
@@ -183,6 +191,8 @@
   --color-accent-text: var(--color-accent-text);
   --color-accent-bright: var(--color-accent-bright);
   --color-accent-tint: var(--color-accent-tint);
+  --color-copper-fill: var(--color-copper-fill);
+  --color-copper-fill-hover: var(--color-copper-fill-hover);
   --color-primary: var(--color-primary);
   --color-danger: var(--color-danger);
   --color-danger-hover: var(--color-danger-hover);
@@ -354,18 +364,332 @@ body {
   box-sizing: border-box;
 }
 
+/* Page-transition wrapper — animation is inline-styled by template.tsx */
+.page-transition-wrap {
+  will-change: opacity, transform;
+}
+
+/* Legacy class kept for backwards compat */
 .page-transition {
-  animation: fadeInSlideUp 0.35s ease-out forwards;
+  animation: fadeInSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeInSlideUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(18px) scale(0.995);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
+}
+
+/* =============================================================
+   SCROLL REVEAL & ANIMATION SYSTEM
+   ============================================================= */
+
+/* ─── Hero text entrance ─── */
+
+@keyframes heroSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes heroBtnPop {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.hero-title-animate {
+  animation: heroSlideIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.hero-subtitle-animate {
+  animation: heroSlideIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.hero-buttons-animate {
+  animation: heroBtnPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+}
+
+/* ─── Floating / breathing decorative animation ─── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* ─── Shimmer / glow for CTAs ─── */
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ─── Gradient border glow on hover ─── */
+
+.card-hover-glow {
+  position: relative;
+  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-hover-glow:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(35, 61, 77, 0.12),
+              0 0 0 1px var(--color-accent-tint);
+}
+
+.dark .card-hover-glow:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35),
+              0 0 0 1px rgba(254, 127, 45, 0.15);
+}
+
+/* ─── Underline reveal for links ─── */
+
+.link-underline-reveal {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline-reveal::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-accent-bright);
+  transition: width 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.link-underline-reveal:hover::after {
+  width: 100%;
+}
+
+/* ─── Section divider animation ─── */
+
+@keyframes lineGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.divider-animate {
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-navy), var(--color-accent-bright), var(--color-navy));
+  border: none;
+  border-radius: 2px;
+  transform-origin: left;
+  animation: lineGrow 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Process step number pulse ─── */
+
+@keyframes numberPulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.45; }
+}
+
+.step-number-glow {
+  position: relative;
+}
+
+.step-number-glow::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+  animation: numberPulse 2.5s ease-in-out infinite;
+  z-index: -1;
+}
+
+/* ─── Testimonial quote mark ─── */
+
+@keyframes quoteFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
+
+.quote-mark {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--color-accent-bright);
+  opacity: 0.2;
+  animation: quoteFloat 5s ease-in-out infinite;
+}
+
+/* ─── Smooth FAQ accordion ─── */
+
+details.faq-item summary {
+  cursor: pointer;
+  list-none: none;
+}
+
+details.faq-item .faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+details.faq-item[open] .faq-answer {
+  grid-template-rows: 1fr;
+}
+
+details.faq-item .faq-answer > div {
+  overflow: hidden;
+}
+
+/* The + icon rotation */
+.faq-icon {
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+details.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
+}
+
+/* ─── Gradient text utility ─── */
+
+.text-gradient-brand {
+  background: linear-gradient(135deg, var(--color-navy), var(--color-accent-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient-brand {
+  background: linear-gradient(135deg, #93c5fd, var(--color-accent-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Pulsing dot (for "live" status indicators) ─── */
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.8); opacity: 0; }
+}
+
+.pulse-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success-text);
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+/* ─── Hover tilt for interactive cards ─── */
+
+.hover-tilt {
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-tilt:hover {
+  transform: perspective(800px) rotateY(-2deg) rotateX(2deg) translateY(-4px);
+}
+
+/* ─── Glass morphism utility ─── */
+
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(30, 30, 30, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── CTA section gradient animation ─── */
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cta-gradient-bg {
+  background: linear-gradient(135deg, #1a2e3a, #233d4d, #2c5064, #233d4d);
+  background-size: 300% 300%;
+  animation: gradientShift 8s ease-in-out infinite;
+}
+
+/* ─── Badge bounce for notifications ─── */
+
+@keyframes badgeBounce {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.25); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.1); }
+}
+
+.badge-bounce {
+  animation: badgeBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

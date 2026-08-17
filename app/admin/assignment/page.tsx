@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "../admin-shared.css";
 
 export default function AssignmentPage() {
@@ -8,13 +9,11 @@ export default function AssignmentPage() {
 
     <main className="assignment-page">
 
-      <h1>
-        Inspector Assignment
-      </h1>
-
-      <p className="assignment-subtitle">
-        Assign inspections to available inspectors.
-      </p>
+      <AdminPageHeader
+        eyebrow="Scheduling"
+        title="Inspector Assignment"
+        subtitle="Assign inspections to available inspectors."
+      />
 
 
       <div className="assignment-card">

@@ -28,7 +28,7 @@ export default function Logo() {
 
   return (
     <Link href="/customer" className="flex items-center shrink-0" aria-label="Markit Roofing home">
-      <Image src={src} alt="Markit Roofing" width={140} height={34} style={{ width: 'auto', height: 'auto' }} priority />
+      <Image src={src} alt="Markit Roofing" width={140} height={34} priority />
     </Link>
   );
 }

@@ -122,7 +122,7 @@ export default function ContactForm() {
 
   if (!isSignedInClient) {
     return (
-      <div className="bg-[#FBF3EC] border border-[#E8D9C5] text-[#5B4632] px-[18px] py-6 rounded-[3px] text-[0.95rem]">
+      <div className="bg-[#FBF3EC] dark:bg-[#2a1f14] border border-[#E8D9C5] dark:border-[#5B4632] text-[#5B4632] dark:text-[#f0d4b8] px-[18px] py-6 rounded-[3px] text-[0.95rem]">
         <p className="mb-4">
           Please sign in or create an account to request a free quote — this lets us keep you updated on your
           request and estimate.
@@ -142,12 +142,12 @@ export default function ContactForm() {
   return (
     <div>
       {submitted && (
-        <div className="bg-[#EDF3EE] border border-[#B7CDBB] text-[#2F5233] px-[18px] py-4 rounded-[3px] mb-6 text-[0.95rem]">
+        <div className="bg-[#EDF3EE] dark:bg-[#132a17] border border-[#B7CDBB] dark:border-[#2F5233] text-[#2F5233] dark:text-[#8fe0b0] px-[18px] py-4 rounded-[3px] mb-6 text-[0.95rem]">
           Thanks — your request has been received. We&apos;ll be in touch within one business day.
         </div>
       )}
       {error && (
-        <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#7A2E2E] px-[18px] py-4 rounded-[3px] mb-6 text-[0.95rem]">
+        <div className="bg-[#FBEAEA] dark:bg-[#2a1313] border border-[#E3B8B8] dark:border-[#7A2E2E] text-[#7A2E2E] dark:text-[#f87171] px-[18px] py-4 rounded-[3px] mb-6 text-[0.95rem]">
           {error}
         </div>
       )}
@@ -237,7 +237,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center bg-copper hover:bg-copper-dark text-white font-semibold px-[26px] py-3.5 rounded-[3px] transition-colors disabled:opacity-60"
+          className="inline-flex items-center bg-copper-fill hover:bg-copper-fill-hover text-white font-semibold px-[26px] py-3.5 rounded-md transition-all duration-200 hover:scale-105 hover:shadow-lg disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           {isSubmitting ? "Submitting…" : "Request Free Quote"}
         </button>

@@ -1,0 +1,3289 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SuperMarkit admin — redesign preview</title>
+<style>
+:root {
+  --background: #ffffff;
+  --foreground: #101828;
+
+  /* Surfaces */
+  --color-bg: #f2f4f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f9fafb;
+
+  /* Text */
+  --color-ink: #101828;
+  --color-ink-soft: #344054;
+  --color-muted: #475467;
+
+  /* Lines */
+  --color-border: #d0d5dd;
+  --color-line: #e4e7ec;
+
+  /* Brand navy */
+  --color-navy: #233d4d;
+  --color-navy-hover: #1a2e3a;
+  --color-navy-raised: #34576d;
+  --color-navy-tint: rgba(35, 61, 77, 0.08);
+  --color-navy-faint: rgba(35, 61, 77, 0.04);
+
+  /* Brand orange.
+     accent-solid = fill under white text (4.6:1). accent-text = orange on a
+     light surface (4.6:1). accent-bright is DECORATIVE ONLY — icon chips,
+     bar fills, illustrations. Never text, never a text background. */
+  --color-accent-solid: #b54708;
+  --color-accent-hover: #93370d;
+  --color-accent-text: #b54708;
+  --color-accent-bright: #fe7f2d;
+  --color-accent-tint: rgba(181, 71, 8, 0.1);
+  /* Legacy alias: older rules use --color-accent as a button fill, so it must
+     stay contrast-safe under white text. */
+  --color-accent: #b54708;
+
+  /* Blue */
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;
+
+  /* Copper (legacy alias kept for existing call sites) */
+  --color-copper: #b54708;
+  --color-copper-hover: #93370d;
+  --color-copper-dark: #7a2e0a;
+  --color-orange-bright: #fe7f2d;
+
+  /* Copper fill — contrast-safe under white text in both modes */
+  --color-copper-fill: #b54708;
+  --color-copper-fill-hover: #93370d;
+
+  /* Foregrounds for filled surfaces */
+  --color-on-navy: #ffffff;
+  --color-on-navy-muted: #dbeafe;
+  --color-on-accent: #ffffff;
+  --color-on-danger: #ffffff;
+
+  /* Destructive */
+  --color-danger: #9a1f15;
+  --color-danger-hover: #7f1a11;
+
+  /* Status pairs (bg + text checked together) */
+  --color-success-bg: #dcfce7;
+  --color-success-text: #166534;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #991b1b;
+  --color-info-bg: #e0f2fe;
+  --color-info-text: #075985;
+  --color-neutral-bg: #eaecf0;
+  --color-neutral-text: #475467;
+
+  /* Elevation */
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-card-lg: 0 5px 15px rgba(16, 24, 40, 0.08);
+  --shadow-modal: 0 20px 50px rgba(16, 24, 40, 0.3);
+
+  /* Typography */
+    --font-sans: Arial, Helvetica, sans-serif;
+  
+    --font-xs: 0.75rem;
+    --font-sm: 0.875rem;
+    --font-md: 1rem;
+    --font-lg: 1.25rem;
+    --font-xl: 1.75rem;
+    --font-2xl: 2rem;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  /* Surfaces */
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-surface-2: #262626;
+
+  /* Text */
+  --color-ink: #ffffff;
+  --color-ink-soft: rgba(255, 255, 255, 0.78);
+  --color-muted: rgba(255, 255, 255, 0.62);
+
+  /* Lines */
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-line: rgba(255, 255, 255, 0.08);
+
+  /* Brand navy */
+  --color-navy: #1f2937;
+  --color-navy-hover: #2b3948;
+  --color-navy-raised: #2c3e50;
+  --color-navy-tint: rgba(255, 255, 255, 0.08);
+  --color-navy-faint: rgba(255, 255, 255, 0.04);
+
+  /* Brand orange. Fill darkens so white text still clears 4.5:1; text
+     lightens so orange copy clears 4.5:1 on the dark surface. */
+  --color-accent-solid: #c2410c;
+  --color-accent-hover: #9a3412;
+  --color-accent-text: #fdba74;
+  --color-accent-bright: #fe7f2d;
+  --color-accent-tint: rgba(254, 127, 45, 0.16);
+  --color-accent: #c2410c;
+
+  /* Blue */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+
+  /* Copper (legacy alias — text-safe in dark mode) */
+  --color-copper: #fdba74;
+  --color-copper-hover: #fed7aa;
+  --color-copper-dark: #c2410c;
+  --color-orange-bright: #fe7f2d;
+
+  /* Copper fill — contrast-safe under white text */
+  --color-copper-fill: #c2410c;
+  --color-copper-fill-hover: #9a3412;
+
+  /* Foregrounds for filled surfaces */
+  --color-on-navy: #ffffff;
+  --color-on-navy-muted: #cbd5e1;
+  --color-on-accent: #ffffff;
+  --color-on-danger: #ffffff;
+
+  /* Destructive */
+  --color-danger: #a82a20;
+  --color-danger-hover: #8c2219;
+
+  /* Status pairs */
+  --color-success-bg: rgba(34, 197, 94, 0.16);
+  --color-success-text: #86efac;
+  --color-warning-bg: rgba(245, 158, 11, 0.16);
+  --color-warning-text: #fcd34d;
+  --color-danger-bg: rgba(239, 68, 68, 0.16);
+  --color-danger-text: #fca5a5;
+  --color-info-bg: rgba(56, 189, 248, 0.16);
+  --color-info-text: #7dd3fc;
+  --color-neutral-bg: rgba(255, 255, 255, 0.08);
+  --color-neutral-text: rgba(255, 255, 255, 0.62);
+
+  /* Elevation — shadows read as near-invisible on dark, so lean on borders */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-card-lg: 0 5px 15px rgba(0, 0, 0, 0.45);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.65);
+}
+
+
+html{font-family:system-ui,"Segoe UI",Roboto,sans-serif;scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--color-bg);color:var(--color-ink);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{color:var(--color-ink);line-height:1.2}
+button,input,select{font-family:inherit}
+.pv-bar{position:sticky;top:0;z-index:500;display:flex;gap:8px;align-items:center;padding:10px 16px;background:#0b1216;color:#fff;font-size:13px;font-weight:600}
+.pv-bar button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer}
+.pv-bar button.on{background:linear-gradient(135deg,#fe7f2d,#d24d0c);border-color:transparent}
+.pane{display:none}
+.pane.show{display:block}
+/* =========================
+   TOP NAVIGATION
+========================= */
+
+.topnav {
+    width: 100%;
+    height: 64px;
+    min-height: 64px;
+
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    padding: 0 28px;
+
+    background: var(--color-navy);
+    color: #ffffff;
+
+    box-sizing: border-box;
+
+    font-family: var(--font-sans);
+
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   BRAND
+========================= */
+
+.topnav-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex-shrink: 0;
+}
+
+.topnav-brand {
+    color: #ffffff;
+
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+.topnav-role {
+    color: var(--color-on-navy-muted);
+
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+
+/* =========================
+   DESKTOP NAV
+========================= */
+
+.topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex: 1;
+}
+
+.topnav-link {
+    min-height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 0 14px;
+
+    border-radius: 8px;
+
+    color: #f8fafc;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        background-color 150ms ease,
+        color 150ms ease;
+}
+
+.topnav-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.topnav-link-active {
+    background: var(--color-navy-raised);
+    color: #ffffff;
+}
+
+
+/* =========================
+   DESKTOP LOGOUT
+========================= */
+
+.topnav-logout {
+    min-height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 0 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--color-danger);
+    color: #ffffff;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.topnav-logout:hover {
+    background: var(--color-danger-hover);
+}
+
+.topnav-logout:focus-visible,
+.topnav-link:focus-visible,
+.topnav-hamburger:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.topnav-role-right {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.topnav-logout {
+    margin-left: 0;
+}
+
+
+/* =========================
+   MOBILE NAV FIX
+========================= */
+
+.topnav-hamburger {
+    display: none;
+}
+
+@media (max-width: 800px) {
+    .topnav {
+        width: 100%;
+        min-height: 60px;
+        height: 60px;
+
+        display: flex;
+        align-items: center;
+
+        padding: 0 14px;
+
+        gap: 10px;
+    }
+
+    /* Hide desktop-only items */
+    .topnav-links,
+    .topnav-role-right,
+    .topnav-logout {
+        display: none;
+    }
+
+    /* Keep brand visible */
+    .topnav-brand-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .topnav-brand {
+        font-size: 16px;
+    }
+
+    /* Keep theme toggle visible */
+    .topnav>button:not(.topnav-hamburger):not(.topnav-logout) {
+        flex-shrink: 0;
+    }
+
+    /* Show hamburger */
+    .topnav-hamburger {
+        display: inline-flex;
+
+        width: 44px;
+        height: 44px;
+
+        align-items: center;
+        justify-content: center;
+
+        margin-left: auto;
+
+        border: none;
+        border-radius: 8px;
+
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+}
+
+
+/* =========================
+   MOBILE DRAWER
+========================= */
+
+.mobile-menu-overlay {
+    position: fixed;
+    inset: 0;
+
+    width: 100vw;
+    height: 100dvh;
+
+    background: rgba(16, 24, 40, 0);
+
+    z-index: 9998;
+
+    animation: overlayFadeIn 300ms ease forwards;
+}
+
+@keyframes overlayFadeIn {
+    to { background: rgba(16, 24, 40, 0.65); }
+}
+
+.mobile-menu-overlay.closing {
+    animation: overlayFadeOut 250ms ease forwards;
+}
+
+@keyframes overlayFadeOut {
+    from { background: rgba(16, 24, 40, 0.65); }
+    to { background: rgba(16, 24, 40, 0); }
+}
+
+.mobile-menu {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: min(82vw, 320px);
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px;
+
+    background: var(--color-navy);
+    color: #ffffff;
+
+    box-sizing: border-box;
+
+    z-index: 9999;
+
+    overflow-y: auto;
+
+    transform: translateX(-100%);
+    animation: menuSlideIn 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes menuSlideIn {
+    to { transform: translateX(0); }
+}
+
+.mobile-menu.closing {
+    animation: menuSlideOut 250ms ease forwards;
+}
+
+@keyframes menuSlideOut {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+.mobile-menu-link {
+    transform: translateX(-20px);
+    opacity: 0;
+    animation: menuItemSlideIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 100ms; }
+.mobile-menu-link:nth-child(2) { animation-delay: 150ms; }
+.mobile-menu-link:nth-child(3) { animation-delay: 200ms; }
+.mobile-menu-link:nth-child(4) { animation-delay: 250ms; }
+.mobile-menu-link:nth-child(5) { animation-delay: 300ms; }
+.mobile-menu-link:nth-child(6) { animation-delay: 350ms; }
+.mobile-menu-link:nth-child(7) { animation-delay: 400ms; }
+
+@keyframes menuItemSlideIn {
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 24px;
+}
+
+.mobile-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mobile-menu-close {
+    width: 44px;
+    height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #ffffff;
+}
+
+.mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.mobile-menu-link {
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 0 14px;
+
+    border-radius: 8px;
+
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.mobile-menu-link-active {
+    background: var(--color-navy-raised);
+}
+
+.mobile-menu-logout {
+    width: 100%;
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: auto;
+    padding: 0 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.mobile-menu-logout:hover {
+    background: var(--color-danger-hover);
+}
+
+
+/* =========================
+   LOGOUT CONFIRMATION BUTTONS
+========================= */
+
+.logout-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-cancel-button,
+.logout-confirm-button {
+    min-height: 44px;
+    padding: 10px 18px;
+
+    border-radius: 8px;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.logout-cancel-button {
+    background: var(--color-surface);
+    color: var(--color-ink);
+
+    border: 1px solid var(--color-border);
+}
+
+.logout-cancel-button:hover {
+    background: var(--color-surface-2);
+    border-color: var(--color-muted);
+}
+
+.logout-confirm-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+
+    border: none;
+
+    opacity: 1;
+    visibility: visible;
+}
+
+.logout-confirm-button:hover {
+    background: var(--color-danger-hover);
+    color: var(--color-on-danger);
+}
+
+.logout-cancel-button:focus-visible,
+.logout-confirm-button:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 3px;
+}
+
+/* =========================
+   LOGOUT MODAL OVERLAY
+========================= */
+
+.logout-confirm-overlay {
+    position: fixed;
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.7);
+
+    z-index: 99999;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   LOGOUT MODAL CARD
+========================= */
+
+.logout-confirm-modal {
+    width: 100%;
+    max-width: 420px;
+
+    padding: 28px;
+
+    background: var(--color-surface);
+    color: var(--color-ink);
+
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+
+    box-shadow: var(--shadow-modal);
+
+    box-sizing: border-box;
+}
+
+.logout-confirm-modal h2 {
+    margin: 0 0 10px;
+
+    color: var(--color-ink);
+
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.logout-confirm-modal p {
+    margin: 0 0 24px;
+
+    color: var(--color-muted);
+
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+
+/* =========================
+   MODAL BUTTONS
+========================= */
+
+.logout-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.logout-cancel-button,
+.logout-confirm-button {
+    min-height: 44px;
+
+    padding: 10px 18px;
+
+    border-radius: 8px;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.logout-cancel-button {
+    background: var(--color-surface);
+    color: var(--color-ink);
+
+    border: 1px solid var(--color-border);
+}
+
+.logout-cancel-button:hover {
+    background: var(--color-surface-2);
+    border-color: var(--color-muted);
+}
+
+.logout-confirm-button {
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+
+    border: none;
+}
+
+.logout-confirm-button:hover {
+    background: var(--color-danger-hover);
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 500px) {
+    .logout-confirm-modal {
+        max-width: 360px;
+
+        padding: 22px;
+    }
+
+    .logout-confirm-actions {
+        flex-direction: column-reverse;
+    }
+
+    .logout-cancel-button,
+    .logout-confirm-button {
+        width: 100%;
+    }
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.inspector-layout {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    overflow-x: hidden;
+}
+
+.dashboard-content {
+    width: 100%;
+    max-width: 1200px;
+    min-width: 0;
+
+    margin: 0 auto;
+
+    box-sizing: border-box;
+}
+
+.dashboard-welcome,
+.dashboard-actions,
+.dashboard-action,
+.dashboard-action-content {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.dashboard-title,
+.dashboard-subtitle,
+.dashboard-action-content h2,
+.dashboard-action-content p {
+    max-width: 100%;
+
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+
+/* =========================
+   PHONE
+========================= */
+
+@media (max-width: 700px) {
+    .dashboard-content {
+        width: 100%;
+        max-width: 100%;
+
+        padding: 30px 20px;
+
+        box-sizing: border-box;
+    }
+
+        .dashboard-welcome {
+            position: relative;
+    
+            width: 100%;
+            max-width: none;
+    
+            min-height: 190px;
+    
+            display: flex;
+            align-items: center;
+    
+            padding: 30px 34px;
+    
+            overflow: hidden;
+    
+            background: var(--color-surface);
+    
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+        }
+    
+        .dashboard-welcome-text {
+            position: relative;
+            z-index: 2;
+    
+            max-width: 650px;
+        }
+    
+    
+    .dashboard-title {
+        width: 100%;
+
+        font-size: 2rem;
+        line-height: 1.15;
+
+        white-space: normal;
+    }
+
+    .dashboard-subtitle {
+        width: 100%;
+
+        font-size: 1rem;
+        line-height: 1.5;
+
+        white-space: normal;
+    }
+
+    .dashboard-actions {
+        width: 100%;
+
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .dashboard-action {
+        width: 100%;
+        min-width: 0;
+
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr);
+
+        gap: 14px;
+
+        padding: 26px 0;
+
+        box-sizing: border-box;
+    }
+
+    .dashboard-action+.dashboard-action {
+        border-left: none;
+        /* was var(--border), which is not a token that exists anywhere */
+        border-top: 1px solid var(--color-border);
+    }
+
+        .dashboard-action-icon {
+            width: 52px;
+            height: 52px;
+    
+            display: flex;
+            align-items: center;
+            justify-content: center;
+    
+            flex-shrink: 0;
+    
+            background: #dbeafe;
+            color: #1d4ed8;
+    
+            border: 1px solid #bfdbfe;
+            border-radius: 14px;
+        }
+    
+        .dark .dashboard-action-icon {
+            background: #172554;
+            color: #93c5fd;
+    
+            border-color: #1e3a8a;
+        }
+    .dashboard-action-content {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dashboard-action-content h2 {
+        margin-bottom: 8px;
+
+        font-size: 1.125rem;
+        line-height: 1.3;
+
+        white-space: normal;
+    }
+
+    .dashboard-action-content p {
+        width: 100%;
+        max-width: none;
+
+        font-size: 1rem;
+        line-height: 1.5;
+
+        white-space: normal;
+    }
+
+    .dashboard-action-link {
+        white-space: normal;
+    }
+}
+
+
+/* =========================
+   VERY SMALL PHONES
+========================= */
+
+@media (max-width: 420px) {
+    .dashboard-content {
+        padding: 26px 18px;
+    }
+
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+
+    .dashboard-action {
+        grid-template-columns: 42px minmax(0, 1fr);
+
+        gap: 12px;
+    }
+
+    .dashboard-action-icon {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+@media (max-width: 800px) {
+    .topnav {
+        width: 100%;
+        max-width: 100%;
+
+        height: 64px;
+        min-height: 64px;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 0 16px;
+
+        box-sizing: border-box;
+
+        overflow: visible;
+    }
+
+    /* Brand stays on left */
+    .topnav-brand-group {
+        display: flex;
+
+        margin-right: auto;
+
+        flex-shrink: 0;
+    }
+
+    .topnav-brand {
+        font-size: 16px;
+
+        white-space: nowrap;
+    }
+
+    /* Desktop stuff disappears */
+    .topnav-links,
+    .topnav-role-right,
+    .topnav-logout {
+        display: none !important;
+    }
+
+    /* Hamburger MUST show */
+    .topnav-hamburger {
+        display: inline-flex !important;
+
+        width: 44px;
+        height: 44px;
+
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        margin: 0;
+
+        border: none;
+        border-radius: 8px;
+
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+
+        cursor: pointer;
+    }
+}
+/* =============================================================================
+   TOP NAV — visual upgrade layer
+   -----------------------------------------------------------------------------
+   Appended after the base rules in dashboard-nav.css so it wins on equal
+   specificity. Structure, breakpoints and the mobile drawer are untouched;
+   this only restyles the desktop bar's surface, links and controls.
+   ========================================================================== */
+
+.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+
+    height: 68px;
+    min-height: 68px;
+
+    gap: 18px;
+    padding: 0 24px;
+
+    /* Layered: gradient base + a soft orange bloom behind the brand. */
+    background:
+        radial-gradient(520px 140px at 6% 120%, rgba(254, 127, 45, .22), transparent 70%),
+        linear-gradient(120deg, #16272f 0%, #233d4d 46%, #2c5064 100%);
+
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, .06) inset,
+        0 8px 24px -12px rgba(0, 0, 0, .55);
+
+    backdrop-filter: saturate(1.2);
+    -webkit-backdrop-filter: saturate(1.2);
+}
+
+.dark .topnav {
+    background:
+        radial-gradient(520px 140px at 6% 120%, rgba(254, 127, 45, .18), transparent 70%),
+        linear-gradient(120deg, #0d171d 0%, #16272f 46%, #1e3946 100%);
+}
+
+/* Hairline accent rule along the very bottom edge */
+.topnav::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    background: linear-gradient(90deg, #fe7f2d 0%, #f26516 22%, rgba(48, 90, 111, .5) 60%, transparent 100%);
+    opacity: .9;
+    pointer-events: none;
+}
+
+/* ── Brand ─────────────────────────────────────────────────────────────── */
+
+.topnav-brand {
+    font-size: 17px;
+    font-weight: 850;
+    letter-spacing: .06em;
+    background: linear-gradient(100deg, #ffffff 0%, #ffe6d2 55%, #fe7f2d 130%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+}
+
+.topnav-brand-group {
+    padding-right: 18px;
+    margin-right: 2px;
+    border-right: 1px solid rgba(255, 255, 255, .1);
+}
+
+/* ── Links ─────────────────────────────────────────────────────────────── */
+
+.topnav-links {
+    gap: 3px;
+}
+
+.topnav-link {
+    position: relative;
+    min-height: 40px;
+    padding: 0 13px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: -.005em;
+    color: rgba(255, 255, 255, .74);
+    white-space: nowrap;
+    transition:
+        background-color 200ms ease,
+        color 200ms ease,
+        transform 260ms cubic-bezier(.16, 1, .3, 1);
+}
+
+/* Underline indicator — grows from the centre */
+.topnav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    bottom: -14px;
+    height: 3px;
+    border-radius: 999px 999px 0 0;
+    background: linear-gradient(90deg, #fe7f2d, #f26516);
+    transition: left 280ms cubic-bezier(.16, 1, .3, 1), right 280ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.topnav-link:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.topnav-link:hover::after {
+    left: 30%;
+    right: 30%;
+}
+
+.topnav-link-active {
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        0 4px 12px -6px rgba(0, 0, 0, .6);
+}
+
+.topnav-link-active::after {
+    left: 18%;
+    right: 18%;
+    box-shadow: 0 0 12px -1px rgba(254, 127, 45, .9);
+}
+
+.topnav-link svg {
+    opacity: .85;
+    transition: opacity 200ms ease;
+}
+
+.topnav-link-active svg,
+.topnav-link:hover svg {
+    opacity: 1;
+}
+
+/* ── Role chip ─────────────────────────────────────────────────────────── */
+
+.topnav-role {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .16);
+    color: rgba(255, 255, 255, .86);
+    font-size: 10.5px;
+    font-weight: 750;
+    letter-spacing: .1em;
+    white-space: nowrap;
+}
+
+/* ── Logout ────────────────────────────────────────────────────────────── */
+
+.topnav-logout {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 650;
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .16),
+        0 4px 14px -6px rgba(154, 31, 21, .8);
+    transition:
+        transform 220ms cubic-bezier(.16, 1, .3, 1),
+        filter 200ms ease,
+        box-shadow 240ms ease;
+}
+
+.topnav-logout:hover {
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        0 8px 20px -6px rgba(154, 31, 21, .9);
+}
+
+.topnav-logout:active {
+    transform: translateY(0) scale(.98);
+}
+
+/* ── Theme toggle (the unclassed button between role and logout) ───────── */
+
+.topnav > button:not(.topnav-hamburger):not(.topnav-logout) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 200ms ease, transform 220ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.topnav > button:not(.topnav-hamburger):not(.topnav-logout):hover {
+    background: rgba(255, 255, 255, .16);
+    transform: translateY(-1px);
+}
+
+/* ── Hamburger ─────────────────────────────────────────────────────────── */
+
+.topnav-hamburger {
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, .14) !important;
+}
+
+/* ── Mobile drawer surface, matched to the new bar ─────────────────────── */
+
+.mobile-menu {
+    background:
+        radial-gradient(420px 240px at 100% 0%, rgba(254, 127, 45, .18), transparent 68%),
+        linear-gradient(160deg, #16272f 0%, #233d4d 55%, #1a2e3a 100%);
+    border-right: 1px solid rgba(255, 255, 255, .1);
+}
+
+.mobile-menu-link {
+    border-radius: 10px;
+    color: rgba(255, 255, 255, .82);
+    transition: background-color 200ms ease, color 200ms ease;
+}
+
+.mobile-menu-link:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+
+.mobile-menu-link-active {
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+    box-shadow: inset 3px 0 0 #fe7f2d;
+}
+
+.mobile-menu-logout {
+    border-radius: 10px;
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+}
+
+/* ── Modal polish ──────────────────────────────────────────────────────── */
+
+.logout-confirm-overlay {
+    background: rgba(10, 18, 24, .62);
+    backdrop-filter: blur(6px) saturate(1.1);
+    -webkit-backdrop-filter: blur(6px) saturate(1.1);
+}
+
+.logout-confirm-modal {
+    border-radius: 20px;
+    box-shadow: 0 24px 64px -16px rgba(0, 0, 0, .6);
+}
+
+.logout-confirm-modal h2 {
+    font-size: 21px;
+    font-weight: 780;
+    letter-spacing: -.02em;
+}
+
+.logout-confirm-button {
+    border-radius: 10px;
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    box-shadow: 0 6px 16px -8px rgba(154, 31, 21, .9);
+}
+
+.logout-confirm-button:hover {
+    background: linear-gradient(135deg, #c02b1e, #8f1d14);
+    filter: brightness(1.1);
+}
+
+.logout-cancel-button {
+    border-radius: 10px;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 1180px) {
+    .topnav {
+        gap: 12px;
+        padding: 0 16px;
+    }
+
+    .topnav-link {
+        padding: 0 10px;
+        font-size: 13px;
+    }
+
+    .topnav-brand-group {
+        padding-right: 12px;
+    }
+}
+
+@media (max-width: 800px) {
+    .topnav {
+        height: 64px;
+        min-height: 64px;
+    }
+
+    .topnav-brand {
+        font-size: 16px;
+    }
+
+    .topnav-brand-group {
+        border-right: none;
+        padding-right: 0;
+    }
+}
+
+/* =============================================================================
+   ADMIN THEME — shared visual system for every /admin page
+   -----------------------------------------------------------------------------
+   Imported once from app/admin/layout.tsx. Every rule is scoped under `.adm`
+   (the class on the admin <main>) so it reliably outranks the per-page
+   stylesheets that pages import themselves, regardless of chunk order.
+
+   Colour still comes from the globals.css tokens, so light/dark and the
+   contrast-checked pairs keep working. What this file adds is depth:
+   gradients, layered elevation, hairlines, rails, motion.
+   ========================================================================== */
+
+.adm {
+    /* Geometry */
+    --adm-r-xs: 8px;
+    --adm-r-sm: 12px;
+    --adm-r-md: 16px;
+    --adm-r-lg: 20px;
+    --adm-r-xl: 26px;
+
+    /* Layered elevation — two shadows each: a tight contact shadow plus a
+       wide ambient one. Single-shadow cards are what read as "flat". */
+    --adm-sh-1: 0 1px 2px rgba(16, 24, 40, .05), 0 2px 6px -1px rgba(16, 24, 40, .07);
+    --adm-sh-2: 0 2px 4px -1px rgba(16, 24, 40, .06), 0 12px 24px -8px rgba(16, 24, 40, .14);
+    --adm-sh-3: 0 4px 8px -2px rgba(16, 24, 40, .07), 0 24px 48px -12px rgba(16, 24, 40, .18);
+    --adm-sh-hero: 0 10px 20px -8px rgba(16, 24, 40, .35), 0 32px 64px -20px rgba(26, 46, 58, .45);
+
+    /* Hairline + ring */
+    --adm-hair: rgba(16, 24, 40, .07);
+    --adm-ring: 0 0 0 1px rgba(16, 24, 40, .05);
+    --adm-glow-accent: 0 0 0 1px rgba(254, 127, 45, .32), 0 12px 32px -10px rgba(254, 127, 45, .45);
+
+    /* Gradients */
+    --adm-g-navy: linear-gradient(135deg, #16272f 0%, #233d4d 45%, #305a6f 100%);
+    --adm-g-accent: linear-gradient(135deg, #fe7f2d 0%, #f26516 55%, #d24d0c 100%);
+    --adm-g-rail: linear-gradient(90deg, #fe7f2d 0%, #f26516 38%, #305a6f 100%);
+    --adm-g-surface: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+    --adm-g-sheen: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0));
+
+    /* Ambient page wash */
+    --adm-wash-a: rgba(254, 127, 45, .10);
+    --adm-wash-b: rgba(35, 61, 77, .10);
+
+    --adm-num: "Segoe UI", system-ui, -apple-system, sans-serif;
+
+    position: relative;
+    display: block;
+    padding: 26px 24px 64px;
+    max-width: 1240px;
+    margin: 0 auto;
+    isolation: isolate;
+}
+
+.dark .adm {
+    --adm-sh-1: 0 1px 2px rgba(0, 0, 0, .5), 0 2px 6px -1px rgba(0, 0, 0, .45);
+    --adm-sh-2: 0 2px 4px -1px rgba(0, 0, 0, .5), 0 14px 28px -10px rgba(0, 0, 0, .6);
+    --adm-sh-3: 0 4px 8px -2px rgba(0, 0, 0, .55), 0 28px 56px -14px rgba(0, 0, 0, .7);
+    --adm-sh-hero: 0 10px 24px -10px rgba(0, 0, 0, .8), 0 36px 72px -24px rgba(0, 0, 0, .9);
+
+    --adm-hair: rgba(255, 255, 255, .09);
+    --adm-ring: 0 0 0 1px rgba(255, 255, 255, .06);
+
+    --adm-g-navy: linear-gradient(135deg, #101c24 0%, #1c303c 45%, #27485a 100%);
+    --adm-g-surface: linear-gradient(180deg, #212121 0%, #1b1b1b 100%);
+    --adm-g-sheen: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0));
+
+    --adm-wash-a: rgba(254, 127, 45, .12);
+    --adm-wash-b: rgba(56, 110, 135, .16);
+}
+
+/* ── Ambient background wash ───────────────────────────────────────────────
+   Two soft radial blooms behind everything. Cheap, fixed, and it is what
+   stops the page reading as a flat grey slab. */
+.adm::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(760px 460px at 12% -8%, var(--adm-wash-b), transparent 62%),
+        radial-gradient(680px 420px at 92% 4%, var(--adm-wash-a), transparent 60%);
+}
+
+/* ==========================================================================
+   PAGE SHELL RESET
+   The per-page stylesheets each set their own 40px padding / 100vh / bg,
+   which double-padded once the layout gained its own container. Neutralise
+   them here so every admin page shares one rhythm.
+   ========================================================================== */
+
+.adm .reports-page,
+.adm .estimates-page,
+.adm .requests-page,
+.adm .inventory-page,
+.adm .dashboard-page,
+.adm .invoice-page,
+.adm .assignment-page,
+.adm .cost-estimate-page,
+.adm .superadmin-page,
+.adm .admin-page,
+.adm .estimate-page {
+    min-height: 0;
+    padding: 0;
+    margin: 0 auto;
+    background: transparent;
+    max-width: none;
+    width: 100%;
+}
+
+/* ==========================================================================
+   HERO BANNER
+   ========================================================================== */
+
+.adm-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--adm-r-xl);
+    background: var(--adm-g-navy);
+    color: #fff;
+    padding: 34px 34px 32px;
+    margin-bottom: 28px;
+    box-shadow: var(--adm-sh-hero);
+    animation: admHeroIn .7s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+/* Orange bloom, top-right */
+.adm-hero::before {
+    content: "";
+    position: absolute;
+    top: -55%;
+    right: -14%;
+    width: 62%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(254, 127, 45, .55) 0%, rgba(254, 127, 45, .16) 42%, transparent 70%);
+    pointer-events: none;
+    animation: admBloom 12s ease-in-out infinite;
+}
+
+/* Fine diagonal weave — texture, barely visible, kills the "flat block" look */
+.adm-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .5;
+    background-image:
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, .045) 0 1px, transparent 1px 9px);
+    mask-image: linear-gradient(105deg, #000 0%, transparent 62%);
+    -webkit-mask-image: linear-gradient(105deg, #000 0%, transparent 62%);
+}
+
+/* Accent rail across the very top of the hero */
+.adm-hero-rail {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--adm-g-rail);
+    z-index: 2;
+}
+
+.adm-hero-inner {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.adm-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .78);
+    background: rgba(255, 255, 255, .10);
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 999px;
+    padding: 5px 12px 5px 9px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    margin-bottom: 14px;
+}
+
+.adm-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6ee7a8;
+    box-shadow: 0 0 0 3px rgba(110, 231, 168, .22);
+    flex-shrink: 0;
+}
+
+.adm-hero h1,
+.adm-hero-title {
+    font-size: clamp(28px, 3.4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -.025em;
+    line-height: 1.06;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, .28);
+}
+
+.adm-hero-sub {
+    font-size: 14.5px;
+    font-weight: 450;
+    color: rgba(255, 255, 255, .72);
+    margin: 9px 0 0;
+    max-width: 60ch;
+}
+
+.adm-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Small stat chips that can sit on the right of a hero */
+.adm-hero-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 11px 16px;
+    border-radius: var(--adm-r-sm);
+    background: rgba(255, 255, 255, .09);
+    border: 1px solid rgba(255, 255, 255, .15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    min-width: 108px;
+}
+
+.adm-hero-chip-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .62);
+}
+
+.adm-hero-chip-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+/* Buttons that live inside the hero — glass over the navy gradient. */
+.adm-hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    background: linear-gradient(135deg, #fe7f2d 0%, #f26516 60%, #d24d0c 100%);
+    color: #fff;
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -.005em;
+    cursor: pointer;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .25),
+        0 8px 20px -8px rgba(0, 0, 0, .6);
+    transition:
+        transform 220ms cubic-bezier(.16, 1, .3, 1),
+        filter 200ms ease,
+        box-shadow 240ms ease;
+}
+
+.adm-hero-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+.adm-hero-btn:active {
+    transform: translateY(0) scale(.98);
+}
+
+.adm-hero-btn:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
+
+.adm-hero-btn-ghost {
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(255, 255, 255, .24);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.adm-hero-btn-ghost:hover {
+    background: rgba(255, 255, 255, .2);
+}
+
+@keyframes admHeroIn {
+    from {
+        opacity: 0;
+        transform: translateY(-14px) scale(.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes admBloom {
+
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: .95;
+    }
+
+    50% {
+        transform: translate3d(-3%, 4%, 0) scale(1.09);
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   SECTION HEADINGS
+   ========================================================================== */
+
+.adm-section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 34px 0 16px;
+}
+
+.adm-section-head:first-child {
+    margin-top: 0;
+}
+
+.adm-section-head h2,
+.adm .adm-section-title {
+    font-size: 17px;
+    font-weight: 750;
+    letter-spacing: -.015em;
+    color: var(--color-ink);
+    margin: 0;
+}
+
+.adm-section-head::before {
+    content: "";
+    width: 4px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--adm-g-accent);
+    flex-shrink: 0;
+    box-shadow: 0 0 12px -2px rgba(254, 127, 45, .7);
+}
+
+/* Reports reuses its own header row as a section head — keep the accent bar
+   on the left and push the period selector to the right edge. */
+.adm .report-section-header.adm-section-head {
+    justify-content: flex-start;
+    margin: 0 0 20px;
+}
+
+.adm .report-section-header.adm-section-head .period-selector {
+    margin-left: auto;
+}
+
+.adm-section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--adm-hair), transparent);
+    border: 0;
+    margin: 0;
+}
+
+.adm-section-count {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-muted);
+    background: var(--color-surface-2);
+    border: 1px solid var(--adm-hair);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   STAT CARDS
+   ========================================================================== */
+
+.adm-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.adm-stat {
+    position: relative;
+    overflow: hidden;
+    background: var(--adm-g-surface);
+    border: 1px solid var(--adm-hair);
+    border-radius: var(--adm-r-lg);
+    padding: 20px 20px 18px;
+    box-shadow: var(--adm-sh-1);
+    transition:
+        transform 420ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 420ms cubic-bezier(.16, 1, .3, 1),
+        border-color 300ms ease;
+    animation: admRise .55s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm-stat:nth-child(1) { animation-delay: .04s; }
+.adm-stat:nth-child(2) { animation-delay: .10s; }
+.adm-stat:nth-child(3) { animation-delay: .16s; }
+.adm-stat:nth-child(4) { animation-delay: .22s; }
+.adm-stat:nth-child(5) { animation-delay: .28s; }
+
+/* Top rail — the colour identity of the card */
+.adm-stat::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--adm-g-navy);
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: filter 400ms ease;
+}
+
+.adm-stat-accent::before {
+    background: var(--adm-g-accent);
+}
+
+/* Oversized ghost glyph in the corner */
+.adm-stat-ghost {
+    position: absolute;
+    right: -14px;
+    bottom: -22px;
+    color: var(--color-ink);
+    opacity: .035;
+    pointer-events: none;
+    transition: transform 500ms cubic-bezier(.16, 1, .3, 1), opacity 400ms ease;
+}
+
+.dark .adm-stat-ghost {
+    opacity: .06;
+}
+
+.adm-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--adm-sh-3);
+    border-color: rgba(254, 127, 45, .3);
+}
+
+.adm-stat:hover::before {
+    filter: brightness(1.15) saturate(1.2);
+}
+
+.adm-stat:hover .adm-stat-ghost {
+    transform: translate(-4px, -6px) rotate(-6deg);
+    opacity: .07;
+}
+
+.adm-stat:hover .adm-icon {
+    transform: scale(1.07) rotate(-4deg);
+}
+
+.adm-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.adm-stat-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 4px;
+}
+
+.adm-stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1;
+    color: var(--color-ink);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-stat-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 14px 0 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-muted);
+    position: relative;
+    z-index: 1;
+}
+
+/* Thin progress meter that can sit in a stat card footer */
+.adm-meter {
+    height: 5px;
+    width: 100%;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--adm-hair);
+    overflow: hidden;
+    margin-top: 13px;
+    position: relative;
+    z-index: 1;
+}
+
+.adm-meter-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--adm-g-accent);
+    transform-origin: left;
+    animation: admMeter .9s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm-meter-fill-ok {
+    background: linear-gradient(90deg, #34a06a, #22c55e);
+}
+
+@keyframes admMeter {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes admRise {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ── Icon chips ─────────────────────────────────────────────────────────── */
+
+.adm-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+    background: var(--adm-g-navy);
+    box-shadow:
+        0 2px 4px rgba(16, 24, 40, .18),
+        0 8px 18px -6px rgba(35, 61, 77, .5),
+        inset 0 1px 0 rgba(255, 255, 255, .18);
+    transition: transform 420ms cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.adm-icon-accent {
+    background: var(--adm-g-accent);
+    box-shadow:
+        0 2px 4px rgba(16, 24, 40, .16),
+        0 8px 20px -6px rgba(242, 101, 22, .6),
+        inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+
+.adm-icon-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+}
+
+/* ==========================================================================
+   ACTION TILES (quick actions)
+   ========================================================================== */
+
+.adm-action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.adm-action {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    border-radius: var(--adm-r-lg);
+    background: var(--adm-g-surface);
+    border: 1px solid var(--adm-hair);
+    box-shadow: var(--adm-sh-1);
+    text-decoration: none;
+    color: inherit;
+    transition:
+        transform 420ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 420ms cubic-bezier(.16, 1, .3, 1),
+        border-color 260ms ease;
+    animation: admRise .55s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm-action:nth-child(1) { animation-delay: .10s; }
+.adm-action:nth-child(2) { animation-delay: .16s; }
+.adm-action:nth-child(3) { animation-delay: .22s; }
+
+/* Wash that sweeps in on hover */
+.adm-action::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(254, 127, 45, .13), transparent 58%);
+    opacity: 0;
+    transition: opacity 360ms ease;
+    pointer-events: none;
+}
+
+.adm-action:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--adm-sh-3);
+    border-color: rgba(254, 127, 45, .38);
+}
+
+.adm-action:hover::before {
+    opacity: 1;
+}
+
+.adm-action:hover .adm-icon {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.adm-action:hover .adm-action-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+}
+
+.adm-action:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.adm-action-body {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+}
+
+.adm-action-title {
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: -.01em;
+    color: var(--color-ink);
+    margin: 0 0 3px;
+}
+
+.adm-action-sub {
+    font-size: 12.5px;
+    color: var(--color-muted);
+    margin: 0;
+}
+
+.adm-action-arrow {
+    position: relative;
+    z-index: 1;
+    margin-left: auto;
+    color: var(--color-muted);
+    opacity: .5;
+    flex-shrink: 0;
+    transition: transform 360ms cubic-bezier(.16, 1, .3, 1), opacity 300ms ease;
+}
+
+/* ==========================================================================
+   PANELS / LISTS / TABLES
+   ========================================================================== */
+
+.adm-panel,
+.adm .card,
+.adm .report-card,
+.adm .report-section,
+.adm .estimate-card,
+.adm .request-card,
+.adm .item-form-card,
+.adm .invoice-card,
+.adm .assignment-card,
+.adm .inventory-table,
+.adm .data-table,
+.adm .estimates-empty,
+.adm .requests-empty,
+.adm .users-section,
+.adm .assignment,
+.adm .info-card {
+    background: var(--adm-g-surface);
+    border: 1px solid var(--adm-hair);
+    border-radius: var(--adm-r-lg);
+    box-shadow: var(--adm-sh-1);
+}
+
+/* Superadmin user table — its own stylesheet paints the header navy; keep
+   that identity but give it the gradient + rounded corners of the system. */
+.adm .users-section,
+.adm .assignment {
+    padding: 24px 26px;
+    box-shadow: var(--adm-sh-2);
+}
+
+.adm .admin-page table {
+    border-radius: var(--adm-r-sm);
+    overflow: hidden;
+}
+
+.adm .admin-page th {
+    background: var(--adm-g-navy);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 13px 14px;
+}
+
+.adm .admin-page td {
+    border-bottom: 1px solid var(--adm-hair);
+}
+
+.adm .admin-page tbody tr {
+    transition: background-color 200ms ease;
+}
+
+.adm .admin-page tbody tr:hover {
+    background: var(--color-surface-2);
+}
+
+.adm .admin-page button:not(.sidebar-toggle) {
+    background: var(--adm-g-accent);
+    color: #fff;
+    border-radius: 10px;
+    padding: 9px 17px;
+    font-weight: 650;
+    box-shadow:
+        0 1px 2px rgba(16, 24, 40, .14),
+        0 6px 16px -6px rgba(242, 101, 22, .6),
+        inset 0 1px 0 rgba(255, 255, 255, .2);
+    transition: transform 220ms cubic-bezier(.16, 1, .3, 1), filter 200ms ease;
+}
+
+.adm .admin-page button:not(.sidebar-toggle):hover:not(:disabled) {
+    background: var(--adm-g-accent);
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+.adm .admin-page select {
+    border-radius: 10px;
+    padding: 9px 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+/* Banner used on the cost-estimate page */
+.adm .submit-banner {
+    border-radius: var(--adm-r-sm);
+    border-left: 3px solid var(--color-accent-solid);
+    box-shadow: var(--adm-sh-1);
+}
+
+.adm .report-card,
+.adm .report-section,
+.adm .estimate-card,
+.adm .request-card {
+    position: relative;
+    overflow: hidden;
+    padding: 24px 26px;
+    transition:
+        transform 420ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 420ms cubic-bezier(.16, 1, .3, 1),
+        border-color 260ms ease;
+    animation: admRise .5s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm .report-card::before,
+.adm .estimate-card::before,
+.adm .request-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--adm-g-accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 420ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm .report-card:hover,
+.adm .estimate-card:hover,
+.adm .request-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--adm-sh-3);
+    border-color: rgba(254, 127, 45, .28);
+}
+
+.adm .report-card:hover::before,
+.adm .estimate-card:hover::before,
+.adm .request-card:hover::before {
+    transform: scaleY(1);
+}
+
+.adm .report-card h2,
+.adm .estimate-card h2,
+.adm .request-card h2 {
+    font-size: 17px;
+    font-weight: 750;
+    letter-spacing: -.015em;
+    margin: 0 0 14px;
+}
+
+.adm .estimate-card h2,
+.adm .request-card h2 {
+    margin-bottom: 0;
+}
+
+.adm .report-section {
+    padding: 26px 28px;
+}
+
+.adm .reports-grid,
+.adm .estimate-list,
+.adm .request-list {
+    max-width: none;
+}
+
+.adm .estimate-list,
+.adm .request-list {
+    gap: 16px;
+}
+
+/* Data tables ------------------------------------------------------------ */
+
+.adm .inventory-table,
+.adm .data-table {
+    overflow: hidden;
+    box-shadow: var(--adm-sh-2);
+}
+
+.adm .table-header-row {
+    background: linear-gradient(180deg, var(--color-surface-2), var(--color-bg));
+    border-bottom: 1px solid var(--adm-hair);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .08em;
+    padding: 13px 22px;
+}
+
+.adm .table-row {
+    position: relative;
+    padding: 15px 22px;
+    border-top: 1px solid var(--adm-hair);
+    transition: background-color 220ms ease, transform 220ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm .table-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--adm-g-accent);
+    transform: scaleY(0);
+    transition: transform 260ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm .table-row:hover {
+    background: var(--color-surface-2);
+}
+
+.adm .table-row:hover::before {
+    transform: scaleY(1);
+}
+
+.adm .item-name {
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.adm .item-cost {
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+}
+
+/* Report tables ---------------------------------------------------------- */
+
+.adm .report-table th {
+    font-size: 10.5px;
+    font-weight: 750;
+    letter-spacing: .08em;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--adm-hair);
+}
+
+.adm .report-table td {
+    border-bottom: 1px solid var(--adm-hair);
+    padding: 13px 12px;
+}
+
+.adm .report-table tbody tr {
+    transition: background-color 200ms ease;
+}
+
+.adm .report-table tbody tr:hover {
+    background: var(--color-surface-2);
+}
+
+.adm .cost-bar-track {
+    height: 7px;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--adm-hair);
+}
+
+.adm .cost-bar-fill {
+    background: var(--adm-g-accent);
+    box-shadow: 0 0 10px -2px rgba(254, 127, 45, .8);
+}
+
+/* ==========================================================================
+   SEGMENTED FILTERS (estimates / requests / reports)
+   ========================================================================== */
+
+.adm .estimate-filters,
+.adm .request-filters,
+.adm .period-selector {
+    background: var(--adm-g-surface);
+    border: 1px solid var(--adm-hair);
+    border-radius: 14px;
+    padding: 5px;
+    gap: 4px;
+    box-shadow: var(--adm-sh-1);
+}
+
+.adm .estimate-filters button,
+.adm .request-filters button,
+.adm .period-selector button {
+    border-radius: 10px;
+    padding: 8px 17px;
+    font-size: 12.5px;
+    font-weight: 650;
+    letter-spacing: -.005em;
+    transition:
+        background-color 220ms ease,
+        color 220ms ease,
+        box-shadow 260ms ease,
+        transform 220ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm .estimate-filters button:hover:not(.active),
+.adm .request-filters button:hover:not(.active),
+.adm .period-selector button:hover:not(.active) {
+    background: var(--color-surface-2);
+    color: var(--color-ink);
+}
+
+.adm .estimate-filters button.active,
+.adm .request-filters button.active,
+.adm .period-selector button.active {
+    background: var(--adm-g-navy);
+    color: #fff;
+    box-shadow:
+        0 2px 4px rgba(16, 24, 40, .16),
+        0 8px 18px -6px rgba(35, 61, 77, .5),
+        inset 0 1px 0 rgba(255, 255, 255, .16);
+}
+
+.dark .adm .estimate-filters button.active,
+.dark .adm .request-filters button.active,
+.dark .adm .period-selector button.active {
+    background: var(--adm-g-accent);
+    color: #fff;
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, .4),
+        0 8px 20px -6px rgba(242, 101, 22, .55);
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.adm .btn-primary,
+.adm .btn-assign,
+.adm .assignment-item button {
+    background: var(--adm-g-navy);
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 650;
+    letter-spacing: -.005em;
+    box-shadow:
+        0 1px 2px rgba(16, 24, 40, .14),
+        0 6px 14px -6px rgba(35, 61, 77, .55),
+        inset 0 1px 0 rgba(255, 255, 255, .14);
+    transition:
+        transform 220ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 260ms ease,
+        filter 200ms ease;
+}
+
+.adm .btn-accent,
+.adm .btn-approve,
+.adm .btn-convert,
+.adm .invoice-button {
+    background: var(--adm-g-accent);
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 650;
+    box-shadow:
+        0 1px 2px rgba(16, 24, 40, .14),
+        0 6px 16px -6px rgba(242, 101, 22, .6),
+        inset 0 1px 0 rgba(255, 255, 255, .2);
+    transition:
+        transform 220ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 260ms ease,
+        filter 200ms ease;
+}
+
+.adm .btn-primary:hover:not(:disabled),
+.adm .btn-accent:hover:not(:disabled),
+.adm .btn-approve:hover:not(:disabled),
+.adm .btn-convert:hover:not(:disabled),
+.adm .btn-assign:hover:not(:disabled),
+.adm .invoice-button:hover:not(:disabled),
+.adm .assignment-item button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.08) saturate(1.05);
+}
+
+.adm .btn-primary:active:not(:disabled),
+.adm .btn-accent:active:not(:disabled),
+.adm .btn-approve:active:not(:disabled),
+.adm .btn-convert:active:not(:disabled),
+.adm .btn-assign:active:not(:disabled) {
+    transform: translateY(0) scale(.98);
+}
+
+.adm .btn-primary:disabled,
+.adm .btn-accent:disabled,
+.adm .btn-approve:disabled,
+.adm .btn-convert:disabled,
+.adm .btn-assign:disabled,
+.adm .invoice-button:disabled,
+.adm .btn-danger:disabled {
+    background: var(--color-neutral-bg);
+    color: var(--color-muted);
+    box-shadow: none;
+    filter: none;
+    transform: none;
+}
+
+.adm .btn-secondary {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 650;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--adm-sh-1);
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 220ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm .btn-secondary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: var(--color-accent-text);
+    color: var(--color-accent-text);
+}
+
+.adm .btn-danger {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 650;
+    background: linear-gradient(135deg, #b8261a, #8c1c13);
+    color: #fff;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .14), 0 6px 14px -6px rgba(154, 31, 21, .6);
+    transition: transform 220ms cubic-bezier(.16, 1, .3, 1), filter 200ms ease;
+}
+
+.adm .btn-danger:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.adm .btn-reject {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 650;
+    transition: background-color 200ms ease, border-color 200ms ease, transform 220ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm .btn-reject:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   ACTIVITY FEED (dashboard "Recent Estimates" and friends)
+   ========================================================================== */
+
+.adm-feed {
+    overflow: hidden;
+    box-shadow: var(--adm-sh-2);
+}
+
+.adm-feed-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    transition: background-color 220ms ease;
+    animation: admRise .5s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm-feed-row:nth-child(1) { animation-delay: .16s; }
+.adm-feed-row:nth-child(2) { animation-delay: .21s; }
+.adm-feed-row:nth-child(3) { animation-delay: .26s; }
+.adm-feed-row:nth-child(4) { animation-delay: .31s; }
+.adm-feed-row:nth-child(n+5) { animation-delay: .36s; }
+
+.adm-feed-row + .adm-feed-row {
+    border-top: 1px solid var(--adm-hair);
+}
+
+.adm-feed-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--adm-g-accent);
+    transform: scaleY(0);
+    transition: transform 260ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm-feed-row:hover {
+    background: var(--color-surface-2);
+}
+
+.adm-feed-row:hover::before {
+    transform: scaleY(1);
+}
+
+.adm-feed-body {
+    min-width: 0;
+    flex: 1;
+}
+
+.adm-feed-title {
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: -.01em;
+    color: var(--color-ink);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.adm-feed-meta {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin: 3px 0 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-feed-empty {
+    padding: 44px 20px;
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--color-muted);
+}
+
+@media (max-width: 560px) {
+    .adm-feed-row {
+        flex-wrap: wrap;
+    }
+
+    .adm-feed-body {
+        flex-basis: calc(100% - 60px);
+    }
+}
+
+/* ==========================================================================
+   PILLS & BADGES — leading dot + hairline border reads far more designed
+   than a plain tinted capsule.
+
+   The base + colour variants are declared here rather than only in the
+   per-page stylesheets, so pages that don't import one (the dashboard, for
+   instance) still get correctly coloured pills.
+   ========================================================================== */
+
+.adm .pill-draft,
+.adm .pill-converted {
+    background: var(--color-neutral-bg);
+    color: var(--color-neutral-text);
+}
+
+.adm .pill-submitted,
+.adm .pill-pending,
+.adm .pill-warn {
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
+}
+
+.adm .pill-approved,
+.adm .pill-completed,
+.adm .pill-good {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+.adm .pill-rejected,
+.adm .pill-cancelled,
+.adm .pill-bad {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.adm .pill-assigned,
+.adm .pill-in_progress {
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
+}
+
+.adm .pill,
+.adm .status-badge {
+    text-transform: capitalize;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    border: 1px solid currentColor;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
+    transition: transform 240ms cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.dark .adm .pill,
+.dark .adm .status-badge {
+    box-shadow: none;
+}
+
+.adm .pill::before,
+.adm .status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: .9;
+}
+
+.adm .pill:hover,
+.adm .status-badge:hover {
+    transform: translateY(-1px) scale(1.03);
+}
+
+/* The border uses currentColor, which for these tinted pills would be the
+   full-strength text colour — too heavy. Soften it per variant. */
+.adm .pill-approved,
+.adm .pill-completed,
+.adm .pill-good,
+.adm .status-success,
+.adm .status-in-stock {
+    border-color: color-mix(in srgb, var(--color-success-text) 30%, transparent);
+}
+
+.adm .pill-submitted,
+.adm .pill-pending,
+.adm .pill-warn,
+.adm .status-warning,
+.adm .status-low {
+    border-color: color-mix(in srgb, var(--color-warning-text) 30%, transparent);
+}
+
+.adm .pill-rejected,
+.adm .pill-cancelled,
+.adm .pill-bad,
+.adm .status-danger,
+.adm .status-out {
+    border-color: color-mix(in srgb, var(--color-danger-text) 30%, transparent);
+}
+
+.adm .pill-assigned,
+.adm .pill-in_progress,
+.adm .status-info {
+    border-color: color-mix(in srgb, var(--color-info-text) 30%, transparent);
+}
+
+.adm .pill-draft,
+.adm .pill-converted {
+    border-color: color-mix(in srgb, var(--color-neutral-text) 30%, transparent);
+}
+
+/* ==========================================================================
+   TOOLBAR (search + result count)
+   ========================================================================== */
+
+.adm-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.adm-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 220px;
+}
+
+.adm-search > svg {
+    position: absolute;
+    left: 14px;
+    color: var(--color-muted);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.adm .adm-search .search-input {
+    padding-left: 40px;
+    margin-bottom: 0;
+}
+
+.adm-toolbar-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   ORDER CARDS (cost-estimate → select)
+   ========================================================================== */
+
+.adm-order-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.adm-order-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 22px;
+    border-radius: var(--adm-r-lg);
+    background: var(--adm-g-surface);
+    border: 1px solid var(--adm-hair);
+    box-shadow: var(--adm-sh-1);
+    transition:
+        transform 420ms cubic-bezier(.16, 1, .3, 1),
+        box-shadow 420ms cubic-bezier(.16, 1, .3, 1),
+        border-color 260ms ease;
+    animation: admRise .5s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm-order-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--adm-g-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 420ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.adm-order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--adm-sh-3);
+    border-color: rgba(254, 127, 45, .32);
+}
+
+.adm-order-card:hover::before {
+    transform: scaleX(1);
+}
+
+.adm-order-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.adm-order-title-wrap {
+    min-width: 0;
+}
+
+.adm-order-title {
+    font-size: 16px;
+    font-weight: 750;
+    letter-spacing: -.015em;
+    color: var(--color-ink);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.adm-order-id {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-order-meta {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+}
+
+.adm-order-meta > div {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    gap: 10px;
+    align-items: baseline;
+}
+
+.adm-order-meta dt {
+    font-size: 10.5px;
+    font-weight: 750;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.adm-order-meta dd {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--color-ink);
+    overflow-wrap: anywhere;
+}
+
+.adm-order-details {
+    margin: 0;
+    padding: 11px 13px;
+    border-radius: var(--adm-r-xs);
+    background: var(--color-surface-2);
+    border: 1px solid var(--adm-hair);
+    font-size: 12.5px;
+    color: var(--color-muted);
+    line-height: 1.5;
+}
+
+.adm .adm-order-cta {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13.5px;
+}
+
+.adm-inline-link {
+    color: var(--color-accent-text);
+    font-weight: 650;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ==========================================================================
+   INPUTS
+   ========================================================================== */
+
+.adm .search-input,
+.adm .form-field input,
+.adm .form-field select,
+.adm .new-category-input,
+.adm .assign-select,
+.adm .modal-confirm-input,
+.adm .assignment-item select {
+    border-radius: 11px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 11px 14px;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(16, 24, 40, .04);
+    transition: border-color 200ms ease, box-shadow 240ms ease, background-color 200ms ease;
+}
+
+.dark .adm .search-input,
+.dark .adm .form-field input,
+.dark .adm .form-field select,
+.dark .adm .new-category-input,
+.dark .adm .assign-select,
+.dark .adm .modal-confirm-input {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3);
+}
+
+.adm .search-input:focus,
+.adm .form-field input:focus,
+.adm .form-field select:focus,
+.adm .new-category-input:focus,
+.adm .assign-select:focus,
+.adm .modal-confirm-input:focus {
+    outline: none;
+    border-color: var(--color-accent-solid);
+    box-shadow:
+        0 0 0 3px var(--color-accent-tint),
+        inset 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.adm .search-input {
+    margin-bottom: 22px;
+}
+
+.adm .search-input::placeholder {
+    color: var(--color-muted);
+    opacity: .8;
+}
+
+/* ==========================================================================
+   MODALS
+   ========================================================================== */
+
+.adm .modal-overlay,
+.modal-overlay {
+    background: rgba(10, 18, 24, .58);
+    backdrop-filter: blur(6px) saturate(1.1);
+    -webkit-backdrop-filter: blur(6px) saturate(1.1);
+    animation: admFade .22s ease both;
+}
+
+.adm .modal-card,
+.modal-card {
+    border-radius: var(--adm-r-lg, 20px);
+    padding: 28px;
+    max-width: 420px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 24px 64px -16px rgba(0, 0, 0, .55);
+    animation: admPop .34s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.adm .modal-title,
+.modal-card .modal-title {
+    font-size: 19px;
+    font-weight: 750;
+    letter-spacing: -.02em;
+}
+
+@keyframes admFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes admPop {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ==========================================================================
+   EMPTY / STATUS STATES
+   ========================================================================== */
+
+.adm .empty-state,
+.adm .estimates-empty,
+.adm .requests-empty,
+.adm .reports-empty {
+    padding: 52px 24px;
+    font-size: 14px;
+    color: var(--color-muted);
+    border-radius: var(--adm-r-lg);
+}
+
+.adm .estimates-status,
+.adm .requests-status,
+.adm .reports-status {
+    margin: 48px auto;
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   LEGACY PAGE HEADINGS — pages that still render a bare <h1> get the new
+   display treatment automatically, even before their markup is updated.
+   ========================================================================== */
+
+.adm .reports-page > h1,
+.adm .estimates-page > h1,
+.adm .requests-page > h1,
+.adm .page-title {
+    font-size: clamp(24px, 2.6vw, 32px);
+    font-weight: 800;
+    letter-spacing: -.025em;
+    color: var(--color-ink);
+    text-align: left;
+}
+
+.adm .reports-subtitle,
+.adm .estimates-subtitle,
+.adm .requests-subtitle,
+.adm .page-subtitle {
+    text-align: left;
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .adm {
+        padding: 18px 16px 56px;
+    }
+
+    .adm-hero {
+        padding: 26px 22px 24px;
+        border-radius: var(--adm-r-lg);
+    }
+
+    .adm .report-card,
+    .adm .report-section,
+    .adm .estimate-card,
+    .adm .request-card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 640px) {
+    .adm-hero-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .adm-stat-grid,
+    .adm-action-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   REDUCED MOTION — globals.css already neutralises durations, but the
+   entrance keyframes also need their end state applied immediately.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .adm-hero,
+    .adm-stat,
+    .adm-action,
+    .adm .report-card,
+    .adm .estimate-card,
+    .adm .request-card,
+    .adm-meter-fill {
+        animation: none !important;
+        opacity: 1;
+        transform: none;
+    }
+
+    .adm-hero::before {
+        animation: none !important;
+    }
+}
+
+</style></head>
+<body>
+<div class="pv-bar">
+  <strong style="margin-right:8px">Preview</strong>
+  <button data-p="dash" class="on">Dashboard</button>
+  <button data-p="inv">Inventory</button>
+  <button data-p="est">Estimates</button>
+  <span style="flex:1"></span>
+  <button id="mode">Switch to dark</button>
+</div>
+
+<section class="pane" id="dash">
+  
+<header class="topnav">
+  <div class="topnav-brand-group">
+    <span style="display:inline-flex;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#fe7f2d,#d24d0c);align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px">SM</span>
+    <span class="topnav-brand">SUPERMARKIT</span>
+  </div>
+  <nav class="topnav-links">
+    <a href="#" class="topnav-link topnav-link-active"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Dashboard</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><span>Inventory</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>Inspections</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg><span>Estimates</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg><span>New Estimate</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg><span>Reports</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg><span>Super Admin</span></a>
+  </nav>
+  <span class="topnav-role topnav-role-right">SUPER ADMIN</span>
+  <button type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+  <button type="button" class="topnav-logout"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg><span>Logout</span></button>
+</header>
+  <main class="adm">
+<div class="dashboard-page">
+
+<header class="adm-hero">
+  <span class="adm-hero-rail"></span>
+  <div class="adm-hero-inner">
+    <div>
+      <span class="adm-eyebrow"><span class="adm-eyebrow-dot"></span>Live overview</span>
+      <h1 class="adm-hero-title">Admin Dashboard</h1>
+      <p class="adm-hero-sub">Stock levels, open estimates and everything waiting on you — at a glance.</p>
+    </div>
+    <div class="adm-hero-actions">
+      <div class="adm-hero-chip"><span class="adm-hero-chip-label">Stock health</span><span class="adm-hero-chip-value">86%</span></div><div class="adm-hero-chip"><span class="adm-hero-chip-label">Estimates</span><span class="adm-hero-chip-value">4</span></div>
+      
+    </div>
+  </div>
+</header>
+  <div class="adm-stat-grid">
+    <article class="adm-stat"><svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="adm-stat-ghost"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+      <div class="adm-stat-row"><div class="adm-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+        <div><p class="adm-stat-label">Total Stock</p><p class="adm-stat-value">550</p></div></div>
+      <p class="adm-stat-foot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg> Units across 2 tracked items</p>
+    </article>
+    <article class="adm-stat adm-stat-accent"><svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="adm-stat-ghost"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <div class="adm-stat-row"><div class="adm-icon adm-icon-accent"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+        <div><p class="adm-stat-label">Low / Out of Stock</p><p class="adm-stat-value">1</p></div></div>
+      <p class="adm-stat-foot">Items at or below reorder threshold</p>
+    </article>
+    <article class="adm-stat"><svg width="104" height="104" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="adm-stat-ghost"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+      <div class="adm-stat-row"><div class="adm-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
+        <div><p class="adm-stat-label">Items Tracked</p><p class="adm-stat-value">2</p></div></div>
+      <div class="adm-meter"><div class="adm-meter-fill" style="width:86%"></div></div>
+    </article>
+  </div>
+
+  <div class="adm-section-head"><h2>Quick Actions</h2><hr class="adm-section-line"></div>
+  <div class="adm-action-grid">
+    <a href="#" class="adm-action"><div class="adm-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+      <div class="adm-action-body"><p class="adm-action-title">Inventory</p><p class="adm-action-sub">View, add and edit stock</p></div>
+      <span class="adm-action-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+    <a href="#" class="adm-action"><div class="adm-icon adm-icon-accent"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg></div>
+      <div class="adm-action-body"><p class="adm-action-title">Create Estimate</p><p class="adm-action-sub">Select an inspection &amp; calculate</p></div>
+      <span class="adm-action-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+  </div>
+
+  <div class="adm-section-head"><h2>Recent Estimates</h2><hr class="adm-section-line"><span class="adm-section-count">4</span></div>
+  <div class="adm-panel adm-feed">
+    
+    <div class="adm-feed-row">
+      <div class="adm-icon adm-icon-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div class="adm-feed-body"><p class="adm-feed-title">Estimate for Dana Whitfield</p><p class="adm-feed-meta">Aug 12, 2026</p></div>
+      <span class="pill pill-approved">approved</span>
+    </div>
+    <div class="adm-feed-row">
+      <div class="adm-icon adm-icon-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+      <div class="adm-feed-body"><p class="adm-feed-title">Estimate for Marcus Lee</p><p class="adm-feed-meta">Aug 12, 2026</p></div>
+      <span class="pill pill-rejected">rejected</span>
+    </div>
+    <div class="adm-feed-row">
+      <div class="adm-icon adm-icon-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 15 13.5"/></svg></div>
+      <div class="adm-feed-body"><p class="adm-feed-title">Estimate for Priya Raman</p><p class="adm-feed-meta">Aug 8, 2026</p></div>
+      <span class="pill pill-submitted">submitted</span>
+    </div>
+    <div class="adm-feed-row">
+      <div class="adm-icon adm-icon-sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 15 13.5"/></svg></div>
+      <div class="adm-feed-body"><p class="adm-feed-title">Estimate for Tom Alvarez</p><p class="adm-feed-meta">Aug 8, 2026</p></div>
+      <span class="pill pill-submitted">submitted</span>
+    </div>
+  </div>
+</div></main>
+</section>
+
+<section class="pane" id="inv">
+  
+<header class="topnav">
+  <div class="topnav-brand-group">
+    <span style="display:inline-flex;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#fe7f2d,#d24d0c);align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px">SM</span>
+    <span class="topnav-brand">SUPERMARKIT</span>
+  </div>
+  <nav class="topnav-links">
+    <a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Dashboard</span></a><a href="#" class="topnav-link topnav-link-active"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><span>Inventory</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>Inspections</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg><span>Estimates</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg><span>New Estimate</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg><span>Reports</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg><span>Super Admin</span></a>
+  </nav>
+  <span class="topnav-role topnav-role-right">SUPER ADMIN</span>
+  <button type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+  <button type="button" class="topnav-logout"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg><span>Logout</span></button>
+</header>
+  <main class="adm">
+<div class="inventory-page">
+
+<header class="adm-hero">
+  <span class="adm-hero-rail"></span>
+  <div class="adm-hero-inner">
+    <div>
+      <span class="adm-eyebrow"><span class="adm-eyebrow-dot"></span>Stock control</span>
+      <h1 class="adm-hero-title">Inventory</h1>
+      <p class="adm-hero-sub">Everything you carry, what it costs, and what needs reordering.</p>
+    </div>
+    <div class="adm-hero-actions">
+      <div class="adm-hero-chip"><span class="adm-hero-chip-label">Items</span><span class="adm-hero-chip-value">2</span></div><div class="adm-hero-chip"><span class="adm-hero-chip-label">Low stock</span><span class="adm-hero-chip-value">1</span></div>
+      <button class="adm-hero-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add Item</button>
+    </div>
+  </div>
+</header>
+  <div class="adm-toolbar">
+    <div class="adm-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input class="search-input" placeholder="Search by name or category…"></div>
+    <span class="adm-toolbar-count">2 of 2 shown</span>
+  </div>
+  <div class="inventory-table">
+    <div class="table-header-row"><span>Item</span><span>Category</span><span>Quantity</span><span>Status</span><span>Cost</span><span></span></div>
+    
+    <div class="table-row">
+      <span class="item-name">Asphalt Shingles</span><span class="item-category">Shingle</span>
+      <span class="item-quantity">500 bundles</span><span class="status-badge status-in-stock">In Stock</span>
+      <span class="item-cost">$32.50</span>
+      <span class="row-actions"><button class="link-btn">Edit</button><button class="link-btn link-btn-danger">Delete</button></span>
+    </div>
+    <div class="table-row">
+      <span class="item-name">1 1/4" Roofing Nails</span><span class="item-category">Fasteners</span>
+      <span class="item-quantity">50 boxes</span><span class="status-badge status-low">Low Stock</span>
+      <span class="item-cost">$8.75</span>
+      <span class="row-actions"><button class="link-btn">Edit</button><button class="link-btn link-btn-danger">Delete</button></span>
+    </div>
+  </div>
+</div></main>
+</section>
+
+<section class="pane" id="est">
+  
+<header class="topnav">
+  <div class="topnav-brand-group">
+    <span style="display:inline-flex;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#fe7f2d,#d24d0c);align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px">SM</span>
+    <span class="topnav-brand">SUPERMARKIT</span>
+  </div>
+  <nav class="topnav-links">
+    <a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg><span>Dashboard</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><span>Inventory</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>Inspections</span></a><a href="#" class="topnav-link topnav-link-active"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg><span>Estimates</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg><span>New Estimate</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg><span>Reports</span></a><a href="#" class="topnav-link "><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg><span>Super Admin</span></a>
+  </nav>
+  <span class="topnav-role topnav-role-right">SUPER ADMIN</span>
+  <button type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+  <button type="button" class="topnav-logout"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg><span>Logout</span></button>
+</header>
+  <main class="adm">
+<main class="estimates-page">
+
+<header class="adm-hero">
+  <span class="adm-hero-rail"></span>
+  <div class="adm-hero-inner">
+    <div>
+      <span class="adm-eyebrow"><span class="adm-eyebrow-dot"></span>Review queue</span>
+      <h1 class="adm-hero-title">Estimates</h1>
+      <p class="adm-hero-sub">Review the estimates inspectors have submitted, then approve or reject them.</p>
+    </div>
+    <div class="adm-hero-actions">
+      <div class="adm-hero-chip"><span class="adm-hero-chip-label">In view</span><span class="adm-hero-chip-value">2</span></div>
+      
+    </div>
+  </div>
+</header>
+  <div class="estimate-filters">
+    <button class="active">Needs Review</button><button class="">All</button><button class="">Approved</button><button class="">Rejected</button><button class="">Draft</button>
+  </div>
+  <div class="estimate-list">
+    
+    <div class="estimate-card">
+      <div class="estimate-card-header"><h2>Dana Whitfield</h2><span class="pill pill-submitted">submitted</span></div>
+      <p class="muted">Inspector: Sarah Smith</p>
+      <p class="muted">Date: 2026-08-12</p>
+      <p class="estimate-total">$4,820.00</p>
+      <p class="estimate-details">Full tear-off and re-shingle, 24 sq. Total: $4,820.00</p>
+      <div class="estimate-actions">
+        <button class="btn-approve">Approve</button>
+        <button class="btn-reject">Reject</button>
+      </div>
+    </div>
+    <div class="estimate-card">
+      <div class="estimate-card-header"><h2>Marcus Lee</h2><span class="pill pill-approved">approved</span></div>
+      <p class="muted">Inspector: Sarah Smith</p>
+      <p class="muted">Date: 2026-08-12</p>
+      <p class="estimate-total">$12,140.00</p>
+      <p class="estimate-details">Full tear-off and re-shingle, 24 sq. Total: $12,140.00</p>
+      <div class="estimate-actions">
+        <button class="btn-approve">Approve</button>
+        <button class="btn-reject">Reject</button>
+      </div>
+    </div>
+  </div>
+</main></main>
+</section>
+<script>
+const panes={dash:document.getElementById('dash'),inv:document.getElementById('inv'),est:document.getElementById('est')};
+panes.dash.classList.add('show');
+document.querySelectorAll('.pv-bar button[data-p]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.pv-bar button[data-p]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  Object.values(panes).forEach(p=>p.classList.remove('show'));
+  panes[b.dataset.p].classList.add('show');
+});
+const m=document.getElementById('mode');
+m.onclick=()=>{const d=document.documentElement.classList.toggle('dark');m.textContent=d?'Switch to light':'Switch to dark';};
+</script>
+</body></html>
