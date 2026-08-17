@@ -317,13 +317,7 @@ export default function Chatbot() {
                           )}
                         </div>
                       </div>
-                      <div
-                        className={`chat-msg-time ${
-                          m.role === "user" ? "text-right" : ""
-                        }`}
-                      >
-                        {formatTime(m.createdAt ?? new Date())}
-                      </div>
+                      {/* Timestamp removed — UIMessage no longer exposes createdAt */}
                     </div>
                   ))}
 

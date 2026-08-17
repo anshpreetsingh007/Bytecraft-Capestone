@@ -117,7 +117,7 @@
     overflow: hidden;
     border-radius: var(--adm-r-xl);
     background: var(--adm-g-navy);
-    color: #fff;
+    color: #fff !important;
     padding: 34px 34px 32px;
     margin-bottom: 28px;
     box-shadow: var(--adm-sh-hero);
@@ -178,7 +178,7 @@
     font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, .78);
+    color: rgba(255, 255, 255, .78) !important;
     background: rgba(255, 255, 255, .10);
     border: 1px solid rgba(255, 255, 255, .16);
     border-radius: 999px;
@@ -203,7 +203,7 @@
     font-weight: 800;
     letter-spacing: -.025em;
     line-height: 1.06;
-    color: #fff;
+    color: #fff !important;
     margin: 0;
     text-shadow: 0 2px 18px rgba(0, 0, 0, .28);
 }
@@ -211,7 +211,7 @@
 .adm-hero-sub {
     font-size: 14.5px;
     font-weight: 450;
-    color: rgba(255, 255, 255, .72);
+    color: rgba(255, 255, 255, .72) !important;
     margin: 9px 0 0;
     max-width: 60ch;
 }
@@ -242,13 +242,13 @@
     font-weight: 700;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, .62);
+    color: rgba(255, 255, 255, .62) !important;
 }
 
 .adm-hero-chip-value {
     font-size: 20px;
     font-weight: 800;
-    color: #fff;
+    color: #fff !important;
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
 }

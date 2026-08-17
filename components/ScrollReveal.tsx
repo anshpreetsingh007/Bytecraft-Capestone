@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import React, { useEffect, useRef, useState, type ReactNode } from "react";
 
 type RevealDirection = "up" | "down" | "left" | "right" | "none";
 
@@ -21,7 +21,7 @@ interface ScrollRevealProps {
   /** Extra className on the wrapper */
   className?: string;
   /** Render as a different element */
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
 }
 
 export function ScrollReveal({

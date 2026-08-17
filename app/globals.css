@@ -576,7 +576,7 @@ body {
 
 details.faq-item summary {
   cursor: pointer;
-  list-none: none;
+  list-style: none;
 }
 
 details.faq-item .faq-answer {
