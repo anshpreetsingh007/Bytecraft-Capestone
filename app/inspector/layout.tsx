@@ -1,10 +1,17 @@
 "use client";
 import "../inspector/styles/inspector.css"
 
+import { ClipboardList, LayoutDashboard } from "lucide-react";
+
 import { DashboardNav, type NavItem } from "../../components/DashboardNav";
 import { RoleGuard } from "../../components/RoleGuard";
 
-const inspectorNavItems: NavItem[] = [];
+// The inspector shell previously rendered a navigation bar with nothing in it,
+// so the only way around was the browser back button.
+const inspectorNavItems: NavItem[] = [
+  { label: "My Jobs", href: "/inspector/dashboard", icon: LayoutDashboard },
+  { label: "Job Reports", href: "/inspector/reports", icon: ClipboardList },
+];
 
 export default function InspectorLayout({
   children,

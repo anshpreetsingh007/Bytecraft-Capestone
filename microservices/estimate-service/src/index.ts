@@ -1,30 +1,19 @@
-import express from 'express';
-import cors from 'cors';
 import * as dotenv from 'dotenv';
-import estimateRoutes from './routes/routes';
-
 
 if (!process.env.DB_HOST) {
-  dotenv.config({ path: '../../.env.local' });
+    dotenv.config({ path: '../../.env.local' });
 }
 
-const app = express();
-const port = process.env.PORT || 3002;
-app.use(cors());            // Allow cross-origin requests from your Next.js frontend
-app.use(express.json());    // Parse incoming JSON request bodies
+import pool from './config/db';
+import estimateRoutes from './routes/routes';
+import { createServiceApp, finalizeServiceApp, startService } from './shared';
 
-// Mount the estimate routes at /api/estimates
-// This means: all routes defined in estimate.routes.ts get prefixed with /api/estimates
-// So router.get('/') becomes GET /api/estimates/
-// And router.get('/:id') becomes GET /api/estimates/:id
+const SERVICE_NAME = 'estimate-service';
+const port = Number(process.env.PORT || 3002);
+
+const app = createServiceApp({ serviceName: SERVICE_NAME, pool });
+
 app.use('/api/estimates', estimateRoutes);
 
-// Health check endpoint — useful for testing if the server is running
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'estimate-service' });
-});
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Estimate service running on http://localhost:${port}`);
-});
+finalizeServiceApp(app);
+startService(app, { serviceName: SERVICE_NAME, port, pool });

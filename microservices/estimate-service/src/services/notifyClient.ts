@@ -1,71 +1,123 @@
-// Thin HTTP client for calling notification-service from estimate-service.
-// Kept deliberately small and fire-and-forget-safe: 
-// A notification-service outage should never prevent an estimate status update from succeeding.
+/**
+ * Notification and inventory calls from estimate-service.
+ *
+ * The type name below was the bug that made the admin approval queue silent:
+ * 'estimate_submitted' was not in the database CHECK constraint, so every
+ * insert raised 23514 and the catch swallowed it. Migration 002 widens the
+ * constraint; the shared service client now also retries and logs loudly.
+ */
+import { callService, callServiceBestEffort } from '../shared';
+import type { EstimateMaterial } from '../models/model';
 
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3005';
+const INVENTORY_SERVICE_URL = process.env.INVENTORY_SERVICE_URL || 'http://localhost:3003';
+const CALLER = 'estimate-service';
 
-/**
- * Tell every admin an estimate is waiting for review.
- *
- * Broadcast rather than targeted: an estimate isn't owned by one admin, it
- * goes into a shared queue that any of them can action.
- *
- * @param isRevision true when a previously approved/rejected estimate was
- *                   edited back into the queue, so the copy reflects that
- *                   it's a re-review rather than something brand new.
- */
+const broadcastUrl = `${NOTIFICATION_SERVICE_URL}/api/notifications/broadcast-admins`;
+const createUrl = `${NOTIFICATION_SERVICE_URL}/api/notifications`;
+
 export async function notifyEstimateSubmitted(
     estimateId: number,
     orderId: number,
-    isRevision = false
+    isRevision = false,
 ): Promise<void> {
-    try {
-        const response = await fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/broadcast-admins`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'estimate_submitted',
-                title: isRevision
-                    ? 'A cost estimate was revised and needs re-approval'
-                    : 'A cost estimate is waiting for approval',
-                message: isRevision
-                    ? `Estimate #${estimateId} (order #${orderId}) was edited after being reviewed and needs approval again.`
-                    : `Estimate #${estimateId} (order #${orderId}) has been submitted and is ready for review.`,
-                related_entity_type: 'cost_estimate',
-                related_entity_id: estimateId,
-            }),
-        });
-
-        if (!response.ok) {
-            console.error(`notification-service returned ${response.status} for estimate-submitted notification`);
-        }
-    } catch (err) {
-        // Never let a notification outage block the estimate itself.
-        console.error('Failed to send estimate-submitted notification:', err);
-    }
+    await callServiceBestEffort(broadcastUrl, {
+        callerName: CALLER,
+        body: {
+            type: 'estimate_submitted',
+            title: isRevision
+                ? 'A cost estimate was revised and needs re-approval'
+                : 'A cost estimate is waiting for approval',
+            message: isRevision
+                ? `Estimate #${estimateId} (order #${orderId}) was edited after review and needs approval again.`
+                : `Estimate #${estimateId} (order #${orderId}) is ready for review.`,
+            related_entity_type: 'cost_estimate',
+            related_entity_id: estimateId,
+        },
+    });
 }
 
-export async function notifyEstimateApproved(clientId: number, estimateId: number): Promise<void> {
-    try {
-        const response = await fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                recipient_type: 'client',
-                recipient_id: clientId,
-                type: 'estimate_approved',
-                title: 'Your cost estimate has been approved',
-                message: `Estimate #${estimateId} has been approved and is now available for you to view.`,
-                related_entity_type: 'cost_estimate',
-                related_entity_id: estimateId,
-            }),
-        });
+export async function notifyEstimateDecision(
+    clientId: number,
+    estimateId: number,
+    approved: boolean,
+): Promise<void> {
+    await callServiceBestEffort(createUrl, {
+        callerName: CALLER,
+        body: {
+            recipient_type: 'client',
+            recipient_id: clientId,
+            type: approved ? 'estimate_approved' : 'estimate_rejected',
+            title: approved ? 'Your cost estimate is ready' : 'Your cost estimate needs revisiting',
+            message: approved
+                ? `Estimate #${estimateId} has been approved and is ready for you to review and accept.`
+                : `Estimate #${estimateId} was sent back for changes. We will be in touch shortly.`,
+            related_entity_type: 'cost_estimate',
+            related_entity_id: estimateId,
+        },
+    });
+}
 
-        if (!response.ok) {
-            console.error(`notification-service returned ${response.status} for estimate-approved notification`);
-        }
-    } catch (err) {
-        // Don't let a notification-service outage break the estimate approval flow.
-        console.error('Failed to send estimate-approved notification:', err);
-    }
+export async function notifyInspectorOfDecision(
+    inspectorId: number,
+    estimateId: number,
+    approved: boolean,
+): Promise<void> {
+    await callServiceBestEffort(createUrl, {
+        callerName: CALLER,
+        body: {
+            recipient_type: 'inspector',
+            recipient_id: inspectorId,
+            type: approved ? 'estimate_approved' : 'estimate_rejected',
+            title: approved ? 'Your estimate was approved' : 'Your estimate was sent back',
+            message: `Estimate #${estimateId} was ${approved ? 'approved' : 'rejected'} by an admin.`,
+            related_entity_type: 'cost_estimate',
+            related_entity_id: estimateId,
+        },
+    });
+}
+
+/** The customer accepting or declining is the event the office cares about most. */
+export async function notifyClientResponse(
+    estimateId: number,
+    accepted: boolean,
+    clientName: string,
+): Promise<void> {
+    await callServiceBestEffort(broadcastUrl, {
+        callerName: CALLER,
+        body: {
+            type: accepted ? 'estimate_accepted_by_client' : 'estimate_declined_by_client',
+            title: accepted ? 'A customer accepted an estimate' : 'A customer declined an estimate',
+            message: `${clientName} ${accepted ? 'accepted' : 'declined'} estimate #${estimateId}.`,
+            related_entity_type: 'cost_estimate',
+            related_entity_id: estimateId,
+        },
+    });
+}
+
+/**
+ * Draws the priced materials out of stock when an estimate is approved.
+ *
+ * Not best-effort: if stock cannot be reserved the office needs to know
+ * immediately, because the alternative is a crew arriving at a job with
+ * materials that were already used elsewhere. inventory-service makes this
+ * idempotent per estimate, so a retry cannot double-deduct.
+ */
+export async function consumeMaterials(
+    estimateId: number,
+    materials: EstimateMaterial[],
+): Promise<{ applied: number } | null> {
+    if (materials.length === 0) return { applied: 0 };
+
+    return callService<{ applied: number }>(`${INVENTORY_SERVICE_URL}/api/inventory/consume`, {
+        callerName: CALLER,
+        body: {
+            reference_type: 'cost_estimate',
+            reference_id: estimateId,
+            lines: materials.map((material) => ({
+                item_id: material.material_id,
+                quantity: material.quantity,
+            })),
+        },
+    });
 }

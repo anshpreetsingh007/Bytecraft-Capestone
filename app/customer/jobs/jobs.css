@@ -1,0 +1,83 @@
+/* Customer-facing job tracker. Roomier than the staff tables -- this is read
+   once in a while, not scanned all day. */
+
+.cust-job-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.cust-job-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    padding: 24px;
+}
+
+.cust-job-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.cust-job-head h2 {
+    margin: 0 0 3px;
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.cust-job-sub {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+}
+
+.cust-job-explain {
+    margin: 14px 0 0;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+}
+
+.cust-job-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 20px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-line);
+}
+
+.cust-job-meta dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.cust-job-meta dd {
+    margin: 4px 0 0;
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.cust-job-details {
+    margin: 18px 0 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+    white-space: pre-wrap;
+}
+
+.cust-job-card .ui-button {
+    margin-top: 18px;
+}

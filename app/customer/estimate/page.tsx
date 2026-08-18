@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import RoofLine from "../components/RoofLine";
 import { useAuth } from "../../../Context/AuthContext";
+import { api, errorMessage, rows } from "@/lib/api";
+import { ConfirmDialog, useToast } from "../../../components/ui";
 
 interface Estimate {
   estimate_id: number;
@@ -10,11 +12,16 @@ interface Estimate {
   details: string;
   estimate_date: string;
   status: string;
+  total_amount: string | number | null;
+  client_response: "pending" | "accepted" | "declined";
+  client_responded_at: string | null;
   client_first_name: string | null;
   client_last_name: string | null;
   inspector_first_name: string | null;
   inspector_last_name: string | null;
 }
+
+const currency = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" });
 
 function formatName(
   first: string | null,
@@ -43,60 +50,80 @@ function statusClass(status: string) {
   );
 }
 
+interface PendingResponse {
+  estimate: Estimate;
+  response: "accepted" | "declined";
+}
+
 export default function EstimatePage() {
   const { userId } = useAuth();
+  const toast = useToast();
 
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState<PendingResponse | null>(null);
+  const [responding, setResponding] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchEstimates() {
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch(
-          `/api/estimates/client/${userId}`
-        );
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch estimates");
-        }
-
-        const data = await res.json();
-
-        if (!cancelled) {
-          setEstimates(data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to fetch estimates"
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
+  const fetchEstimates = useCallback(async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
     }
 
-    fetchEstimates();
+    setLoading(true);
+    setError(null);
 
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const payload = await api.get<Estimate[]>(`/api/estimates/client/${userId}?limit=50`);
+      setEstimates(rows(payload));
+    } catch (err) {
+      setError(errorMessage(err, "We couldn't load your estimates."));
+    } finally {
+      setLoading(false);
+    }
   }, [userId]);
+
+  useEffect(() => {
+    fetchEstimates();
+  }, [fetchEstimates]);
+
+  /**
+   * Accepting or declining.
+   *
+   * This was the gap in the whole flow: an admin could approve an estimate and
+   * the customer could read it, but there was no way for them to actually
+   * agree to the work. Accepting is what moves the job forward.
+   */
+  async function submitResponse() {
+    if (!pending) return;
+    const { estimate, response } = pending;
+
+    setResponding(true);
+    try {
+      const updated = await api.patch<Estimate>(`/api/estimates/${estimate.estimate_id}/response`, {
+        response,
+      });
+
+      setEstimates((current) =>
+        current.map((entry) =>
+          entry.estimate_id === estimate.estimate_id ? { ...entry, ...updated } : entry,
+        ),
+      );
+
+      toast.success(
+        response === "accepted" ? "Estimate accepted" : "Estimate declined",
+        response === "accepted"
+          ? "Thanks — we'll be in touch to book the work in."
+          : "No problem. Someone will follow up if you'd like to talk it through.",
+      );
+      setPending(null);
+    } catch (err) {
+      toast.error("We couldn't record that", errorMessage(err));
+    } finally {
+      setResponding(false);
+    }
+  }
 
   return (
     <>
@@ -185,9 +212,8 @@ export default function EstimatePage() {
                 text-[0.95rem]
               "
             >
-              Couldn&apos;t load estimates ({error}). The
-              estimate service may not be running — try again
-              shortly.
+              {error} Please try again shortly, or call the office if it keeps
+              happening.
             </div>
           )}
 
@@ -326,7 +352,70 @@ export default function EstimatePage() {
                           </span>
                         </div>
 
+                        {estimate.total_amount !== null &&
+                          estimate.total_amount !== undefined && (
+                            <div className="flex flex-wrap gap-1 text-[0.88rem]">
+                              <span className="text-foreground font-semibold">
+                                Total:
+                              </span>
+
+                              <span className="text-ink-soft font-semibold">
+                                {currency.format(Number(estimate.total_amount))}
+                              </span>
+                            </div>
+                          )}
+
                       </div>
+
+                      {/* YOUR DECISION
+
+                          An approved estimate is one we are ready to stand
+                          behind. Accepting it here is what tells us to book
+                          the work in — nothing happens until you do. */}
+
+                      {estimate.client_response === "pending" ? (
+                        <div className="border-t border-line pt-4 mt-4">
+                          <p className="text-ink-soft text-[0.88rem] mb-3">
+                            Happy with this quote? Accepting lets us schedule the
+                            work. You can still pay in cash or arrange financing
+                            with us over the phone.
+                          </p>
+
+                          <div className="flex flex-wrap gap-2.5">
+                            <button
+                              type="button"
+                              className="ui-button ui-button--primary"
+                              onClick={() =>
+                                setPending({ estimate, response: "accepted" })
+                              }
+                            >
+                              Accept estimate
+                            </button>
+
+                            <button
+                              type="button"
+                              className="ui-button ui-button--secondary"
+                              onClick={() =>
+                                setPending({ estimate, response: "declined" })
+                              }
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border-t border-line pt-4 mt-4">
+                          <p className="text-ink-soft text-[0.88rem] mb-0">
+                            You {estimate.client_response} this estimate
+                            {estimate.client_responded_at
+                              ? ` on ${new Date(
+                                  estimate.client_responded_at
+                                ).toLocaleDateString()}`
+                              : ""}
+                            .
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ))}
 
@@ -336,6 +425,25 @@ export default function EstimatePage() {
 
         </div>
       </section>
+
+      <ConfirmDialog
+        open={pending !== null}
+        onCancel={() => setPending(null)}
+        onConfirm={submitResponse}
+        busy={responding}
+        destructive={pending?.response === "declined"}
+        title={
+          pending?.response === "accepted"
+            ? "Accept this estimate?"
+            : "Decline this estimate?"
+        }
+        description={
+          pending?.response === "accepted"
+            ? `You're agreeing to the work quoted on estimate #${pending?.estimate.estimate_id}. We'll call you to arrange a date and to sort out payment or financing. Nothing is charged here.`
+            : `We'll mark estimate #${pending?.estimate.estimate_id} as declined. If you'd like it revised, someone will follow up with you.`
+        }
+        confirmLabel={pending?.response === "accepted" ? "Yes, accept" : "Decline"}
+      />
     </>
   );
 }

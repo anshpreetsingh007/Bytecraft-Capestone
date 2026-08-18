@@ -1,25 +1,21 @@
-import express from 'express';
-import cors from 'cors';
 import * as dotenv from 'dotenv';
-import reportRoutes from './routes/routes';
 
-// In Docker, env vars are injected by compose. Only load .env.local for local dev.
 if (!process.env.DB_HOST) {
-  dotenv.config({ path: '../../.env.local' });
+    dotenv.config({ path: '../../.env.local' });
 }
 
-const app = express();
-const port = process.env.PORT || 3006;
+import { pool } from './config/db';
+import reportRoutes from './routes/routes';
+import jobReportRoutes from './routes/jobReportRoutes';
+import { createServiceApp, finalizeServiceApp, startService } from './shared';
 
-app.use(cors());
-app.use(express.json());
+const SERVICE_NAME = 'report-service';
+const port = Number(process.env.PORT || 3006);
+
+const app = createServiceApp({ serviceName: SERVICE_NAME, pool });
 
 app.use('/api/reports', reportRoutes);
+app.use('/api/job-reports', jobReportRoutes);
 
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', service: 'report-service' });
-});
-
-app.listen(port, () => {
-    console.log(`Report service running on http://localhost:${port}`);
-});
+finalizeServiceApp(app);
+startService(app, { serviceName: SERVICE_NAME, port, pool });

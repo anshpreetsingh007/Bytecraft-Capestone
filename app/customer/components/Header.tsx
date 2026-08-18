@@ -14,6 +14,9 @@ const links = [
   { href: "/customer/about", label: "About" },
   { href: "/customer/contact", label: "Contact" },
   { href: "/customer/estimate", label: "View Estimate" },
+  // Customers could see an estimate but had no way to find out what was
+  // happening with the inspection itself.
+  { href: "/customer/jobs", label: "My Jobs" },
 ];
 
 export default function Header() {

@@ -14,11 +14,18 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     env_file: .env.docker
-    ports:
-      - "5432:5432"
+    # Not published. Use `docker compose exec postgres psql ...` for a shell, or
+    # add a port mapping in a local override file if you need pgAdmin.
+    expose:
+      - "5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./database/markit_roofing.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      # Migrations run in order after the base schema. They are idempotent, so
+      # applying them to a fresh database is the same as applying them to an
+      # existing one.
+      - ./database/migrations/001_cost_estimate_dimensions.sql:/docker-entrypoint-initdb.d/02-migration-001.sql:ro
+      - ./database/migrations/002_platform_hardening.sql:/docker-entrypoint-initdb.d/03-migration-002.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d markit_roofing"]
       interval: 5s
@@ -36,11 +43,27 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3001
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
+      # The chatbot has no database of its own, so it resolves who it is
+      # talking to through auth-service.
+      - AUTH_SERVICE_URL=http://auth-service:3004
+      - SUBMISSION_SERVICE_URL=http://submission-service:3007
       - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY_CHATBOT:-}
       - AZURE_OPENAI_RESOURCE_NAME=week8-workflow-ansh-resource
       - AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4.1
-    ports:
-      - "3001:3001"
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -53,12 +76,26 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3002
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
-    ports:
-      - "3002:3002"
+      # Approving an estimate draws the priced materials out of stock.
+      - INVENTORY_SERVICE_URL=http://inventory-service:3003
     depends_on:
       postgres:
         condition: service_healthy
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3002/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -71,12 +108,24 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3003
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
-    ports:
-      - "3003:3003"
     depends_on:
       postgres:
         condition: service_healthy
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -89,11 +138,23 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3004
-    ports:
-      - "3004:3004"
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
     depends_on:
       postgres:
         condition: service_healthy
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3004/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -106,11 +167,23 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3005
-    ports:
-      - "3005:3005"
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
     depends_on:
       postgres:
         condition: service_healthy
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3005/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -123,11 +196,24 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3006
-    ports:
-      - "3006:3006"
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
     depends_on:
       postgres:
         condition: service_healthy
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3006/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -140,12 +226,24 @@ services:
     env_file: .env.docker
     environment:
       - PORT=3007
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-markit-dev-internal-token}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-bytecraft-9a520}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
-    ports:
-      - "3007:3007"
     depends_on:
       postgres:
         condition: service_healthy
+    # /ready checks the database too, so compose will not report a service
+    # healthy until it can actually serve a request. node has fetch built in,
+    # so this needs no curl in the image.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3007/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - markit-network
 
@@ -161,14 +259,24 @@ services:
       - HOSTNAME=0.0.0.0
     ports:
       - "3000:3000"
+    # service_started only means the container exists. Waiting for healthy
+    # means the first page load does not hit a service still opening its
+    # database pool.
     depends_on:
-      - ai-chatbot-service
-      - estimate-service
-      - inventory-service
-      - auth-service
-      - notification-service
-      - report-service
-      - submission-service
+      ai-chatbot-service:
+        condition: service_healthy
+      estimate-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      report-service:
+        condition: service_healthy
+      submission-service:
+        condition: service_healthy
     networks:
       - markit-network
 

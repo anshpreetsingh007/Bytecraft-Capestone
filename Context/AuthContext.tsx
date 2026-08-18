@@ -2,8 +2,10 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   ReactNode,
 } from "react";
@@ -18,20 +20,24 @@ import {
 } from "firebase/auth";
 
 import { auth } from "@/lib/firebase";
+import { ApiError, api } from "@/lib/api";
 
-export type UserRole =
-  | "client"
-  | "inspector"
-  | "admin"
-  | "super_admin";
-
-
+export type UserRole = "client" | "inspector" | "admin" | "super_admin";
 
 interface SignUpDetails {
   firstName: string;
   lastName: string;
   phone?: string;
   address?: string;
+  acceptedTerms?: boolean;
+}
+
+interface Profile {
+  role: UserRole;
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 interface AuthContextType {
@@ -41,23 +47,14 @@ interface AuthContextType {
   firstName: string | null;
   lastName: string | null;
   loading: boolean;
+  /** Set when the account exists in Firebase but has no profile row yet. */
+  needsRegistration: boolean;
 
-  signUp: (
-    email: string,
-    password: string,
-    details: SignUpDetails
-  ) => Promise<void>;
-
-  logIn: (
-    email: string,
-    password: string
-  ) => Promise<void>;
-
+  signUp: (email: string, password: string, details: SignUpDetails) => Promise<void>;
+  logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
-
-  forgotPassword: (
-    email: string
-  ) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -67,207 +64,131 @@ const AuthContext = createContext<AuthContextType>({
   firstName: null,
   lastName: null,
   loading: true,
+  needsRegistration: false,
 
   signUp: async () => {},
   logIn: async () => {},
   logOut: async () => {},
   forgotPassword: async () => {},
+  refreshProfile: async () => {},
 });
 
 export function useAuth() {
   return useContext(AuthContext);
 }
 
-async function resolveUser(
-  firebaseUid: string
-): Promise<{
-  role: UserRole;
-  id: number;
-  firstName: string;
-  lastName: string;
-} | null> {
+/**
+ * Reads the profile of whoever holds the current token.
+ *
+ * This used to be `GET /api/auth/resolve/{uid}` with the uid taken from the
+ * client — an endpoint that was open to anyone and would map any uid to a
+ * name, email and role. `/api/auth/me` derives the identity from the verified
+ * token instead, so there is nothing to guess.
+ */
+async function fetchProfile(): Promise<{ profile: Profile | null; unregistered: boolean }> {
   try {
-    const response = await fetch(
-      `/api/auth/resolve/${firebaseUid}`
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-
-    return {
-      role: data.role,
-      id: data.id,
-      firstName: data.firstName,
-      lastName: data.lastName,
-    };
+    const profile = await api.get<Profile>("/api/auth/me");
+    return { profile, unregistered: false };
   } catch (error) {
-    console.error("Failed to resolve user:", error);
-    return null;
+    // 404 is the normal state between Firebase signup and /register.
+    if (error instanceof ApiError && error.status === 404) {
+      return { profile: null, unregistered: true };
+    }
+    console.error("Failed to load profile:", error);
+    return { profile: null, unregistered: false };
   }
 }
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [currentUser, setCurrentUser] =
-    useState<User | null>(null);
-
-  const [role, setRole] =
-    useState<UserRole | null>(null);
-
-  const [userId, setUserId] =
-    useState<number | null>(null);
-
-  const [firstName, setFirstName] =
-    useState<string | null>(null);
-
-  const [lastName, setLastName] =
-    useState<string | null>(null);
-
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [needsRegistration, setNeedsRegistration] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  function clearProfile() {
-    setRole(null);
-    setUserId(null);
-    setFirstName(null);
-    setLastName(null);
-  }
+  const loadProfile = useCallback(async () => {
+    const { profile: loaded, unregistered } = await fetchProfile();
+    setProfile(loaded);
+    setNeedsRegistration(unregistered);
+  }, []);
 
-  async function signUp(
-    email: string,
-    password: string,
-    details: SignUpDetails
-  ) {
-    const credential =
-      await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+  async function signUp(email: string, password: string, details: SignUpDetails) {
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
 
-    const response = await fetch(
-      `/api/auth/register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firebase_uid: credential.user.uid,
-          first_name: details.firstName,
-          last_name: details.lastName,
-          email,
-          phone: details.phone,
-          address: details.address,
-        }),
-      }
-    );
+    try {
+      // The token is what proves which account this is; the service reads the
+      // uid and email from it rather than from the body.
+      const registered = await api.post<Profile>("/api/auth/register", {
+        first_name: details.firstName,
+        last_name: details.lastName,
+        phone: details.phone || null,
+        address: details.address || null,
+        accepted_terms: details.acceptedTerms ?? true,
+      });
 
-    if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({}));
-
-      await signOut(auth);
-
+      setProfile(registered);
+      setNeedsRegistration(false);
+    } catch (error) {
+      // Leaving a Firebase account with no profile behind would strand the
+      // user in a half-registered state they cannot get out of.
+      await signOut(auth).catch(() => undefined);
       throw new Error(
-        errorData.error ||
-          "Failed to complete registration"
+        error instanceof ApiError ? error.message : "Failed to complete registration",
       );
     }
-
-    const registeredUser = await response.json();
-
-    setRole("client");
-    setUserId(registeredUser.id);
-    setFirstName(registeredUser.firstName);
-    setLastName(registeredUser.lastName);
   }
 
-  async function logIn(
-    email: string,
-    password: string
-  ) {
-    const credential =
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-    const resolvedUser = await resolveUser(
-      credential.user.uid
-    );
-
-    if (resolvedUser) {
-      setRole(resolvedUser.role);
-      setUserId(resolvedUser.id);
-      setFirstName(resolvedUser.firstName);
-      setLastName(resolvedUser.lastName);
-    } else {
-      clearProfile();
-    }
+  async function logIn(email: string, password: string) {
+    await signInWithEmailAndPassword(auth, email, password);
+    await loadProfile();
   }
 
   async function logOut() {
     await signOut(auth);
-    clearProfile();
+    setProfile(null);
+    setNeedsRegistration(false);
   }
 
   async function forgotPassword(email: string) {
-    await sendPasswordResetEmail(
-      auth,
-      email.trim()
-    );
+    await sendPasswordResetEmail(auth, email.trim());
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (user) => {
-        setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
 
-        if (user) {
-          const resolvedUser = await resolveUser(
-            user.uid
-          );
-
-          if (resolvedUser) {
-            setRole(resolvedUser.role);
-            setUserId(resolvedUser.id);
-            setFirstName(resolvedUser.firstName);
-            setLastName(resolvedUser.lastName);
-          } else {
-            clearProfile();
-          }
-        } else {
-          clearProfile();
-        }
-
-        setLoading(false);
+      if (user) {
+        await loadProfile();
+      } else {
+        setProfile(null);
+        setNeedsRegistration(false);
       }
-    );
+
+      setLoading(false);
+    });
 
     return unsubscribe;
-  }, []);
+  }, [loadProfile]);
 
-  const value: AuthContextType = {
-    currentUser,
-    role,
-    userId,
-    firstName,
-    lastName,
-    loading,
-    signUp,
-    logIn,
-    logOut,
-    forgotPassword,
-  };
+  const value = useMemo<AuthContextType>(
+    () => ({
+      currentUser,
+      role: profile?.role ?? null,
+      userId: profile?.id ?? null,
+      firstName: profile?.firstName ?? null,
+      lastName: profile?.lastName ?? null,
+      loading,
+      needsRegistration,
+      signUp,
+      logIn,
+      logOut,
+      forgotPassword,
+      refreshProfile: loadProfile,
+    }),
+    // signUp/logIn/logOut/forgotPassword are stable in practice: they only
+    // close over setState functions and `auth`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentUser, profile, loading, needsRegistration, loadProfile],
+  );
 
   return (
     <AuthContext.Provider value={value}>

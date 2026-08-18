@@ -15,6 +15,7 @@ spec:
       labels:
         app: ai-chatbot-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: ai-chatbot-service
         image: markitroofing.azurecr.io/bytecraft-capestone-ai-chatbot-service:latest
@@ -29,6 +30,54 @@ spec:
         env:
         - name: PORT
           value: "3001"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service
@@ -60,6 +109,7 @@ spec:
       labels:
         app: estimate-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: estimate-service
         image: markitroofing.azurecr.io/bytecraft-capestone-estimate-service:latest
@@ -74,6 +124,54 @@ spec:
         env:
         - name: PORT
           value: "3002"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service
@@ -105,6 +203,7 @@ spec:
       labels:
         app: inventory-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: inventory-service
         image: markitroofing.azurecr.io/bytecraft-capestone-inventory-service:latest
@@ -119,6 +218,54 @@ spec:
         env:
         - name: PORT
           value: "3003"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3003
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service
@@ -150,6 +297,7 @@ spec:
       labels:
         app: auth-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: auth-service
         image: markitroofing.azurecr.io/bytecraft-capestone-auth-service:latest
@@ -164,6 +312,54 @@ spec:
         env:
         - name: PORT
           value: "3004"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service
@@ -195,6 +391,7 @@ spec:
       labels:
         app: notification-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: notification-service
         image: markitroofing.azurecr.io/bytecraft-capestone-notification-service:latest
@@ -209,6 +406,54 @@ spec:
         env:
         - name: PORT
           value: "3005"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3005
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service
@@ -240,6 +485,7 @@ spec:
       labels:
         app: report-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: report-service
         image: markitroofing.azurecr.io/bytecraft-capestone-report-service:latest
@@ -254,6 +500,54 @@ spec:
         env:
         - name: PORT
           value: "3006"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3006
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service
@@ -285,6 +579,7 @@ spec:
       labels:
         app: submission-service
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: submission-service
         image: markitroofing.azurecr.io/bytecraft-capestone-submission-service:latest
@@ -299,6 +594,54 @@ spec:
         env:
         - name: PORT
           value: "3007"
+
+        # Liveness deliberately hits /health, which does not touch the
+        # database: a database blip should not get every pod restarted.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Readiness hits /ready, which does query the database, so a pod that
+        # cannot serve is pulled out of the Service rather than 500ing.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3007
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe covers a slow first connection without forcing a long
+        # initialDelay on the liveness probe.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          periodSeconds: 5
+          failureThreshold: 24
+
+        # Without requests the scheduler cannot pack nodes sensibly, and
+        # without limits one runaway service can starve the rest.
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop: ["ALL"]
 ---
 apiVersion: v1
 kind: Service

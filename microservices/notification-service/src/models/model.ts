@@ -1,5 +1,43 @@
-// This interface describes the shape of a notification row
-// coming back from the database
+export type RecipientType = 'admin' | 'client' | 'inspector' | 'super_admin';
+
+/**
+ * Kept in lockstep with the CHECK constraint in
+ * database/migrations/002_platform_hardening.sql. They had drifted:
+ * estimate-service was emitting 'estimate_submitted', which the database
+ * rejected with a 23514 that the fire-and-forget catch then swallowed, so the
+ * "estimate needs approval" alert never reached anyone.
+ */
+export type NotificationType =
+    | 'inspection_request_submitted'
+    | 'inspection_assigned'
+    | 'inspection_scheduled'
+    | 'inspection_status_changed'
+    | 'estimate_submitted'
+    | 'estimate_approved'
+    | 'estimate_rejected'
+    | 'estimate_accepted_by_client'
+    | 'estimate_declined_by_client'
+    | 'job_report_submitted'
+    | 'low_stock'
+    | 'role_changed';
+
+export const RECIPIENT_TYPES: readonly RecipientType[] = ['admin', 'client', 'inspector', 'super_admin'];
+
+export const NOTIFICATION_TYPES: readonly NotificationType[] = [
+    'inspection_request_submitted',
+    'inspection_assigned',
+    'inspection_scheduled',
+    'inspection_status_changed',
+    'estimate_submitted',
+    'estimate_approved',
+    'estimate_rejected',
+    'estimate_accepted_by_client',
+    'estimate_declined_by_client',
+    'job_report_submitted',
+    'low_stock',
+    'role_changed',
+];
+
 export interface Notification {
     notification_id: number;
     recipient_type: RecipientType;
@@ -14,53 +52,20 @@ export interface Notification {
     read_at: string | null;
 }
 
-export type RecipientType = 'admin' | 'client' | 'inspector';
-
-export type NotificationType =
-    | 'estimate_approved'
-    | 'estimate_submitted'
-    | 'low_stock'
-    | 'inspection_request_submitted';
-
-const VALID_RECIPIENT_TYPES: RecipientType[] = ['admin', 'client', 'inspector'];
-const VALID_NOTIFICATION_TYPES: NotificationType[] = [
-    'estimate_approved',
-    // Raised when an inspector sends an estimate for approval, or edits a
-    // settled one back into the queue. Broadcast to admins.
-    'estimate_submitted',
-    'low_stock',
-    'inspection_request_submitted',
-];
-
-// Single source of truth for the validation error message, so the list can't
-// drift out of sync with VALID_NOTIFICATION_TYPES the way it did before.
-export const NOTIFICATION_TYPE_ERROR = `Invalid type. Must be one of: ${VALID_NOTIFICATION_TYPES.map((t) => `'${t}'`).join(', ')}.`;
-
-export function isValidRecipientType(value: string): value is RecipientType {
-    return VALID_RECIPIENT_TYPES.includes(value as RecipientType);
-}
-
-export function isValidNotificationType(value: string): value is NotificationType {
-    return VALID_NOTIFICATION_TYPES.includes(value as NotificationType);
-}
-
-// Payload for creating a single notification (e.g. "estimate approved" -> one client)
 export interface CreateNotificationInput {
     recipient_type: RecipientType;
     recipient_id: number;
     type: NotificationType;
     title: string;
-    message?: string;
-    related_entity_type?: string;
-    related_entity_id?: number;
+    message?: string | null;
+    related_entity_type?: string | null;
+    related_entity_id?: number | null;
 }
 
-// Payload for broadcasting the same notification to every admin
-// (e.g. "low stock" or "inspection request submitted")
-export interface BroadcastAdminsInput {
+export interface BroadcastInput {
     type: NotificationType;
     title: string;
-    message?: string;
-    related_entity_type?: string;
-    related_entity_id?: number;
+    message?: string | null;
+    related_entity_type?: string | null;
+    related_entity_id?: number | null;
 }

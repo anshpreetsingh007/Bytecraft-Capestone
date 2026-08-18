@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Package,
@@ -14,6 +14,8 @@ import {
   FileText,
 } from "lucide-react";
 import { AdminPageHeader } from "../../components/AdminPageHeader";
+import { api, errorMessage, rows } from "@/lib/api";
+import { Banner } from "../../components/ui";
 
 /** Maps an estimate status onto a pill class + icon so the list scans at a glance. */
 function statusMeta(status: string) {
@@ -33,32 +35,31 @@ export default function AdminHomePage() {
   const [inventory, setInventory] = useState<any[]>([]);
   const [recentEstimates, setRecentEstimates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      // Only the first few estimates are shown, so ask for that many rather
+      // than pulling the whole table and slicing it in the browser.
+      const [inventoryPayload, estimatePayload] = await Promise.all([
+        api.get<any[]>("/api/inventory?limit=100"),
+        api.get<any[]>("/api/estimates?limit=4"),
+      ]);
+
+      setInventory(rows(inventoryPayload));
+      setRecentEstimates(rows(estimatePayload));
+    } catch (err) {
+      setLoadError(errorMessage(err, "Could not load the dashboard."));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [invRes, estRes] = await Promise.all([
-          fetch("/api/inventory"),
-          fetch("/api/estimates")
-        ]);
-
-        if (invRes.ok) {
-          const invData = await invRes.json();
-          setInventory(invData);
-        }
-
-        if (estRes.ok) {
-          const estData = await estRes.json();
-          setRecentEstimates(estData.slice(0, 4));
-        }
-      } catch (err) {
-        console.error("Failed to fetch dashboard data", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const totalItems = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
   const lowStockCount = inventory.filter((item) => {
@@ -76,6 +77,10 @@ export default function AdminHomePage() {
 
   return (
     <div className="dashboard-page">
+      {loadError ? (
+        <Banner title="Could not load the dashboard" detail={loadError} onRetry={fetchData} />
+      ) : null}
+
       <AdminPageHeader
         eyebrow="Live overview"
         title="Admin Dashboard"

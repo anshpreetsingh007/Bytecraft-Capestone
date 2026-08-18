@@ -1,29 +1,24 @@
-import express from 'express';
-import cors from 'cors';
 import * as dotenv from 'dotenv';
-import submissionRoutes from './routes/routes';
-import ordersRoutes from './routes/orderRoutes';
-import inspectorsRoutes from './routes/inspectorsRoutes';
 
 // In Docker, env vars are injected by compose. Only load .env.local for local dev.
 if (!process.env.DB_HOST) {
-  dotenv.config({ path: '../../.env.local' });
+    dotenv.config({ path: '../../.env.local' });
 }
 
-const app = express();
-const port = process.env.PORT || 3007;
+import pool from './config/db';
+import submissionRoutes from './routes/routes';
+import ordersRoutes from './routes/orderRoutes';
+import inspectorsRoutes from './routes/inspectorsRoutes';
+import { createServiceApp, finalizeServiceApp, startService } from './shared';
 
-app.use(cors());
-app.use(express.json());
+const SERVICE_NAME = 'submission-service';
+const port = Number(process.env.PORT || 3007);
+
+const app = createServiceApp({ serviceName: SERVICE_NAME, pool });
 
 app.use('/api/inspection-requests', submissionRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/inspectors', inspectorsRoutes);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'submission-service' });
-});
-
-app.listen(port, () => {
-  console.log(`Submission service running on http://localhost:${port}`);
-});
+finalizeServiceApp(app);
+startService(app, { serviceName: SERVICE_NAME, port, pool });

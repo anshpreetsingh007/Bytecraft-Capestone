@@ -1,0 +1,31 @@
+{
+  // Compiles the shared kit and its tests so they can be run with node --test.
+  //
+  // The kit lives outside any one service and therefore has no node_modules of
+  // its own. Rather than duplicating dependencies, `paths` points type
+  // resolution at estimate-service's node_modules -- every service installs the
+  // same express/pg versions, and the kit deliberately imports nothing else.
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // Not ".test-build": Node's test runner skips paths beginning with a
+    // dot, so a hidden output directory silently matches no test files.
+    "outDir": "./test-build",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "../estimate-service/node_modules/*",
+        "../estimate-service/node_modules/@types/*"
+      ]
+    },
+    "typeRoots": ["../estimate-service/node_modules/@types"],
+    "lib": ["es2022", "dom"]
+  },
+  "include": ["*.ts", "__tests__/**/*.ts"]
+}

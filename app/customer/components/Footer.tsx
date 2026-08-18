@@ -143,6 +143,29 @@ export default function Footer() {
                   View Estimate
                 </Link>
               </li>
+
+              <li>
+                <Link
+                  href="/customer/jobs"
+                  className="hover:text-white transition-colors"
+                >
+                  Track My Job
+                </Link>
+              </li>
+
+              {/* The consent checkbox at signup links to these, so they need
+                  to stay reachable from the site itself too. */}
+              <li>
+                <Link href="/privacy" className="hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+
+              <li>
+                <Link href="/terms" className="hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
             </ul>
           </div>
 

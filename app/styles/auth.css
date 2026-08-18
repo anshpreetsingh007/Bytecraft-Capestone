@@ -439,3 +439,54 @@ body {
             rgba(10, 10, 10, 0.45) 0%,
             rgba(10, 10, 10, 0.82) 100%);
 }
+/* --- Consent checkbox -----------------------------------------------------
+   Signup now records that the customer agreed to the privacy policy, and
+   which version of it, because the business stores names, home addresses and
+   phone numbers. The checkbox is deliberately unchecked by default: a
+   pre-ticked box is not consent. */
+
+.auth-consent {
+    margin: 4px 0 4px;
+}
+
+.auth-consent-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    cursor: pointer;
+}
+
+.auth-consent-row input[type="checkbox"] {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    margin-top: 2px;
+    accent-color: var(--color-accent-solid);
+    cursor: pointer;
+}
+
+.auth-consent-row input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--color-accent-bright);
+    outline-offset: 2px;
+}
+
+.auth-consent-row a {
+    color: var(--color-accent-text);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.auth-consent-row a:hover {
+    color: var(--color-accent-hover);
+}
+
+.dark .auth-consent-row {
+    color: #cbd5e1;
+}
+
+.dark .auth-consent-row a {
+    color: var(--color-orange-bright);
+}

@@ -6,6 +6,8 @@ import { useAuth } from "../../../Context/AuthContext";
 
 import SelectInspectionPage from "./select/page";
 import { AdminPageHeader } from "../../../components/AdminPageHeader";
+import { api, errorMessage, rows } from "@/lib/api";
+import { Banner, SkeletonRows, useToast } from "../../../components/ui";
 import "./cost-estimate.css";
 
 const laborRatePerSqFt = 3.5;
@@ -106,6 +108,7 @@ function CostEstimateContent() {
   const orderId = searchParams.get("orderId");
   const estimateId = searchParams.get("estimateId");
   const router = useRouter();
+  const toast = useToast();
   const { userId } = useAuth(); // real admin_id, now that auth is wired up
 
   const [orderData, setOrderData] = useState<OrderWithDetails | null>(null);
@@ -143,9 +146,9 @@ function CostEstimateContent() {
 
     async function fetchEstimate() {
       try {
-        const res = await fetch(`/api/estimates/${estimateId}`, { signal: controller.signal });
-        if (!res.ok) throw new Error(`Failed to load estimate (${res.status})`);
-        const data = await res.json();
+        const data = await api.get<any>(`/api/estimates/${estimateId}`, {
+          signal: controller.signal,
+        });
 
         setExistingStatus(typeof data.status === "string" ? data.status : null);
 
@@ -183,12 +186,12 @@ function CostEstimateContent() {
   useEffect(() => {
     async function fetchInventory() {
       try {
-        const res = await fetch("/api/inventory");
-        if (!res.ok) throw new Error("Failed to fetch inventory");
-        const data = await res.json();
-        setInventory(data);
-      } catch (err: any) {
-        console.error(err);
+        const payload = await api.get<InventoryItem[]>("/api/inventory?limit=100");
+        setInventory(rows(payload));
+      } catch (err) {
+        // Without materials the calculator cannot price anything, so this is
+        // surfaced rather than logged and forgotten.
+        setError(errorMessage(err, "Could not load the materials list."));
       } finally {
         setLoadingInventory(false);
       }
@@ -199,12 +202,10 @@ function CostEstimateContent() {
   useEffect(() => {
     async function fetchInspectors() {
       try {
-        const res = await fetch("/api/inspectors");
-        if (!res.ok) throw new Error("Failed to fetch inspectors");
-        const data = await res.json();
-        setInspectors(data);
-      } catch (err: any) {
-        console.error(err);
+        const payload = await api.get<Inspector[]>("/api/inspectors");
+        setInspectors(rows(payload));
+      } catch (err) {
+        setError(errorMessage(err, "Could not load the inspector list."));
       } finally {
         setLoadingInspectors(false);
       }
@@ -219,9 +220,7 @@ function CostEstimateContent() {
     }
     async function fetchOrder() {
         try {
-            const res = await fetch(`/api/orders/${orderId}`);
-            if (!res.ok) throw new Error("Failed to fetch order data");
-            const data: OrderWithDetails = await res.json();
+            const data = await api.get<OrderWithDetails>(`/api/orders/${orderId}`);
             setOrderData(data);
             // Default the dropdown to whichever inspector was already on the
             // inspection request, if any — the admin can still change it.
@@ -230,8 +229,8 @@ function CostEstimateContent() {
             if (data.inspector_id && !estimateId) {
                 setInspectorId(data.inspector_id);
             }
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(errorMessage(err, "Could not load that order."));
         } finally {
             setLoadingOrder(false);
         }
@@ -273,49 +272,44 @@ function CostEstimateContent() {
         cost: mb.cost
       }));
 
-      const method = estimateId ? "PUT" : "POST";
-      const url = estimateId ? `/api/estimates/${estimateId}` : "/api/estimates";
+      const isEdit = Boolean(estimateId);
+      const url = isEdit ? `/api/estimates/${estimateId}` : "/api/estimates";
 
-      const response = await fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          order_id: orderData.order_id,
-          inspector_id: inspectorId,
-          admin_id: userId,
-          details: details,
-          estimate_date: new Date().toISOString(),
-          status: "submitted",
-          materials: apiMaterials,
-          material_id: null,
-          material_quantity: null,
-          // Persisted so this estimate can be reopened and edited later
-          // instead of rebuilt from scratch. Pitch is optional.
-          length_ft: lengthNum,
-          width_ft: widthNum,
-          pitch_ft: heightNum > 0 ? heightNum : null,
-        }),
-      });
+      const payload = {
+        order_id: orderData.order_id,
+        inspector_id: inspectorId,
+        admin_id: userId,
+        details,
+        estimate_date: new Date().toISOString().slice(0, 10),
+        status: "submitted",
+        materials: apiMaterials,
+        // Sent explicitly so the customer-facing figure is the one the
+        // calculator produced, rather than being re-derived server-side.
+        total_amount: Number(result.total.toFixed(2)),
+        // Persisted so this estimate can be reopened and edited later instead
+        // of rebuilt from scratch. Pitch is optional.
+        length_ft: lengthNum,
+        width_ft: widthNum,
+        pitch_ft: heightNum > 0 ? heightNum : null,
+      };
 
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}: ${await response.text()}`);
-      }
+      const saved = isEdit
+        ? await api.put<{ status?: string }>(url, payload)
+        : await api.post<{ status?: string }>(url, payload);
 
-      // The server owns the final status — editing a settled estimate forces
-      // it back to 'submitted' for re-approval, so report what actually landed
+      // The server owns the final status: editing a settled estimate forces it
+      // back to 'submitted' for re-approval, so report what actually landed
       // rather than assuming the update stuck as-is.
-      const saved = await response.json().catch(() => null);
-      const landedStatus: string | null =
-        saved && typeof saved.status === "string" ? saved.status : null;
-
+      const landedStatus = typeof saved?.status === "string" ? saved.status : null;
       const wasSettled = existingStatus === "approved" || existingStatus === "rejected";
 
-      alert(
-        !estimateId
-          ? "Estimate submitted successfully!"
+      toast.success(
+        !isEdit ? "Estimate submitted" : "Estimate updated",
+        !isEdit
+          ? "It is now in the admin review queue."
           : wasSettled && landedStatus === "submitted"
-            ? "Estimate updated. Because it had already been reviewed, it's been sent back for approval."
-            : "Estimate updated successfully!"
+            ? "Because it had already been reviewed, it has been sent back for approval."
+            : "Your changes have been saved.",
       );
 
       setSubmitted(true);
@@ -323,9 +317,10 @@ function CostEstimateContent() {
         // Redirect logic remains, but we also showed an alert above.
         router.push("/admin/estimates");
       }, 2000);
-    } catch (err: any) {
-      console.error("Failed to submit estimate:", err);
-      setError(err.message || "Failed to submit estimate");
+    } catch (err) {
+      const message = errorMessage(err, "Failed to submit the estimate.");
+      setError(message);
+      toast.error("Could not save the estimate", message);
     } finally {
       setIsSubmitting(false);
     }
@@ -336,11 +331,17 @@ function CostEstimateContent() {
   }
 
   if (loadingOrder || loadingInventory || loadingInspectors || loadingEstimate) {
-    return <div className="p-6">Loading data...</div>;
+    return (
+      <div className="estimate-page">
+        <SkeletonRows rows={4} height={90} />
+      </div>
+    );
   }
 
   return (
     <div className="estimate-page">
+      {error ? <Banner title="There is a problem with this estimate" detail={error} /> : null}
+
       {/* An approved estimate is what the customer currently sees. Saving an
           edit pulls it back into the review queue, so say so up front rather
           than surprising the admin after the fact. */}

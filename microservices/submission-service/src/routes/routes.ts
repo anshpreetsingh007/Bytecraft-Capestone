@@ -1,32 +1,44 @@
 import { Router } from 'express';
 import * as submissionController from '../controllers/submissionController';
+import { asyncHandler, requireAuth, requireRole, strictRateLimit } from '../shared';
 
 const router = Router();
 
-// IMPORTANT: specific paths before generic /:id path (same convention as estimate-service)
+// Specific paths before the generic /:id path.
 
-// GET /api/inspection-requests — list all (optionally filter by ?status=pending)
-router.get('/', submissionController.getAll);
+// GET /api/inspection-requests?status=pending&page=1
+router.get('/', requireAuth, asyncHandler(submissionController.getAll));
 
-// GET /api/inspection-requests/client/5 — get all requests submitted by client #5
-router.get('/client/:clientId', submissionController.getByClient);
+// GET /api/inspection-requests/client/5
+router.get('/client/:clientId', requireAuth, asyncHandler(submissionController.getByClient));
 
-// GET /api/inspection-requests/inspector/3 — get all requests assigned to inspector #3
-router.get('/inspector/:inspectorId', submissionController.getByInspector);
+// GET /api/inspection-requests/inspector/3
+router.get('/inspector/:inspectorId', requireAuth, asyncHandler(submissionController.getByInspector));
 
-// GET /api/inspection-requests/7 — get request #7
-router.get('/:id', submissionController.getById);
+// GET /api/inspection-requests/7
+router.get('/:id', requireAuth, asyncHandler(submissionController.getById));
 
-// POST /api/inspection-requests — client submits a new request
-router.post('/', submissionController.create);
+// POST /api/inspection-requests
+router.post('/', requireAuth, strictRateLimit(), asyncHandler(submissionController.create));
 
-// PUT /api/inspection-requests/7 — full update (e.g. assign inspector, set schedule)
-router.put('/:id', submissionController.update);
+// PUT /api/inspection-requests/7
+router.put('/:id', requireRole('admin', 'super_admin'), asyncHandler(submissionController.update));
 
-// PATCH /api/inspection-requests/7/status — update only the status
-router.patch('/:id/status', submissionController.updateStatus);
+// PATCH /api/inspection-requests/7/schedule
+router.patch(
+    '/:id/schedule',
+    requireRole('admin', 'super_admin'),
+    asyncHandler(submissionController.schedule),
+);
 
-// DELETE /api/inspection-requests/7 — delete request #7
-router.delete('/:id', submissionController.remove);
+// PATCH /api/inspection-requests/7/status — inspectors move their own jobs on
+router.patch(
+    '/:id/status',
+    requireRole('inspector', 'admin', 'super_admin'),
+    asyncHandler(submissionController.updateStatus),
+);
+
+// DELETE /api/inspection-requests/7 — soft delete
+router.delete('/:id', requireRole('admin', 'super_admin'), asyncHandler(submissionController.remove));
 
 export default router;

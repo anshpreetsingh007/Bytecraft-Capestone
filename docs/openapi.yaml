@@ -1,0 +1,1276 @@
+openapi: 3.1.0
+
+info:
+  title: Markit Roofing Platform API
+  version: "2.0.0"
+  description: |
+    The HTTP API behind the Markit Roofing platform.
+
+    **Everything below requires authentication.** Send a Firebase ID token as
+    `Authorization: Bearer <token>`. The services verify it against Google's
+    published signing keys and then resolve the UID to a role in Postgres —
+    roles are never taken from the request.
+
+    The browser only ever calls this app's own origin. The Next.js rewrites in
+    `next.config.ts` proxy each path to the service that owns it, which is why
+    the services themselves are not published outside the Docker network.
+
+    ### Errors
+
+    Every error is the same shape:
+
+    ```json
+    { "error": "human readable sentence", "code": "bad_request", "requestId": "..." }
+    ```
+
+    `requestId` also comes back in the `x-request-id` header and appears in the
+    service logs, so a user can quote it in a bug report.
+
+    ### Paging
+
+    List endpoints return `{ "data": [...], "pagination": {...} }` and accept
+    `page` and `limit`. `limit` is capped at 100 whatever is asked for.
+
+    ### Payments
+
+    There are none. Markit takes cash on completion or arranges financing over
+    the phone, so the platform has no invoicing or payment endpoints, and the
+    reporting measures accepted estimates instead of money received.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development, through the Next.js proxy
+
+tags:
+  - name: Auth
+    description: Accounts, roles and the audit trail (auth-service, 3004)
+  - name: Inspections
+    description: Requests, scheduling and orders (submission-service, 3007)
+  - name: Estimates
+    description: Pricing and the customer's decision (estimate-service, 3002)
+  - name: Inventory
+    description: Stock levels and the movement ledger (inventory-service, 3003)
+  - name: Job reports
+    description: Close-out reports (report-service, 3006)
+  - name: Reports
+    description: Business reporting (report-service, 3006)
+  - name: Notifications
+    description: In-app alerts (notification-service, 3005)
+  - name: Chat
+    description: Website assistant (ai-chatbot-service, 3001)
+
+security:
+  - firebaseToken: []
+
+components:
+  securitySchemes:
+    firebaseToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A Firebase ID token from the signed-in user.
+    internalToken:
+      type: apiKey
+      in: header
+      name: x-internal-token
+      description: |
+        Shared secret proving the call came from another Markit service rather
+        than from a browser. Used for the endpoints that raise notifications
+        and draw stock.
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+
+  schemas:
+    Error:
+      type: object
+      required: [error, code]
+      properties:
+        error: { type: string, example: "You can only view your own records" }
+        code:
+          type: string
+          enum: [bad_request, unauthorized, forbidden, not_found, conflict, rate_limited, internal_error, timeout]
+        details: { type: object, additionalProperties: true }
+        requestId: { type: string }
+
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        totalPages: { type: integer }
+        hasMore: { type: boolean }
+
+    Profile:
+      type: object
+      properties:
+        role: { type: string, enum: [client, inspector, admin, super_admin] }
+        id: { type: integer }
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string, format: email }
+
+    InspectionRequest:
+      type: object
+      properties:
+        request_id: { type: integer }
+        client_id: { type: integer }
+        inspector_id: { type: [integer, "null"] }
+        status:
+          type: string
+          enum: [pending, assigned, in_progress, completed, cancelled]
+        details: { type: string }
+        scheduled_date:
+          type: [string, "null"]
+          format: date-time
+          description: A real instant, so an appointment carries a time of day.
+        duration_minutes: { type: integer, minimum: 15, maximum: 480 }
+        site_address: { type: [string, "null"] }
+        contact_phone: { type: [string, "null"] }
+
+    Estimate:
+      type: object
+      properties:
+        estimate_id: { type: integer }
+        order_id: { type: integer }
+        inspector_id: { type: integer }
+        details: { type: string }
+        estimate_date: { type: string, format: date }
+        status:
+          type: string
+          enum: [draft, submitted, approved, rejected]
+          description: Where the estimate is in *internal* review.
+        client_response:
+          type: string
+          enum: [pending, accepted, declined]
+          description: |
+            What the customer said. Separate from `status` on purpose: an admin
+            approving means "fit to send", the customer accepting means "do the
+            work".
+        total_amount: { type: [number, "null"] }
+        materials:
+          type: array
+          items:
+            type: object
+            properties:
+              material_id: { type: integer }
+              quantity: { type: number }
+              cost: { type: number }
+
+    InventoryItem:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: string }
+        quantity: { type: number }
+        unitCost: { type: number }
+        unit: { type: string }
+        reorderThreshold: { type: integer }
+        coverageSqft: { type: number }
+        isLow: { type: boolean }
+
+    JobReport:
+      type: object
+      properties:
+        report_id: { type: integer }
+        order_id: { type: integer }
+        inspector_id: { type: integer }
+        title: { type: string }
+        findings: { type: [string, "null"] }
+        recommendations: { type: [string, "null"] }
+        material_used_cost: { type: [number, "null"] }
+        material_waste_cost: { type: [number, "null"] }
+        labour_hours: { type: [number, "null"] }
+        profit: { type: [number, "null"] }
+        status: { type: string, enum: [draft, submitted, reviewed] }
+
+    Notification:
+      type: object
+      properties:
+        notification_id: { type: integer }
+        recipient_type: { type: string, enum: [admin, client, inspector, super_admin] }
+        recipient_id: { type: integer }
+        type:
+          type: string
+          enum:
+            - inspection_request_submitted
+            - inspection_assigned
+            - inspection_scheduled
+            - inspection_status_changed
+            - estimate_submitted
+            - estimate_approved
+            - estimate_rejected
+            - estimate_accepted_by_client
+            - estimate_declined_by_client
+            - job_report_submitted
+            - low_stock
+            - role_changed
+        title: { type: string }
+        message: { type: [string, "null"] }
+        is_read: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+  responses:
+    Unauthorized:
+      description: No token, or a token that failed verification.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Signed in, but not allowed to do this.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: No such record, or not one this caller may see.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: The request clashes with the current state.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    BadRequest:
+      description: The request failed validation.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+paths:
+  # ─── Auth ────────────────────────────────────────────────────────────────
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: The profile of whoever holds the token
+      description: |
+        Derives the identity from the verified token. Replaces looking up a UID
+        supplied by the caller, which was open to anyone and mapped any UID to
+        a name, email and role.
+      responses:
+        "200":
+          description: The caller's profile.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "404": { description: Signed in but not registered yet. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    patch:
+      tags: [Auth]
+      summary: Update your own profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string, maxLength: 60 }
+                last_name: { type: string, maxLength: 60 }
+                phone: { type: string }
+                address: { type: string, maxLength: 200 }
+      responses:
+        "200":
+          description: The updated profile.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Create the customer profile after Firebase signup
+      description: |
+        The UID and email come from the verified token, not the body. Consent to
+        the privacy policy is recorded with the version agreed to.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, accepted_terms]
+              properties:
+                first_name: { type: string, maxLength: 60 }
+                last_name: { type: string, maxLength: 60 }
+                phone: { type: string }
+                address: { type: string, maxLength: 200 }
+                accepted_terms: { type: boolean }
+      responses:
+        "201":
+          description: The new profile.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/auth/resolve/{firebaseUid}:
+    get:
+      tags: [Auth]
+      summary: Resolve a UID (your own, or anyone's if you are an admin)
+      parameters:
+        - name: firebaseUid
+          in: path
+          required: true
+          schema: { type: string, maxLength: 128 }
+      responses:
+        "200":
+          description: The matching profile.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/auth/inspectors:
+    get:
+      tags: [Auth]
+      summary: Active inspectors, for assignment dropdowns
+      description: Staff only.
+      responses:
+        "200":
+          description: The inspector list.
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/auth/users:
+    get:
+      tags: [Auth]
+      summary: The user directory
+      description: Super admin only.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 100 }
+      responses:
+        "200": { description: A page of accounts. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/auth/users/role:
+    patch:
+      tags: [Auth]
+      summary: Promote or demote an account
+      description: |
+        Super admin only, and never your own account — that check is what stops
+        the last privileged account locking itself out. Demotion deactivates the
+        staff row rather than deleting it, so the history of every job that
+        person worked stays intact. Written to the audit log.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firebase_uid, role, first_name, last_name, email]
+              properties:
+                firebase_uid: { type: string }
+                role: { type: string, enum: [client, inspector, admin] }
+                first_name: { type: string }
+                last_name: { type: string }
+                email: { type: string, format: email }
+      responses:
+        "200": { description: The role was changed. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/auth/users/status:
+    patch:
+      tags: [Auth]
+      summary: Deactivate or reactivate an account
+      description: Super admin only. Nothing is deleted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firebase_uid, is_active]
+              properties:
+                firebase_uid: { type: string }
+                is_active: { type: boolean }
+      responses:
+        "200": { description: The account status was changed. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/auth/audit:
+    get:
+      tags: [Auth]
+      summary: The audit trail
+      description: Super admin only. Who changed what, and when.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: entityType
+          in: query
+          schema: { type: string }
+        - name: action
+          in: query
+          schema: { type: string }
+      responses:
+        "200": { description: A page of audit entries. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ─── Inspections ─────────────────────────────────────────────────────────
+  /api/inspection-requests:
+    get:
+      tags: [Inspections]
+      summary: List inspection requests
+      description: |
+        A customer sees only their own, whatever `clientId` says. Staff see
+        everything.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, assigned, in_progress, completed, cancelled] }
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 100 }
+        - name: unscheduledOnly
+          in: query
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: A page of requests.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/InspectionRequest" }
+                  pagination: { $ref: "#/components/schemas/Pagination" }
+    post:
+      tags: [Inspections]
+      summary: Submit an inspection request
+      description: |
+        `client_id` comes from the token unless the caller is staff filing on a
+        customer's behalf. Taking it from the body was how anyone could file
+        requests under someone else's account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [details]
+              properties:
+                details: { type: string, minLength: 10, maxLength: 2000 }
+                site_address: { type: string, maxLength: 200 }
+                contact_phone: { type: string }
+                client_id:
+                  type: integer
+                  description: Staff only; ignored for customers.
+      responses:
+        "201":
+          description: The request was created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InspectionRequest" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /api/inspection-requests/{id}:
+    get:
+      tags: [Inspections]
+      summary: One inspection request
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200":
+          description: The request.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InspectionRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      tags: [Inspections]
+      summary: Edit a request (admin)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The updated request. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      tags: [Inspections]
+      summary: Remove a request (admin)
+      description: |
+        A soft delete. A hard `DELETE` breaks the foreign keys from orders and,
+        through them, estimates and reports.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Removed. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/inspection-requests/{id}/schedule:
+    patch:
+      tags: [Inspections]
+      summary: Book an inspector at a date and time
+      description: |
+        Admin only. Checks the inspector's working hours, their booked time off,
+        and their existing appointments. A double booking is refused with 409;
+        working hours and time off come back as warnings, because an admin may
+        knowingly book an emergency call-out on a Saturday.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [inspector_id, scheduled_date]
+              properties:
+                inspector_id: { type: integer }
+                scheduled_date: { type: string, format: date-time }
+                duration_minutes: { type: integer, minimum: 15, maximum: 480, default: 60 }
+      responses:
+        "200":
+          description: Booked. Any non-blocking warnings are in `warnings`.
+        "409":
+          description: That inspector is already booked at that time.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/inspection-requests/{id}/status:
+    patch:
+      tags: [Inspections]
+      summary: Move a request forward
+      description: |
+        An inspector may move their own jobs; an admin may move any. Only the
+        transitions in the state machine are allowed — a request can no longer
+        jump from `pending` straight to `completed`.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [pending, assigned, in_progress, completed, cancelled] }
+                reason: { type: string, maxLength: 250 }
+      responses:
+        "200": { description: The updated request. }
+        "400":
+          description: That transition is not allowed from the current status.
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/inspection-requests/client/{clientId}:
+    get:
+      tags: [Inspections]
+      summary: A customer's requests
+      parameters:
+        - { name: clientId, in: path, required: true, schema: { type: integer } }
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200": { description: A page of requests. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/inspection-requests/inspector/{inspectorId}:
+    get:
+      tags: [Inspections]
+      summary: An inspector's queue
+      parameters:
+        - { name: inspectorId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: A page of requests. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/orders:
+    get:
+      tags: [Inspections]
+      summary: List orders
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, estimated, scheduled, completed, cancelled] }
+        - name: needsEstimate
+          in: query
+          schema: { type: boolean }
+          description: Only orders with no estimate yet.
+      responses:
+        "200": { description: A page of orders. }
+
+  /api/orders/from-request/{requestId}:
+    post:
+      tags: [Inspections]
+      summary: Turn a request into an order
+      description: |
+        Admin only. One order per request, enforced by a unique index as well as
+        the check here — two admins clicking at the same moment both used to
+        pass the application check and create duplicates.
+      parameters:
+        - { name: requestId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "201": { description: The order was created. }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/inspectors:
+    get:
+      tags: [Inspections]
+      summary: Active inspectors
+      responses:
+        "200": { description: The inspector list. }
+
+  /api/inspectors/{id}/availability:
+    get:
+      tags: [Inspections]
+      summary: An inspector's weekly working hours
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The availability windows. }
+    put:
+      tags: [Inspections]
+      summary: Replace the weekly pattern (admin)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                windows:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      weekday: { type: integer, minimum: 0, maximum: 6 }
+                      start_minute: { type: integer, minimum: 0, maximum: 1439 }
+                      end_minute: { type: integer, minimum: 1, maximum: 1440 }
+      responses:
+        "200": { description: The saved windows. }
+
+  /api/inspectors/{id}/schedule:
+    get:
+      tags: [Inspections]
+      summary: An inspector's booked work between two instants
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+      responses:
+        "200": { description: The bookings. }
+
+  /api/inspectors/{id}/schedule/check:
+    post:
+      tags: [Inspections]
+      summary: Dry-run a booking
+      description: |
+        Lets the booking form warn about a clash while it is still open, rather
+        than as an error after submitting.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200":
+          description: Whether the slot is free, plus any warnings.
+
+  # ─── Estimates ───────────────────────────────────────────────────────────
+  /api/estimates:
+    get:
+      tags: [Estimates]
+      summary: List estimates
+      description: |
+        A customer gets their own approved estimates only. Staff get everything.
+        This used to return the entire table to anyone who asked.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, submitted, approved, rejected] }
+        - name: clientResponse
+          in: query
+          schema: { type: string, enum: [pending, accepted, declined] }
+      responses:
+        "200":
+          description: A page of estimates.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Estimate" }
+                  pagination: { $ref: "#/components/schemas/Pagination" }
+    post:
+      tags: [Estimates]
+      summary: Create an estimate
+      description: |
+        Inspector or admin. An inspector always authors under their own id —
+        taking `inspector_id` from the body let anyone put somebody else's name
+        on an estimate.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, details]
+              properties:
+                order_id: { type: integer }
+                details: { type: string, maxLength: 5000 }
+                status: { type: string, enum: [draft, submitted], default: draft }
+                total_amount: { type: number, minimum: 0 }
+                length_ft: { type: number, exclusiveMinimum: 0 }
+                width_ft: { type: number, exclusiveMinimum: 0 }
+                pitch_ft: { type: number, minimum: 0 }
+                materials:
+                  type: array
+                  maxItems: 100
+                  items:
+                    type: object
+                    properties:
+                      material_id: { type: integer }
+                      quantity: { type: number }
+                      cost: { type: number }
+      responses:
+        "201":
+          description: The estimate was created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Estimate" }
+
+  /api/estimates/{id}:
+    get:
+      tags: [Estimates]
+      summary: One estimate
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200":
+          description: The estimate.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Estimate" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      tags: [Estimates]
+      summary: Edit an estimate
+      description: |
+        Inspectors may only edit their own. Editing an approved or rejected
+        estimate sends it back to `submitted`, because an approved estimate is
+        what the customer is looking at. An estimate the customer has already
+        accepted cannot be edited at all.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The updated estimate. }
+        "409":
+          description: The customer has accepted this estimate.
+    delete:
+      tags: [Estimates]
+      summary: Remove an estimate (admin)
+      description: A soft delete. Refused once the customer has accepted it.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Removed. }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /api/estimates/{id}/status:
+    patch:
+      tags: [Estimates]
+      summary: Approve or reject (admin)
+      description: |
+        Approving is the point at which the priced materials leave stock.
+        inventory-service records the movement against this estimate id and
+        refuses to apply it twice, so clicking approve again cannot double-
+        deduct. Approving means "fit to send", not that the customer has agreed.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [draft, submitted, approved, rejected] }
+      responses:
+        "200": { description: The updated estimate. }
+        "400": { description: That transition is not allowed. }
+        "409": { description: Not enough stock to cover the materials. }
+
+  /api/estimates/{id}/response:
+    patch:
+      tags: [Estimates]
+      summary: The customer accepting or declining
+      description: |
+        Only the customer the estimate belongs to. This was the missing piece of
+        the whole flow: an admin could approve an estimate and the customer
+        could read it, but there was no way for them to agree to the work.
+        Accepting moves the order to `scheduled`.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response]
+              properties:
+                response: { type: string, enum: [accepted, declined] }
+                note: { type: string, maxLength: 500 }
+      responses:
+        "200": { description: The decision was recorded. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: Not approved yet, or already answered.
+
+  /api/estimates/client/{clientId}:
+    get:
+      tags: [Estimates]
+      summary: A customer's estimates
+      parameters:
+        - { name: clientId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: A page of estimates. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/estimates/inspector/{inspectorId}:
+    get:
+      tags: [Estimates]
+      summary: Estimates an inspector wrote
+      parameters:
+        - { name: inspectorId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: A page of estimates. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ─── Inventory ───────────────────────────────────────────────────────────
+  /api/inventory:
+    get:
+      tags: [Inventory]
+      summary: List stock
+      description: Staff only — stock levels and unit costs are commercially sensitive.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: lowStockOnly
+          in: query
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: A page of items.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/InventoryItem" }
+                  pagination: { $ref: "#/components/schemas/Pagination" }
+    post:
+      tags: [Inventory]
+      summary: Add an item (admin)
+      responses:
+        "201": { description: The item was created. }
+
+  /api/inventory/{id}:
+    put:
+      tags: [Inventory]
+      summary: Update an item (admin)
+      description: |
+        A quantity typed into the form is recorded as an `adjustment` in the
+        ledger. Stock used to be silently rewritable with nothing recording who
+        did it.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The updated item. }
+    delete:
+      tags: [Inventory]
+      summary: Remove an item (admin)
+      description: A soft delete — the movement ledger references it.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Removed. }
+
+  /api/inventory/{id}/movements:
+    get:
+      tags: [Inventory]
+      summary: An item's movement history
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: A page of movements. }
+    post:
+      tags: [Inventory]
+      summary: Receive, return or write off stock (admin)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity, reason]
+              properties:
+                quantity:
+                  type: number
+                  description: Negative to remove stock.
+                reason:
+                  type: string
+                  enum: [initial, receipt, consumption, return, adjustment, correction, write_off]
+                note: { type: string, maxLength: 250 }
+      responses:
+        "200": { description: The updated item. }
+        "409": { description: That would take the item below zero. }
+
+  /api/inventory/movements:
+    get:
+      tags: [Inventory]
+      summary: The whole movement ledger
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200": { description: A page of movements. }
+
+  /api/inventory/consume:
+    post:
+      tags: [Inventory]
+      summary: Draw stock for an approved estimate
+      description: |
+        Internal only. Idempotent per (reference, item): a repeated approval
+        cannot deduct twice. Runs in one transaction with row locks so two
+        estimates approved at the same moment cannot oversell stock.
+      security:
+        - internalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reference_type, reference_id, lines]
+              properties:
+                reference_type: { type: string, example: cost_estimate }
+                reference_id: { type: integer }
+                lines:
+                  type: array
+                  maxItems: 100
+                  items:
+                    type: object
+                    properties:
+                      item_id: { type: integer }
+                      quantity: { type: number }
+      responses:
+        "200": { description: What was applied, or that it had already been applied. }
+        "409": { description: Not enough stock. }
+
+  # ─── Job reports ─────────────────────────────────────────────────────────
+  /api/job-reports:
+    get:
+      tags: [Job reports]
+      summary: List job reports
+      description: |
+        An inspector sees their own; admins see everyone's. The `report` table
+        and the analytics that read from it both existed, but nothing in the
+        system ever wrote a row — so every financial figure was reading an
+        empty table.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, submitted, reviewed] }
+        - name: orderId
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: A page of reports.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/JobReport" }
+                  pagination: { $ref: "#/components/schemas/Pagination" }
+    post:
+      tags: [Job reports]
+      summary: File a job report
+      description: One report per order, so figures cannot be double-counted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, title]
+              properties:
+                order_id: { type: integer }
+                title: { type: string, maxLength: 150 }
+                findings: { type: string, maxLength: 5000 }
+                recommendations: { type: string, maxLength: 5000 }
+                material_used_cost: { type: number, minimum: 0 }
+                material_waste_cost: { type: number, minimum: 0 }
+                labour_hours: { type: number, minimum: 0 }
+                profit: { type: number }
+                status: { type: string, enum: [draft, submitted], default: draft }
+      responses:
+        "201":
+          description: The report was filed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobReport" }
+        "409": { description: This job already has a report. }
+
+  /api/job-reports/{id}:
+    get:
+      tags: [Job reports]
+      summary: One job report
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The report. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    put:
+      tags: [Job reports]
+      summary: Edit a job report
+      description: Inspectors may edit their own. A reviewed report is read-only.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The updated report. }
+        "409": { description: Already reviewed. }
+    delete:
+      tags: [Job reports]
+      summary: Remove a job report (admin)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Removed. }
+
+  /api/job-reports/{id}/review:
+    patch:
+      tags: [Job reports]
+      summary: Sign a report off (admin)
+      description: |
+        Marks the report reviewed and closes the order. Until this happens the
+        job's figures do not count towards the financial reports.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Signed off. }
+        "409": { description: Only a submitted report can be reviewed. }
+
+  # ─── Reports ─────────────────────────────────────────────────────────────
+  /api/reports/overview:
+    get:
+      tags: [Reports]
+      summary: Dashboard summary
+      description: |
+        Admin only. Revenue is measured from estimates the customer has
+        accepted, not from invoices — there is no invoicing in the product, so
+        every figure that read from the invoice table was reporting zero.
+      responses:
+        "200": { description: The overview. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/reports/financial:
+    get:
+      tags: [Reports]
+      summary: Material cost, waste and profit over time
+      parameters:
+        - name: period
+          in: query
+          schema: { type: string, enum: [month, quarter, year], default: month }
+        - { name: start, in: query, schema: { type: string, format: date } }
+        - { name: end, in: query, schema: { type: string, format: date } }
+      responses:
+        "200": { description: One entry per period. }
+
+  /api/reports/inspectors:
+    get:
+      tags: [Reports]
+      summary: Per-inspector performance
+      responses:
+        "200": { description: One entry per active inspector. }
+
+  /api/reports/estimates:
+    get:
+      tags: [Reports]
+      summary: Estimate approval and acceptance rates
+      description: |
+        Two different numbers: how often an estimate clears internal review, and
+        how often a customer says yes once it reaches them.
+      responses:
+        "200": { description: The rates and breakdowns. }
+
+  /api/reports/jobs:
+    get:
+      tags: [Reports]
+      summary: The work pipeline
+      description: |
+        Replaces the old invoice aging report. With no invoicing, "money owed"
+        is not something the system knows — what it does know is work priced,
+        work the customer has agreed to, and work finished but not yet written
+        up.
+      responses:
+        "200": { description: The pipeline summary. }
+
+  # ─── Notifications ───────────────────────────────────────────────────────
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: Your notifications
+      description: |
+        Scoped to the signed-in user. Passing somebody else's recipient id used
+        to return their notifications.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - name: unreadOnly
+          in: query
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: A page of notifications.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Notification" }
+                  pagination: { $ref: "#/components/schemas/Pagination" }
+    post:
+      tags: [Notifications]
+      summary: Raise a notification
+      description: |
+        Internal only. Without this restriction anyone could post a fake
+        "your estimate was approved" alert to any customer.
+      security:
+        - internalToken: []
+      responses:
+        "201": { description: Created. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: Unread count, for the bell badge
+      responses:
+        "200":
+          description: The count.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+
+  /api/notifications/broadcast-admins:
+    post:
+      tags: [Notifications]
+      summary: Alert every admin and super admin
+      description: Internal only.
+      security:
+        - internalToken: []
+      responses:
+        "201": { description: Created. }
+
+  /api/notifications/read-all:
+    patch:
+      tags: [Notifications]
+      summary: Mark all of yours as read
+      responses:
+        "200": { description: How many were updated. }
+
+  /api/notifications/{id}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark one as read
+      description: |
+        Scoped to the recipient. Passing the id alone used to let any signed-in
+        user mark, or delete, somebody else's notifications by guessing
+        sequential ids.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: The updated notification. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/notifications/{id}:
+    delete:
+      tags: [Notifications]
+      summary: Dismiss one
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Dismissed. }
+
+  # ─── Chat ────────────────────────────────────────────────────────────────
+  /api/chat:
+    post:
+      tags: [Chat]
+      summary: The website assistant
+      description: |
+        Authentication is optional: anyone can ask roofing questions. The
+        booking tool is only offered to a signed-in customer, and the client id
+        comes from their verified token — it used to be hard-coded to `1`, so
+        every request the chatbot filed landed on the same customer's account.
+
+        Rate limited to 10 requests a minute per caller, since each one costs a
+        model call. Responses are a streamed UI message stream, not JSON.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messages]
+              properties:
+                messages:
+                  type: array
+                  description: Only the last 10 are sent to the model.
+                  items:
+                    type: object
+                    properties:
+                      role: { type: string, enum: [user, assistant] }
+                      content: { type: string }
+      responses:
+        "200":
+          description: A streamed response.
+          content:
+            text/event-stream: {}
+        "429": { description: Too many requests. }
+
+  # ─── Health ──────────────────────────────────────────────────────────────
+  /health:
+    get:
+      summary: Liveness
+      description: |
+        Every service exposes this. Deliberately does not touch the database, so
+        a database blip does not get every pod restarted.
+      security: []
+      responses:
+        "200": { description: The process is up. }
+
+  /ready:
+    get:
+      summary: Readiness
+      description: |
+        Queries the database, so a pod that cannot serve is pulled out of the
+        load balancer rather than returning 500s.
+      security: []
+      responses:
+        "200": { description: Ready to serve. }
+        "503": { description: Not ready. }

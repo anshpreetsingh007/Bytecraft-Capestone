@@ -1,22 +1,47 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bell, CheckCircle2, AlertTriangle, ClipboardList } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  CalendarClock,
+  CheckCircle2,
+  ClipboardList,
+  FileCheck2,
+  ThumbsDown,
+  UserCog,
+  XCircle,
+} from "lucide-react";
 import { useAuth } from "../Context/AuthContext";
 import { Notification, NotificationType } from "../types/notification";
+import { api, errorMessage, rows } from "@/lib/api";
 import "./notification-bell.css";
-const NOTIFICATION_SERVICE_URL = "";
+
 
 const POLL_INTERVAL_MS = 30_000;
 
 function iconFor(type: NotificationType) {
   switch (type) {
     case "estimate_approved":
+    case "estimate_accepted_by_client":
       return <CheckCircle2 size={16} />;
+    case "estimate_rejected":
+      return <XCircle size={16} />;
+    case "estimate_declined_by_client":
+      return <ThumbsDown size={16} />;
+    case "estimate_submitted":
+      return <FileCheck2 size={16} />;
     case "low_stock":
       return <AlertTriangle size={16} />;
     case "inspection_request_submitted":
+    case "job_report_submitted":
       return <ClipboardList size={16} />;
+    case "inspection_assigned":
+    case "inspection_scheduled":
+    case "inspection_status_changed":
+      return <CalendarClock size={16} />;
+    case "role_changed":
+      return <UserCog size={16} />;
     default:
       return <Bell size={16} />;
   }
@@ -41,35 +66,34 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loadingList, setLoadingList] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
   const [markingAll, setMarkingAll] = useState(false);
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // The recipient is taken from the token server-side; these params are only
+  // a hint and are rejected if they do not match the signed-in user. Passing
+  // somebody else's id used to return their notifications.
   const fetchUnreadCount = useCallback(async () => {
     if (!role || !userId) return;
     try {
-      const res = await fetch(
-        `${NOTIFICATION_SERVICE_URL}/api/notifications/unread-count?recipientType=${role}&recipientId=${userId}`
-      );
-      if (!res.ok) return;
-      const data = await res.json();
+      const data = await api.get<{ count: number }>("/api/notifications/unread-count");
       setUnreadCount(data.count ?? 0);
-    } catch (err) {
-      console.error("Failed to fetch unread notification count:", err);
+    } catch {
+      // A failed background poll is not worth interrupting anyone over; the
+      // next tick will pick it up.
     }
   }, [role, userId]);
 
   const fetchNotifications = useCallback(async () => {
     if (!role || !userId) return;
     setLoadingList(true);
+    setListError(null);
     try {
-      const res = await fetch(
-        `${NOTIFICATION_SERVICE_URL}/api/notifications?recipientType=${role}&recipientId=${userId}&limit=20`
-      );
-      if (!res.ok) return;
-      setNotifications(await res.json());
+      const payload = await api.get<Notification[]>("/api/notifications?limit=20");
+      setNotifications(rows(payload));
     } catch (err) {
-      console.error("Failed to fetch notifications:", err);
+      setListError(errorMessage(err, "Could not load your notifications."));
     } finally {
       setLoadingList(false);
     }
@@ -103,14 +127,9 @@ export default function NotificationBell() {
     setUnreadCount((prev) => Math.max(0, prev - 1));
 
     try {
-      const res = await fetch(
-        `${NOTIFICATION_SERVICE_URL}/api/notifications/${notification.notification_id}/read`,
-        { method: "PATCH" }
-      );
-      if (!res.ok) throw new Error("Failed to mark as read");
-    } catch (err) {
-      console.error(err);
-      // Revert on failure
+      await api.patch(`/api/notifications/${notification.notification_id}/read`);
+    } catch {
+      // Roll the optimistic update back by reloading the truth.
       fetchNotifications();
       fetchUnreadCount();
     }
@@ -124,14 +143,8 @@ export default function NotificationBell() {
     setUnreadCount(0);
 
     try {
-      const res = await fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/read-all`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipientType: role, recipientId: userId }),
-      });
-      if (!res.ok) throw new Error("Failed to mark all as read");
-    } catch (err) {
-      console.error(err);
+      await api.patch("/api/notifications/read-all");
+    } catch {
       fetchNotifications();
       fetchUnreadCount();
     } finally {
@@ -170,6 +183,8 @@ export default function NotificationBell() {
             <div className="notif-bell-list">
               {loadingList ? (
                 <p className="notif-bell-empty">Loading…</p>
+              ) : listError ? (
+                <p className="notif-bell-empty notif-bell-error">{listError}</p>
               ) : notifications.length === 0 ? (
                 <p className="notif-bell-empty">You're all caught up.</p>
               ) : (

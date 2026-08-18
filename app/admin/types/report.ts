@@ -7,11 +7,13 @@ export interface ReportOverview {
     completed: number;
     pending: number;
     inProgress: number;
+    cancelled: number;
   };
   revenue: {
     total: number;
     thisMonth: number;
     lastMonth: number;
+    acceptedJobs: number;
   };
   inspectors: {
     total: number;
@@ -27,6 +29,7 @@ export interface FinancialReportEntry {
   materialUsedCost: number;
   materialWasteCost: number;
   profit: number;
+  labourHours: number;
   jobsReported: number;
 }
 
@@ -39,29 +42,44 @@ export interface InspectorPerformance {
   avgMaterialWaste: number;
   inspectionsAssigned: number;
   inspectionsCompleted: number;
+  completionRate: number;
 }
 
 export interface EstimateReport {
   total: number;
   byStatus: Record<string, number>;
+  byClientResponse: Record<string, { count: number; value: number }>;
+  /** How often an estimate clears internal review. */
   approvalRate: number;
+  /** How often a customer says yes once it reaches them. */
+  acceptanceRate: number;
 }
 
-export interface OverdueInvoice {
-  invoiceId: number;
+/**
+ * Replaces the old invoice report.
+ *
+ * There is no invoicing in the product -- customers pay in cash or arrange
+ * financing over the phone -- so "money owed" is not something the system
+ * knows. What it does know is the pipeline: work priced, work the customer has
+ * agreed to, and work finished but not yet written up.
+ */
+export interface AwaitingJobReport {
+  orderId: number;
   clientId: number;
-  totalAmount: number;
-  dueDate: string;
-  status: string;
+  clientName: string | null;
+  value: number;
+  acceptedAt: string;
 }
 
-export interface InvoiceReport {
+export interface JobsReport {
   summary: {
-    paidCount: number;
-    overdueCount: number;
-    pendingCount: number;
-    totalPaid: number;
-    totalOutstanding: number;
+    awaitingReview: number;
+    awaitingCustomer: number;
+    accepted: number;
+    declined: number;
+    acceptedValue: number;
+    pipelineValue: number;
   };
-  overdueInvoices: OverdueInvoice[];
+  awaitingJobReport: AwaitingJobReport[];
+  monthly: { month: string; jobs: number; value: number }[];
 }

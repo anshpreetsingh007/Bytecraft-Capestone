@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { api, errorMessage } from "@/lib/api";
 import type { SyntheticEvent } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../Context/AuthContext";
@@ -87,34 +88,39 @@ export default function ContactForm() {
     const service = (formData.get("service") as string) || "";
     const message = (formData.get("message") as string) || "";
 
-    // inspection_request only has a single `details` text column — fold the
-    // extra form fields into it, the same convention used by the cost
-    // estimate creation flow for its own structured-text fields.
+    // The address and phone have their own columns now, so only the parts
+    // with nowhere else to go are folded into `details`.
     const details = [
       service && `Service requested: ${service}`,
-      address && `Property address: ${address}`,
-      phone && `Contact phone: ${phone}`,
       message && `Details: ${message}`,
     ]
       .filter(Boolean)
       .join("\n");
 
-    try {
-      const res = await fetch("/api/inspection-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ client_id: userId, details }),
-      });
+    if (details.trim().length < 10) {
+      setError("Please tell us a little about what you need, so we know what to quote for.");
+      setIsSubmitting(false);
+      return;
+    }
 
-      if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`);
-      }
+    try {
+      // client_id comes from the verified token server-side; sending it was
+      // how anyone could file requests under someone else's account.
+      await api.post("/api/inspection-requests", {
+        details,
+        site_address: address || null,
+        contact_phone: phone || null,
+      });
 
       setSubmitted(true);
       form.reset();
     } catch (err) {
-      console.error("Failed to submit quote request:", err);
-      setError("Something went wrong submitting your request. Please try again, or give us a call.");
+      setError(
+        errorMessage(
+          err,
+          "Something went wrong submitting your request. Please try again, or give us a call.",
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }

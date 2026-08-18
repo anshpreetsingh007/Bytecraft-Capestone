@@ -1,31 +1,39 @@
 import { Router } from 'express';
 import * as estimateController from '../controllers/controller';
+import { asyncHandler, requireAuth, requireRole } from '../shared';
 
 const router = Router();
 
+const AUTHOR = requireRole('inspector', 'admin', 'super_admin');
+const ADMIN = requireRole('admin', 'super_admin');
 
-// GET /api/estimates — list all (optionally filter by ?status=approved)
-router.get('/', estimateController.getAll);
+// Specific paths before the generic /:id path.
 
-// GET /api/estimates/client/3 — get all estimates for client #3
-router.get('/client/:clientId', estimateController.getByClient);
+// GET /api/estimates?status=approved&page=1
+router.get('/', requireAuth, asyncHandler(estimateController.getAll));
 
-// GET /api/estimates/inspector/3?limit=5 — estimates authored by inspector #3
-router.get('/inspector/:inspectorId', estimateController.getByInspector);
+// GET /api/estimates/client/3
+router.get('/client/:clientId', requireAuth, asyncHandler(estimateController.getByClient));
 
-// GET /api/estimates/7 — get estimate #7
-router.get('/:id', estimateController.getById);
+// GET /api/estimates/inspector/3
+router.get('/inspector/:inspectorId', requireAuth, asyncHandler(estimateController.getByInspector));
 
-// POST /api/estimates — create a new estimate
-router.post('/', estimateController.create);
+// GET /api/estimates/7
+router.get('/:id', requireAuth, asyncHandler(estimateController.getById));
 
-// PUT /api/estimates/7 — full update of estimate #7
-router.put('/:id', estimateController.update);
+// POST /api/estimates
+router.post('/', AUTHOR, asyncHandler(estimateController.create));
 
-// PATCH /api/estimates/7/status — update only the status of estimate #7
-router.patch('/:id/status', estimateController.updateStatus);
+// PUT /api/estimates/7
+router.put('/:id', AUTHOR, asyncHandler(estimateController.update));
 
-// DELETE /api/estimates/7 — delete estimate #7
-router.delete('/:id', estimateController.remove);
+// PATCH /api/estimates/7/status — approve or reject
+router.patch('/:id/status', ADMIN, asyncHandler(estimateController.updateStatus));
+
+// PATCH /api/estimates/7/response — the customer accepting or declining
+router.patch('/:id/response', requireAuth, asyncHandler(estimateController.respond));
+
+// DELETE /api/estimates/7 — soft delete
+router.delete('/:id', ADMIN, asyncHandler(estimateController.remove));
 
 export default router;

@@ -8,6 +8,24 @@ data:
   AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-5-mini"
   NOTIFICATION_SERVICE_URL: "http://notification-service:3005"
   SUBMISSION_SERVICE_URL: "http://submission-service:3007"
+  INVENTORY_SERVICE_URL: "http://inventory-service:3003"
+  AUTH_SERVICE_URL: "http://auth-service:3004"
+
+  # Firebase ID tokens are verified against Google's public JWKS, so the only
+  # thing the services need is the project id. It is public configuration --
+  # the same value is already in the browser bundle -- and no service-account
+  # private key has to be distributed to seven containers.
+  FIREBASE_PROJECT_ID: "bytecraft-9a520"
+
+  # Only this origin may call the API from a browser. The services are not
+  # meant to be reachable from one at all; the Next.js app proxies to them.
+  ALLOWED_ORIGINS: "http://localhost:3000"
+
+  # Working hours are interpreted in this zone when checking a booking.
+  BUSINESS_TIMEZONE: "America/Edmonton"
+
+  LOG_LEVEL: "info"
+  NODE_ENV: "production"
   
   # Internal Kubernetes PostgreSQL connection
   DATABASE_URL: "postgres://postgres:password@postgres:5432/markit_roofing"

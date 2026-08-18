@@ -194,3 +194,7 @@
     border-radius: 999px;
     background: var(--color-accent);
 }
+/* A failed load used to look identical to "nothing here". */
+.notif-bell-error {
+    color: var(--color-danger-text);
+}

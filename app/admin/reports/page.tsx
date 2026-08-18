@@ -9,12 +9,10 @@ import {
   FinancialReportEntry,
   InspectorPerformance,
   EstimateReport,
-  InvoiceReport,
+  JobsReport,
 } from "../types/report";
-
-// TODO: move to NEXT_PUBLIC_REPORT_SERVICE_URL once the rest of the frontend
-// adopts env-based service URLs (currently other pages hardcode localhost too).
-const REPORT_SERVICE_URL = "";
+import { api, errorMessage } from "@/lib/api";
+import { Banner, SkeletonRows } from "../../../components/ui";
 
 const currency = new Intl.NumberFormat("en-CA", {
   style: "currency",
@@ -37,7 +35,7 @@ export default function ReportsPage() {
   const [financial, setFinancial] = useState<FinancialReportEntry[]>([]);
   const [inspectors, setInspectors] = useState<InspectorPerformance[]>([]);
   const [estimates, setEstimates] = useState<EstimateReport | null>(null);
-  const [invoices, setInvoices] = useState<InvoiceReport | null>(null);
+  const [jobs, setJobs] = useState<JobsReport | null>(null);
 
   const [period, setPeriod] = useState<ReportPeriod>("month");
   const [loading, setLoading] = useState(true);
@@ -46,27 +44,23 @@ export default function ReportsPage() {
   const loadAll = useCallback(async (selectedPeriod: ReportPeriod) => {
     setError(null);
     try {
-      const [overviewRes, financialRes, inspectorsRes, estimatesRes, invoicesRes] =
-        await Promise.all([
-          fetch(`${REPORT_SERVICE_URL}/api/reports/overview`),
-          fetch(`${REPORT_SERVICE_URL}/api/reports/financial?period=${selectedPeriod}`),
-          fetch(`${REPORT_SERVICE_URL}/api/reports/inspectors`),
-          fetch(`${REPORT_SERVICE_URL}/api/reports/estimates`),
-          fetch(`${REPORT_SERVICE_URL}/api/reports/invoices`),
-        ]);
+      const [overviewData, financialData, inspectorData, estimateData, jobsData] = await Promise.all([
+        api.get<ReportOverview>("/api/reports/overview"),
+        api.get<FinancialReportEntry[]>(`/api/reports/financial?period=${selectedPeriod}`),
+        api.get<InspectorPerformance[]>("/api/reports/inspectors"),
+        api.get<EstimateReport>("/api/reports/estimates"),
+        // Replaces /api/reports/invoices: the pipeline of priced, accepted and
+        // finished work, since the business does not invoice through the app.
+        api.get<JobsReport>("/api/reports/jobs"),
+      ]);
 
-      if (!overviewRes.ok || !financialRes.ok || !inspectorsRes.ok || !estimatesRes.ok || !invoicesRes.ok) {
-        throw new Error("One or more report endpoints returned an error");
-      }
-
-      setOverview(await overviewRes.json());
-      setFinancial(await financialRes.json());
-      setInspectors(await inspectorsRes.json());
-      setEstimates(await estimatesRes.json());
-      setInvoices(await invoicesRes.json());
+      setOverview(overviewData);
+      setFinancial(financialData);
+      setInspectors(inspectorData);
+      setEstimates(estimateData);
+      setJobs(jobsData);
     } catch (err) {
-      console.error("Failed to load reports:", err);
-      setError("Couldn't load report data. Is report-service running on port 3006?");
+      setError(errorMessage(err, "Could not load report data."));
     } finally {
       setLoading(false);
     }
@@ -83,11 +77,9 @@ export default function ReportsPage() {
   const handlePeriodChange = async (newPeriod: ReportPeriod) => {
     setPeriod(newPeriod);
     try {
-      const res = await fetch(`${REPORT_SERVICE_URL}/api/reports/financial?period=${newPeriod}`);
-      if (!res.ok) throw new Error("Failed to fetch financial report");
-      setFinancial(await res.json());
+      setFinancial(await api.get<FinancialReportEntry[]>(`/api/reports/financial?period=${newPeriod}`));
     } catch (err) {
-      console.error("Failed to reload financial report:", err);
+      setError(errorMessage(err, "Could not reload the financial trend."));
     }
   };
 
@@ -99,7 +91,7 @@ export default function ReportsPage() {
           title="Reports"
           subtitle="Material wastage, profit, and activity across the business."
         />
-        <p className="reports-status">Loading reports…</p>
+        <SkeletonRows rows={4} height={120} />
       </main>
     );
   }
@@ -112,7 +104,7 @@ export default function ReportsPage() {
           title="Reports"
           subtitle="Material wastage, profit, and activity across the business."
         />
-        <p className="reports-status error">{error}</p>
+        <Banner title="Could not load reports" detail={error} onRetry={() => loadAll(period)} />
       </main>
     );
   }
@@ -258,9 +250,15 @@ export default function ReportsPage() {
             <h2>Estimate Approval Rate</h2>
             <p>Total Estimates: <strong>{estimates.total}</strong></p>
             <p>
-              Approval Rate:{" "}
+              Cleared internal review:{" "}
               <span className={`pill ${estimates.approvalRate >= 60 ? "pill-good" : estimates.approvalRate >= 30 ? "pill-warn" : "pill-bad"}`}>
                 {estimates.approvalRate}%
+              </span>
+            </p>
+            <p>
+              Accepted by the customer:{" "}
+              <span className={`pill ${estimates.acceptanceRate >= 60 ? "pill-good" : estimates.acceptanceRate >= 30 ? "pill-warn" : "pill-bad"}`}>
+                {estimates.acceptanceRate}%
               </span>
             </p>
             {Object.entries(estimates.byStatus).map(([status, count]) => (
@@ -271,50 +269,65 @@ export default function ReportsPage() {
           </div>
         )}
 
-        {invoices && (
+        {jobs && (
           <div className="report-card">
-            <h2>Invoices &amp; Outstanding Balance</h2>
-            <p>Paid: <strong>{invoices.summary.paidCount}</strong> ({currency.format(invoices.summary.totalPaid)})</p>
-            <p>Pending: <strong>{invoices.summary.pendingCount}</strong></p>
+            <h2>Work Pipeline</h2>
             <p>
-              Overdue: <strong>{invoices.summary.overdueCount}</strong>{" "}
-              {invoices.summary.overdueCount > 0 && <span className="pill pill-bad">Needs follow-up</span>}
+              Waiting on internal review: <strong>{jobs.summary.awaitingReview}</strong>
             </p>
-            <p>Total Outstanding: <strong>{currency.format(invoices.summary.totalOutstanding)}</strong></p>
+            <p>
+              Sent, waiting on the customer: <strong>{jobs.summary.awaitingCustomer}</strong>{" "}
+              ({currency.format(jobs.summary.pipelineValue)})
+            </p>
+            <p>
+              Accepted: <strong>{jobs.summary.accepted}</strong>{" "}
+              ({currency.format(jobs.summary.acceptedValue)})
+            </p>
+            <p>
+              Declined: <strong>{jobs.summary.declined}</strong>{" "}
+              {jobs.summary.declined > 0 && <span className="pill pill-warn">Worth reviewing</span>}
+            </p>
           </div>
         )}
       </div>
 
-      {/* ─── Overdue invoice list ────────────────────── */}
-      {invoices && invoices.overdueInvoices.length > 0 && (
+      {/* ─── Accepted work with no job report yet ───── */}
+      {jobs && jobs.awaitingJobReport.length > 0 && (
         <div className="report-section">
           <div className="report-section-header adm-section-head">
-            <h2>Overdue Invoices</h2>
+            <h2>Accepted work awaiting a job report</h2>
           </div>
+          <p className="reports-hint">
+            The customer has agreed to this work but no inspector has filed a report against it yet,
+            so none of it is showing up in the financial figures above.
+          </p>
           <table className="report-table">
             <thead>
               <tr>
-                <th>Invoice #</th>
-                <th>Client ID</th>
-                <th className="numeric">Amount</th>
-                <th>Due Date</th>
-                <th>Status</th>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th className="numeric">Value</th>
+                <th>Accepted</th>
               </tr>
             </thead>
             <tbody>
-              {invoices.overdueInvoices.map((invoice) => (
-                <tr key={invoice.invoiceId}>
-                  <td>#{invoice.invoiceId}</td>
-                  <td>{invoice.clientId}</td>
-                  <td className="numeric">{currency.format(invoice.totalAmount)}</td>
-                  <td>{new Date(invoice.dueDate).toLocaleDateString("en-CA")}</td>
-                  <td><span className="pill pill-bad">{invoice.status}</span></td>
+              {jobs.awaitingJobReport.map((entry) => (
+                <tr key={entry.orderId}>
+                  <td>#{entry.orderId}</td>
+                  <td>{entry.clientName ?? `Client #${entry.clientId}`}</td>
+                  <td className="numeric">{currency.format(entry.value)}</td>
+                  <td>
+                    {entry.acceptedAt
+                      ? new Date(entry.acceptedAt).toLocaleDateString("en-CA")
+                      : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
     </main>
   );
 }

@@ -1,0 +1,175 @@
+/* Inspector job reports. Uses the same tokens as the rest of the inspector
+   shell so it reads as one product in both light and dark. */
+
+.insp-reports {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.insp-reports-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.insp-eyebrow {
+    margin: 0 0 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+}
+
+.insp-reports-head h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 750;
+    color: var(--color-ink);
+}
+
+.insp-sub {
+    margin: 6px 0 0;
+    max-width: 62ch;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+}
+
+.insp-report-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.insp-report-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    padding: 18px;
+}
+
+.insp-report-card > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.insp-report-card h2 {
+    margin: 0 0 3px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.insp-muted {
+    margin: 0;
+    font-size: 0.83rem;
+    color: var(--color-muted);
+}
+
+.insp-report-findings {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+    white-space: pre-wrap;
+}
+
+.insp-report-figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 12px;
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-line);
+}
+
+.insp-report-figures dt {
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.insp-report-figures dd {
+    margin: 3px 0 0;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.insp-report-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+/* --- Form ----------------------------------------------------------------- */
+
+.insp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.insp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.insp-field > span {
+    font-size: 0.8rem;
+    font-weight: 650;
+    color: var(--color-ink-soft);
+}
+
+.insp-field input,
+.insp-field select,
+.insp-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: 0.92rem;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.insp-field textarea {
+    resize: vertical;
+    min-height: 72px;
+}
+
+.insp-field input:focus-visible,
+.insp-field select:focus-visible,
+.insp-field textarea:focus-visible {
+    outline: 2px solid var(--color-accent-bright);
+    outline-offset: 1px;
+}
+
+.insp-field input:disabled,
+.insp-field select:disabled {
+    background: var(--color-surface-2);
+    color: var(--color-muted);
+    cursor: not-allowed;
+}
+
+.insp-field-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}

@@ -1,0 +1,90 @@
+/* Job report review queue. Reuses the admin theme tokens so it sits alongside
+   the other admin pages without a second visual language. */
+
+.job-report-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.job-report-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--adm-r-md, 16px);
+    box-shadow: var(--adm-sh-1, var(--shadow-card));
+    padding: 20px;
+}
+
+.job-report-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.job-report-head h2 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--color-ink);
+}
+
+.job-report-head .muted {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--color-muted);
+}
+
+.job-report-section {
+    margin-top: 14px;
+}
+
+.job-report-section h3 {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 4px;
+}
+
+.job-report-section p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+    white-space: pre-wrap;
+}
+
+.job-report-figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin: 18px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-line);
+}
+
+.job-report-figures dt {
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.job-report-figures dd {
+    margin: 3px 0 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.job-report-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}

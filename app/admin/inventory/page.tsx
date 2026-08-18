@@ -3,6 +3,8 @@ import { useState, useMemo, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { InventoryItem, getStockStatus } from "../types/inventory";
 import { AdminPageHeader } from "../../../components/AdminPageHeader";
+import { api, errorMessage, rows } from "@/lib/api";
+import { Banner, EmptyState, SkeletonRows, useToast } from "../../../components/ui";
 import "./inventory.css";
 
 const emptyForm = {
@@ -74,7 +76,11 @@ function filterCategoryName(value: string): string {
 }
 
 export default function InventoryPage() {
+  const toast = useToast();
   const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -94,14 +100,19 @@ export default function InventoryPage() {
   }, []);
 
   async function fetchInventory() {
+    setLoading(true);
+    setLoadError(null);
     try {
-      const res = await fetch("/api/inventory");
-      if (res.ok) {
-        const data = await res.json();
-        setItems(data);
-      }
+      // The endpoint returns a page envelope now, so unwrap it. `limit` is
+      // capped server-side at 100.
+      const payload = await api.get<InventoryItem[]>("/api/inventory?limit=100");
+      setItems(rows(payload));
     } catch (err) {
-      console.error("Failed to fetch inventory:", err);
+      // This used to be a bare console.error, so a failed load looked exactly
+      // like an empty warehouse.
+      setLoadError(errorMessage(err, "Could not load the inventory."));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -215,33 +226,24 @@ export default function InventoryPage() {
       coverageSqft: coverageNum,
     };
 
+    setSaving(true);
     try {
       if (editingId) {
-        const res = await fetch(`/api/inventory/${editingId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          const updated = await res.json();
-          setItems((prev) => prev.map((item) => (item.id === editingId ? updated : item)));
-        }
+        const updated = await api.put<InventoryItem>(`/api/inventory/${editingId}`, payload);
+        setItems((prev) => prev.map((item) => (item.id === editingId ? updated : item)));
+        toast.success("Item updated", `${updated.name} has been saved.`);
       } else {
-        const res = await fetch("/api/inventory", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          const newItem = await res.json();
-          setItems((prev) => [newItem, ...prev]);
-        }
+        const newItem = await api.post<InventoryItem>("/api/inventory", payload);
+        setItems((prev) => [newItem, ...prev]);
+        toast.success("Item added", `${newItem.name} is now in the inventory.`);
       }
+      closeForm();
     } catch (err) {
-      console.error("Failed to save item:", err);
+      // Keep the form open so the admin does not lose what they typed.
+      toast.error("Could not save the item", errorMessage(err));
+    } finally {
+      setSaving(false);
     }
-
-    closeForm();
   }
 
   function requestDelete(item: InventoryItem) {
@@ -252,13 +254,13 @@ export default function InventoryPage() {
   async function confirmDelete() {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
+    const name = deleteTarget.name;
     try {
-      const res = await fetch(`/api/inventory/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setItems((prev) => prev.filter((item) => item.id !== id));
-      }
+      await api.delete(`/api/inventory/${id}`);
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Item removed", `${name} is no longer in the inventory.`);
     } catch (err) {
-      console.error("Failed to delete item:", err);
+      toast.error("Could not remove the item", errorMessage(err));
     }
     setDeleteTarget(null);
     setDeleteConfirmText("");
@@ -410,13 +412,35 @@ export default function InventoryPage() {
             <button className="btn-secondary" onClick={closeForm} type="button">
               Cancel
             </button>
-            <button className="btn-primary" onClick={requestSave} type="button">
-              {editingId ? "Save Changes" : "Add Item"}
+            <button className="btn-primary" onClick={requestSave} type="button" disabled={saving}>
+              {saving ? "Saving..." : editingId ? "Save Changes" : "Add Item"}
             </button>
           </div>
         </div>
       )}
 
+      {loadError ? (
+        <Banner
+          title="Could not load the inventory"
+          detail={loadError}
+          onRetry={fetchInventory}
+        />
+      ) : null}
+
+      {loading ? (
+        <SkeletonRows rows={5} height={56} />
+      ) : items.length === 0 && !loadError ? (
+        <EmptyState
+          title="No inventory yet"
+          message="Add the materials you keep in stock and their reorder points, and the system will warn you before you run out."
+          action={
+            <button className="ui-button ui-button--primary" onClick={openAddForm} type="button">
+              <Plus size={16} aria-hidden="true" />
+              Add your first item
+            </button>
+          }
+        />
+      ) : (
       <div className="inventory-table">
         <div className="table-header-row">
           <span>Item</span>
@@ -461,6 +485,8 @@ export default function InventoryPage() {
         )}
       </div>
 
+      )}
+
       {/* --- Save (edit) confirmation --- */}
       {showSaveConfirm && (
         <div className="modal-overlay" onClick={() => setShowSaveConfirm(false)}>
@@ -473,8 +499,8 @@ export default function InventoryPage() {
               <button className="btn-secondary" onClick={() => setShowSaveConfirm(false)} type="button">
                 Cancel
               </button>
-              <button className="btn-primary" onClick={performSave} type="button">
-                Save Changes
+              <button className="btn-primary" onClick={performSave} type="button" disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>

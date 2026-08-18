@@ -1,29 +1,14 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { AdminPageHeader } from "../../../components/AdminPageHeader";
-import "../admin-shared.css";
-
-export default function InvoicePage() {
-  return (
-    <main className="invoice-page">
-      <AdminPageHeader
-        eyebrow="Billing"
-        title="Invoice Generation"
-        subtitle="Preview and generate a customer invoice."
-      />
-
-      <div className="invoice-card">
-        <div className="invoice-details">
-          <p>Customer: John Smith</p>
-          <p>Service: Roof Repair</p>
-          <p>Materials: $1200</p>
-          <p>Labour: $1300</p>
-        </div>
-
-        <div className="invoice-total">Total: $2500</div>
-
-        <button className="invoice-button">Generate Invoice</button>
-      </div>
-    </main>
-  );
+/**
+ * Invoicing was removed from the product.
+ *
+ * Markit takes payment in cash or arranges financing over the phone, so the
+ * app never invoiced anyone -- this page rendered a hard-coded "John Smith,
+ * $2,500" card that was not connected to anything. The close-out step that
+ * does matter is the inspector's job report and the admin signing it off, so
+ * anyone who still has this URL bookmarked lands there instead.
+ */
+export default function InvoicesPage() {
+  redirect("/admin/job-reports");
 }

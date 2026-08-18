@@ -7,7 +7,15 @@
     "dev:all": "npx concurrently \"npm run dev\" \"npm run dev --prefix microservices/ai-chatbot-service\" \"npm run dev --prefix microservices/auth-service\" \"npm run dev --prefix microservices/estimate-service\" \"npm run dev --prefix microservices/inventory-service\" \"npm run dev --prefix microservices/notification-service\" \"npm run dev --prefix microservices/report-service\" \"npm run dev --prefix microservices/submission-service\"",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint app components Context lib types",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:services": "npx tsc --noEmit -p microservices/ai-chatbot-service/tsconfig.json && npx tsc --noEmit -p microservices/auth-service/tsconfig.json && npx tsc --noEmit -p microservices/estimate-service/tsconfig.json && npx tsc --noEmit -p microservices/inventory-service/tsconfig.json && npx tsc --noEmit -p microservices/notification-service/tsconfig.json && npx tsc --noEmit -p microservices/report-service/tsconfig.json && npx tsc --noEmit -p microservices/submission-service/tsconfig.json",
+    "test": "node scripts/run-tests.mjs",
+    "sync:shared": "node scripts/sync-shared.mjs",
+    "check:shared": "node scripts/sync-shared.mjs --check",
+    "build:k8s-schema": "node scripts/build-k8s-schema.mjs",
+    "check:k8s-schema": "node scripts/build-k8s-schema.mjs --check",
+    "verify": "npm run check:shared && npm run check:k8s-schema && npm run lint && npm run typecheck && npm run typecheck:services && npm test"
   },
   "dependencies": {
     "@ai-sdk/azure": "^4.0.18",

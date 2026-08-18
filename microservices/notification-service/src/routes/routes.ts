@@ -1,29 +1,30 @@
 import { Router } from 'express';
 import * as notificationController from '../controllers/notificationController';
+import { asyncHandler, requireAuth, requireInternal } from '../shared';
 
 const router = Router();
 
-// IMPORTANT: specific paths before generic /:id path (same convention as estimate-service)
+// Specific paths before the generic /:id path.
 
-// GET /api/notifications?recipientType=admin&recipientId=1&unreadOnly=true&limit=20
-router.get('/', notificationController.getAll);
+// GET /api/notifications?unreadOnly=true&page=1&limit=20
+router.get('/', requireAuth, asyncHandler(notificationController.getAll));
 
-// GET /api/notifications/unread-count?recipientType=admin&recipientId=1
-router.get('/unread-count', notificationController.getUnreadCount);
+// GET /api/notifications/unread-count
+router.get('/unread-count', requireAuth, asyncHandler(notificationController.getUnreadCount));
 
-// POST /api/notifications — create a notification for a single recipient
-router.post('/', notificationController.create);
+// Raised by other services, never by the browser -- so these two require the
+// internal shared secret rather than a user token. Without that, anyone could
+// have posted a fake "your estimate was approved" alert to any customer.
+router.post('/', requireInternal, asyncHandler(notificationController.create));
+router.post('/broadcast-admins', requireInternal, asyncHandler(notificationController.broadcastAdmins));
 
-// POST /api/notifications/broadcast-admins — create the same notification for every admin
-router.post('/broadcast-admins', notificationController.broadcastAdmins);
+// PATCH /api/notifications/read-all
+router.patch('/read-all', requireAuth, asyncHandler(notificationController.markAllAsRead));
 
-// PATCH /api/notifications/read-all — mark all of a recipient's notifications as read
-router.patch('/read-all', notificationController.markAllAsRead);
+// PATCH /api/notifications/7/read
+router.patch('/:id/read', requireAuth, asyncHandler(notificationController.markAsRead));
 
-// PATCH /api/notifications/7/read — mark notification #7 as read
-router.patch('/:id/read', notificationController.markAsRead);
-
-// DELETE /api/notifications/7 — dismiss/delete notification #7
-router.delete('/:id', notificationController.remove);
+// DELETE /api/notifications/7
+router.delete('/:id', requireAuth, asyncHandler(notificationController.remove));
 
 export default router;

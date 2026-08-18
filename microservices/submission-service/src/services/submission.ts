@@ -1,11 +1,22 @@
 import pool from '../config/db';
 import {
-    InspectionRequest,
     CreateInspectionRequestInput,
-    UpdateInspectionRequestInput,
+    InspectionRequest,
     InspectionRequestWithDetails,
+    REQUEST_TRANSITIONS,
+    RequestStatus,
+    ScheduleConflict,
+    ScheduleInput,
+    UpdateInspectionRequestInput,
 } from '../models/model';
-import { notifyInspectionRequestSubmitted } from './notifyClient';
+import { badRequest, conflict, notFound, type Pagination } from '../shared';
+import { findScheduleConflicts } from './scheduling';
+import {
+    notifyClientScheduled,
+    notifyClientStatusChanged,
+    notifyInspectorAssigned,
+    notifyRequestSubmitted,
+} from './notifyClient';
 
 const REQUEST_WITH_DETAILS_SELECT = `
     SELECT
@@ -21,108 +32,268 @@ const REQUEST_WITH_DETAILS_SELECT = `
     LEFT JOIN orders o ON o.request_id = ir.request_id
 `;
 
-// get all
-// Optional status filter: /api/inspection-requests?status=pending
-export async function getAllRequests(status?: string): Promise<InspectionRequestWithDetails[]> {
-    if (status) {
-        const result = await pool.query(
-            `${REQUEST_WITH_DETAILS_SELECT} WHERE ir.status = $1 ORDER BY ir.request_id DESC`,
-            [status]
+export interface RequestFilters {
+    status?: RequestStatus | null;
+    clientId?: number | null;
+    inspectorId?: number | null;
+    search?: string | null;
+    unscheduledOnly?: boolean;
+}
+
+/**
+ * One query builder for every list endpoint. Soft-deleted rows are excluded
+ * everywhere, and the result is always a bounded page -- this used to return
+ * the whole table.
+ */
+export async function listRequests(
+    filters: RequestFilters,
+    page: Pagination,
+): Promise<{ rows: InspectionRequestWithDetails[]; total: number }> {
+    const conditions = ['ir.deleted_at IS NULL'];
+    const params: unknown[] = [];
+
+    if (filters.status) {
+        params.push(filters.status);
+        conditions.push(`ir.status = $${params.length}`);
+    }
+    if (filters.clientId) {
+        params.push(filters.clientId);
+        conditions.push(`ir.client_id = $${params.length}`);
+    }
+    if (filters.inspectorId) {
+        params.push(filters.inspectorId);
+        conditions.push(`ir.inspector_id = $${params.length}`);
+    }
+    if (filters.unscheduledOnly) {
+        conditions.push('ir.scheduled_date IS NULL');
+    }
+    if (filters.search) {
+        params.push(`%${filters.search}%`);
+        conditions.push(
+            `(ir.details ILIKE $${params.length}
+              OR ir.site_address ILIKE $${params.length}
+              OR c.first_name ILIKE $${params.length}
+              OR c.last_name ILIKE $${params.length})`,
         );
-        return result.rows;
     }
 
-    const result = await pool.query(
-        `${REQUEST_WITH_DETAILS_SELECT} ORDER BY ir.request_id DESC`
-    );
-    return result.rows;
+    const where = `WHERE ${conditions.join(' AND ')}`;
+
+    const [rows, total] = await Promise.all([
+        pool.query(
+            `${REQUEST_WITH_DETAILS_SELECT} ${where}
+             ORDER BY ir.request_id DESC
+             LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+            [...params, page.limit, page.offset],
+        ),
+        pool.query(
+            `SELECT COUNT(*)::int AS count
+             FROM inspection_request ir
+             LEFT JOIN client c ON c.client_id = ir.client_id
+             ${where}`,
+            params,
+        ),
+    ]);
+
+    return { rows: rows.rows, total: total.rows[0].count };
 }
 
-// get by id
-export async function getRequestById(id: number): Promise<InspectionRequest | null> {
+export async function getRequestById(id: number): Promise<InspectionRequestWithDetails | null> {
     const result = await pool.query(
-        'SELECT * FROM inspection_request WHERE request_id = $1',
-        [id]
+        `${REQUEST_WITH_DETAILS_SELECT} WHERE ir.request_id = $1 AND ir.deleted_at IS NULL`,
+        [id],
     );
-    return result.rows[0] || null;
+    return result.rows[0] ?? null;
 }
 
-// get by client
-export async function getRequestsByClient(clientId: number): Promise<InspectionRequest[]> {
+async function clientDisplayName(clientId: number): Promise<string> {
     const result = await pool.query(
-        'SELECT * FROM inspection_request WHERE client_id = $1 ORDER BY request_id DESC',
-        [clientId]
+        'SELECT first_name, last_name FROM client WHERE client_id = $1',
+        [clientId],
     );
-    return result.rows;
+    const row = result.rows[0];
+    return row ? `${row.first_name} ${row.last_name}`.trim() : `Client #${clientId}`;
 }
 
-// get by inspector
-export async function getRequestsByInspector(inspectorId: number): Promise<InspectionRequestWithDetails[]> {
-    const result = await pool.query(
-        `${REQUEST_WITH_DETAILS_SELECT} WHERE ir.inspector_id = $1 ORDER BY ir.request_id DESC`,
-        [inspectorId]
-    );
-    return result.rows;
-}
-
-// create (client submits a new request)
 export async function createRequest(data: CreateInspectionRequestInput): Promise<InspectionRequest> {
     const result = await pool.query(
-        `INSERT INTO inspection_request (client_id, inspector_id, details, scheduled_date, status)
-         VALUES ($1, NULL, $2, NULL, $3)
+        `INSERT INTO inspection_request
+            (client_id, inspector_id, details, site_address, contact_phone, scheduled_date, status)
+         VALUES ($1, NULL, $2, $3, $4, NULL, 'pending')
          RETURNING *`,
-        [data.client_id, data.details, data.status || 'pending']
+        [data.client_id, data.details, data.site_address, data.contact_phone],
     );
 
     const created = result.rows[0];
-
-    // Let every admin know a new request came in. Best-effort — a
-    // notification-service outage should never fail the submission itself.
-    await notifyInspectionRequestSubmitted(created.request_id, created.client_id);
-
+    await notifyRequestSubmitted(created.request_id, await clientDisplayName(created.client_id));
     return created;
 }
 
-// update (e.g. assign inspector, set schedule, edit details)
-export async function updateRequest(id: number, data: UpdateInspectionRequestInput): Promise<InspectionRequest | null> {
+export async function updateRequest(
+    id: number,
+    data: UpdateInspectionRequestInput,
+): Promise<InspectionRequest> {
     const current = await getRequestById(id);
-    if (!current) return null;
+    if (!current) throw notFound('Inspection request not found');
+
+    const previousInspector = current.inspector_id;
+    const nextInspector = data.inspector_id !== undefined ? data.inspector_id : current.inspector_id;
+    const nextScheduled =
+        data.scheduled_date !== undefined ? data.scheduled_date : current.scheduled_date;
+    const nextDuration = data.duration_minutes ?? current.duration_minutes;
+
+    // Assigning someone and giving them a time is a booking, so it goes
+    // through the same conflict check as the dedicated schedule endpoint.
+    if (nextInspector && nextScheduled) {
+        const conflicts = await findScheduleConflicts({
+            inspectorId: nextInspector,
+            startsAt: new Date(nextScheduled),
+            durationMinutes: nextDuration,
+            ignoreRequestId: id,
+        });
+        const blocking = conflicts.filter((entry) => entry.kind === 'appointment');
+        if (blocking.length > 0) {
+            throw conflict(blocking[0].message, { conflicts });
+        }
+    }
+
+    // Assigning an inspector moves a pending request forward automatically;
+    // leaving it 'pending' with someone assigned was a state the dashboards
+    // both had to special-case.
+    const nextStatus: RequestStatus =
+        current.status === 'pending' && nextInspector ? 'assigned' : current.status;
 
     const result = await pool.query(
         `UPDATE inspection_request
-         SET client_id = $1,
-             inspector_id = $2,
-             details = $3,
-             status = $4,
-             scheduled_date = $5
-         WHERE request_id = $6
+         SET inspector_id = $1,
+             details = $2,
+             site_address = $3,
+             contact_phone = $4,
+             scheduled_date = $5,
+             duration_minutes = $6,
+             status = $7
+         WHERE request_id = $8 AND deleted_at IS NULL
          RETURNING *`,
         [
-            data.client_id ?? current.client_id,
-            data.inspector_id !== undefined ? data.inspector_id : current.inspector_id,
+            nextInspector,
             data.details ?? current.details,
-            data.status ?? current.status,
-            data.scheduled_date !== undefined ? data.scheduled_date : current.scheduled_date,
+            data.site_address !== undefined ? data.site_address : current.site_address,
+            data.contact_phone !== undefined ? data.contact_phone : current.contact_phone,
+            nextScheduled,
+            nextDuration,
+            nextStatus,
             id,
-        ]
+        ],
     );
+
+    const updated = result.rows[0];
+
+    if (nextInspector && nextInspector !== previousInspector) {
+        await notifyInspectorAssigned(nextInspector, id, nextScheduled);
+    }
+    if (nextScheduled && nextScheduled !== current.scheduled_date) {
+        await notifyClientScheduled(current.client_id, id, new Date(nextScheduled).toISOString());
+    }
+
+    return updated;
+}
+
+/** Books a specific inspector at a specific time, conflicts checked first. */
+export async function scheduleRequest(
+    id: number,
+    data: ScheduleInput,
+): Promise<InspectionRequest & { warnings: ScheduleConflict[] }> {
+    const current = await getRequestById(id);
+    if (!current) throw notFound('Inspection request not found');
+
+    if (current.status === 'cancelled' || current.status === 'completed') {
+        throw conflict(`A ${current.status} inspection cannot be rescheduled`);
+    }
+
+    const conflicts = await findScheduleConflicts({
+        inspectorId: data.inspector_id,
+        startsAt: data.scheduled_date,
+        durationMinutes: data.duration_minutes,
+        ignoreRequestId: id,
+    });
+
+    // A double booking is a hard stop. Working hours and time off are advisory
+    // -- an admin may knowingly book an emergency call-out on a Saturday -- so
+    // those come back as warnings the UI shows before confirming.
+    const doubleBooked = conflicts.filter((entry) => entry.kind === 'appointment');
+    if (doubleBooked.length > 0) {
+        throw conflict(doubleBooked[0].message, { conflicts });
+    }
+
+    const result = await pool.query(
+        `UPDATE inspection_request
+         SET inspector_id = $1,
+             scheduled_date = $2,
+             duration_minutes = $3,
+             status = CASE WHEN status = 'pending' THEN 'assigned' ELSE status END
+         WHERE request_id = $4 AND deleted_at IS NULL
+         RETURNING *`,
+        [data.inspector_id, data.scheduled_date.toISOString(), data.duration_minutes, id],
+    );
+
+    const updated = result.rows[0];
+
+    if (data.inspector_id !== current.inspector_id) {
+        await notifyInspectorAssigned(data.inspector_id, id, data.scheduled_date.toISOString());
+    }
+    await notifyClientScheduled(current.client_id, id, data.scheduled_date.toISOString());
+
+    return { ...updated, warnings: conflicts.filter((entry) => entry.kind !== 'appointment') };
+}
+
+export async function updateRequestStatus(
+    id: number,
+    status: RequestStatus,
+    reason: string | null,
+): Promise<InspectionRequest> {
+    const current = await getRequestById(id);
+    if (!current) throw notFound('Inspection request not found');
+
+    if (current.status === status) return current;
+
+    const allowed = REQUEST_TRANSITIONS[current.status] ?? [];
+    if (!allowed.includes(status)) {
+        throw badRequest(
+            allowed.length === 0
+                ? `A ${current.status} inspection cannot change status again`
+                : `An inspection cannot go from ${current.status} to ${status}`,
+            { allowed },
+        );
+    }
+
+    if (status === 'in_progress' && !current.inspector_id) {
+        throw badRequest('Assign an inspector before starting this inspection');
+    }
+
+    const result = await pool.query(
+        `UPDATE inspection_request
+         SET status = $1,
+             cancelled_reason = CASE WHEN $1 = 'cancelled' THEN $2 ELSE cancelled_reason END
+         WHERE request_id = $3 AND deleted_at IS NULL
+         RETURNING *`,
+        [status, reason, id],
+    );
+
+    await notifyClientStatusChanged(current.client_id, id, status);
     return result.rows[0];
 }
 
-// update status only
-export async function updateRequestStatus(id: number, status: string): Promise<InspectionRequest | null> {
+/**
+ * Soft delete. A hard DELETE breaks the foreign keys from orders and, through
+ * them, from estimates and reports -- and destroys the record of work that was
+ * genuinely done.
+ */
+export async function softDeleteRequest(id: number): Promise<boolean> {
     const result = await pool.query(
-        `UPDATE inspection_request SET status = $1 WHERE request_id = $2 RETURNING *`,
-        [status, id]
-    );
-    return result.rows[0] || null;
-}
-
-// delete
-export async function deleteRequest(id: number): Promise<boolean> {
-    const result = await pool.query(
-        'DELETE FROM inspection_request WHERE request_id = $1',
-        [id]
+        `UPDATE inspection_request
+         SET deleted_at = now(), status = CASE WHEN status IN ('completed') THEN status ELSE 'cancelled' END
+         WHERE request_id = $1 AND deleted_at IS NULL`,
+        [id],
     );
     return (result.rowCount ?? 0) > 0;
 }

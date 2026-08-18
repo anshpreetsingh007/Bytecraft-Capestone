@@ -29,3 +29,6 @@ npm-debug.log*
 k8s/01-secrets.yaml
 
 dist/
+
+# Compiled output for the shared-kit test suite (npm test)
+test-build/

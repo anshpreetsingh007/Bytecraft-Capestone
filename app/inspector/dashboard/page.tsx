@@ -14,6 +14,7 @@ import {
 
 import "../styles/inspector.css";
 import { useAuth } from "../../../Context/AuthContext";
+import { api, errorMessage, rows } from "@/lib/api";
 
 /* ------------------------------------------------------------------ *
  * Types — mirror the API payloads exactly.
@@ -164,39 +165,21 @@ export default function InspectorDashboard() {
       // Settled, not all: a failing estimates widget shouldn't blank out the
       // inspection list, which is the part the inspector actually works from.
       const [requestsResult, estimatesResult] = await Promise.allSettled([
-        fetch(`/api/inspection-requests/inspector/${userId}`, { signal }),
-        fetch(`/api/estimates/inspector/${userId}?limit=5`, { signal }),
+        api.get<InspectionRequest[]>(`/api/inspection-requests/inspector/${userId}?limit=50`, { signal }),
+        api.get<CostEstimate[]>(`/api/estimates/inspector/${userId}?limit=5`, { signal }),
       ]);
 
       if (signal?.aborted || seq !== requestSeq.current) return;
 
-      try {
-        if (requestsResult.status === "rejected") throw requestsResult.reason;
-        if (!requestsResult.value.ok) {
-          throw new Error(`Server returned ${requestsResult.value.status}`);
-        }
-        const data: unknown = await requestsResult.value.json();
-        if (seq !== requestSeq.current) return;
-        setRequests(Array.isArray(data) ? data : []);
-      } catch (err) {
-        if ((err as Error)?.name === "AbortError") return;
-        console.error("Failed to load assigned inspections:", err);
-        setLoadError("Couldn't load your assigned inspections.");
+      if (requestsResult.status === "fulfilled") {
+        setRequests(rows(requestsResult.value));
+      } else if ((requestsResult.reason as Error)?.name !== "AbortError") {
+        setLoadError(errorMessage(requestsResult.reason, "Couldn't load your assigned inspections."));
       }
 
       // Estimates are supplementary — on failure show an empty widget rather
       // than failing the whole page.
-      try {
-        if (estimatesResult.status === "fulfilled" && estimatesResult.value.ok) {
-          const data: unknown = await estimatesResult.value.json();
-          if (seq !== requestSeq.current) return;
-          setEstimates(Array.isArray(data) ? data : []);
-        } else {
-          setEstimates([]);
-        }
-      } catch {
-        setEstimates([]);
-      }
+      setEstimates(estimatesResult.status === "fulfilled" ? rows(estimatesResult.value) : []);
 
       if (seq === requestSeq.current) setLoading(false);
     },
@@ -226,16 +209,12 @@ export default function InspectorDashboard() {
     );
 
     try {
-      const res = await fetch(`/api/inspection-requests/${request.request_id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
-
       // Trust the server's echo over the optimistic guess.
-      const updated: Partial<InspectionRequest> = await res.json();
+      const updated = await api.patch<Partial<InspectionRequest>>(
+        `/api/inspection-requests/${request.request_id}/status`,
+        { status: nextStatus },
+      );
+
       if (updated && typeof updated.status === "string") {
         setRequests((current) =>
           current.map((r) =>
@@ -248,13 +227,14 @@ export default function InspectorDashboard() {
         `${formatName(request.client_first_name, request.client_last_name, "Inspection")} marked ${statusLabel(nextStatus).toLowerCase()}.`
       );
     } catch (err) {
-      console.error("Failed to update inspection status:", err);
       setRequests((current) =>
         current.map((r) =>
           r.request_id === request.request_id ? { ...r, status: previousStatus } : r
         )
       );
-      setActionError("Couldn't update that inspection. Please try again.");
+      // The server now enforces the allowed transitions, so its message says
+      // exactly why a move was refused. Show that rather than a generic line.
+      setActionError(errorMessage(err, "Couldn't update that inspection. Please try again."));
     } finally {
       setPendingId(null);
     }

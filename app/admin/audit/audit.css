@@ -1,0 +1,74 @@
+/* Audit log. A dense table on purpose -- this is a scanning tool, not a
+   reading one. */
+
+.audit-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--adm-r-md, 16px);
+    background: var(--color-surface);
+    box-shadow: var(--adm-sh-1, var(--shadow-card));
+}
+
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.audit-table th {
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-line);
+    white-space: nowrap;
+}
+
+.audit-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-ink-soft);
+    vertical-align: top;
+}
+
+.audit-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.audit-table tbody tr:hover {
+    background: var(--color-surface-2);
+}
+
+.audit-when {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+}
+
+.audit-role {
+    text-transform: capitalize;
+    font-weight: 600;
+    color: var(--color-ink);
+}
+
+.audit-id {
+    color: var(--color-muted);
+}
+
+.audit-action {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: 2px 6px;
+    white-space: nowrap;
+}
+
+.audit-summary {
+    min-width: 220px;
+    max-width: 420px;
+}

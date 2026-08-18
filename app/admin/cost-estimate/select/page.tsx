@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ClipboardList } from "lucide-react";
 import { AdminPageHeader } from "../../../../components/AdminPageHeader";
+import { api, errorMessage, rows } from "@/lib/api";
+import { Banner, SkeletonRows } from "../../../../components/ui";
 
 interface OrderWithDetails {
     order_id: number;
@@ -35,21 +37,24 @@ export default function SelectInspectionPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    useEffect(() => {
-        async function fetchOrders() {
-            try {
-                const res = await fetch("/api/orders?needsEstimate=true");
-                if (!res.ok) throw new Error("Failed to fetch orders");
-                const data = await res.json();
-                setOrders(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
+    const fetchOrders = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const payload = await api.get<OrderWithDetails[]>(
+                "/api/orders?needsEstimate=true&limit=100",
+            );
+            setOrders(rows(payload));
+        } catch (err) {
+            setError(errorMessage(err, "Could not load orders."));
+        } finally {
+            setLoading(false);
         }
-        fetchOrders();
     }, []);
+
+    useEffect(() => {
+        fetchOrders();
+    }, [fetchOrders]);
 
     const header = (
         <AdminPageHeader
@@ -64,7 +69,7 @@ export default function SelectInspectionPage() {
         return (
             <div className="cost-estimate-page">
                 {header}
-                <p className="reports-status">Loading orders…</p>
+                <SkeletonRows rows={3} height={190} />
             </div>
         );
     }
@@ -73,7 +78,7 @@ export default function SelectInspectionPage() {
         return (
             <div className="cost-estimate-page">
                 {header}
-                <p className="reports-status error">Error: {error}</p>
+                <Banner title="Could not load orders" detail={error} onRetry={fetchOrders} />
             </div>
         );
     }

@@ -1,70 +1,95 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
+import pool from '../config/db';
 import * as ordersService from '../services/orders';
-import { OrderConflictError } from '../services/orders';
+import { ORDER_STATUSES, type OrderStatus } from '../models/model';
+import {
+    assertClientAccess,
+    forbidden,
+    getActor,
+    idParam,
+    isStaff,
+    notFound,
+    optionalEnum,
+    optionalInt,
+    pagination,
+    recordAudit,
+    requireEnum,
+    requireInt,
+    toPage,
+} from '../shared';
 
-// ─── GET ALL ────────────────────────────────────────────────
-// GET /api/orders?status=active&needsEstimate=true
-export async function getAll(req: Request, res: Response) {
-    try {
-        const status = req.query.status as string | undefined;
-        const needsEstimate = req.query.needsEstimate === 'true';
-        const orders = await ordersService.getAllOrders(status, needsEstimate);
-        res.json(orders);
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).json({ error: 'Failed to fetch orders' });
+export async function getAll(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const page = pagination(req, 25);
+
+    // Customers see only their own orders; the clientId filter is ignored for
+    // them rather than trusted.
+    const clientId = isStaff(actor) ? optionalInt(req.query.clientId, 'clientId') : actor.id;
+    if (!isStaff(actor) && actor.role !== 'client') {
+        throw forbidden('Your account cannot view orders');
     }
+
+    const { rows, total } = await ordersService.listOrders(
+        {
+            status: optionalEnum<OrderStatus>(req.query.status, 'status', ORDER_STATUSES),
+            clientId,
+            needsEstimate: req.query.needsEstimate === 'true',
+        },
+        page,
+    );
+
+    res.json(toPage(rows, total, page));
 }
 
-// ─── GET BY ID ──────────────────────────────────────────────
-export async function getById(req: Request, res: Response) {
-    try {
-        const id = parseInt(req.params.id as string);
-        const order = await ordersService.getOrderById(id);
+export async function getById(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const order = await ordersService.getOrderById(idParam(req));
+    if (!order) throw notFound('Order not found');
 
-        if (!order) {
-            res.status(404).json({ error: 'Order not found' });
-            return;
-        }
-
-        res.json(order);
-    } catch (error) {
-        console.error('Error fetching order:', error);
-        res.status(500).json({ error: 'Failed to fetch order' });
-    }
+    assertClientAccess(actor, order.client_id);
+    res.json(order);
 }
 
-// ─── GET BY CLIENT ──────────────────────────────────────────
-export async function getByClient(req: Request, res: Response) {
-    try {
-        const clientId = parseInt(req.params.clientId as string);
-        const orders = await ordersService.getOrdersByClient(clientId);
-        res.json(orders);
-    } catch (error) {
-        console.error('Error fetching orders by client:', error);
-        res.status(500).json({ error: 'Failed to fetch orders' });
-    }
+export async function getByClient(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const clientId = requireInt(req.params.clientId, 'clientId', { min: 1 });
+    assertClientAccess(actor, clientId);
+
+    const page = pagination(req, 25);
+    const { rows, total } = await ordersService.listOrders({ clientId }, page);
+    res.json(toPage(rows, total, page));
 }
 
-// ─── CONVERT REQUEST TO ORDER ────────────────────────────────
-// POST /api/orders/from-request/:requestId
-export async function convertToOrder(req: Request, res: Response) {
-    try {
-        const requestId = parseInt(req.params.requestId as string);
-        const order = await ordersService.convertRequestToOrder(requestId);
+/** POST /api/orders/from-request/:requestId — admin only. */
+export async function convertToOrder(req: Request, res: Response): Promise<void> {
+    const requestId = requireInt(req.params.requestId, 'requestId', { min: 1 });
+    const order = await ordersService.convertRequestToOrder(requestId);
 
-        if (!order) {
-            res.status(404).json({ error: 'Inspection request not found' });
-            return;
-        }
+    await recordAudit(
+        pool,
+        {
+            action: 'order.created',
+            entityType: 'order',
+            entityId: order.order_id,
+            summary: `Created from inspection request #${requestId}`,
+        },
+        { req },
+    );
 
-        res.status(201).json(order);
-    } catch (error) {
-        if (error instanceof OrderConflictError) {
-            res.status(409).json({ error: error.message, existingOrder: error.existingOrder });
-            return;
-        }
-        console.error('Error converting request to order:', error);
-        res.status(500).json({ error: 'Failed to convert request to order' });
-    }
+    res.status(201).json(order);
+}
+
+/** PATCH /api/orders/:id/status — admin only. */
+export async function updateStatus(req: Request, res: Response): Promise<void> {
+    const id = idParam(req);
+    const status = requireEnum<OrderStatus>(req.body.status, 'status', ORDER_STATUSES);
+    const order = await ordersService.updateOrderStatus(id, status);
+
+    await recordAudit(
+        pool,
+        { action: 'order.status_changed', entityType: 'order', entityId: id, summary: status },
+        { req },
+    );
+
+    res.json(order);
 }

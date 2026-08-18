@@ -253,3 +253,13 @@
     text-align: center;
     padding: 20px 0;
 }
+
+/* Explains an otherwise mysterious table, so it needs to read as supporting
+   text rather than a heading. */
+.reports-hint {
+    margin: -4px 0 12px;
+    font-size: 0.86rem;
+    color: var(--color-muted);
+    line-height: 1.55;
+    max-width: 72ch;
+}

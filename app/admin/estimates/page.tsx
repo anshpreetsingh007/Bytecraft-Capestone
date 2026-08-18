@@ -5,11 +5,16 @@ import Link from "next/link";
 import { AdminPageHeader } from "../../../components/AdminPageHeader";
 import "./estimates.css";
 import { EstimateWithNames, EstimateStatus } from "../types/estimate";
-
-// TODO: move to NEXT_PUBLIC_ESTIMATE_SERVICE_URL once the rest of the
-// frontend adopts env-based service URLs (currently other pages hardcode
-// localhost too).
-const ESTIMATE_SERVICE_URL = "";
+import { api, errorMessage, pageInfo, query, rows } from "@/lib/api";
+import {
+  Banner,
+  ConfirmDialog,
+  EmptyState,
+  Pagination,
+  SkeletonRows,
+  useToast,
+  type PageInfo,
+} from "../../../components/ui";
 
 const FILTERS: { label: string; value: EstimateStatus | "all" }[] = [
   { label: "Needs Review", value: "submitted" },
@@ -32,69 +37,99 @@ function formatName(first: string | null, last: string | null, fallback: string)
   return `${first ?? ""} ${last ?? ""}`.trim();
 }
 
+interface PendingDecision {
+  estimate: EstimateWithNames;
+  status: "approved" | "rejected";
+}
+
 export default function EstimatesPage() {
+  const toast = useToast();
   const [estimates, setEstimates] = useState<EstimateWithNames[]>([]);
   const [filter, setFilter] = useState<EstimateStatus | "all">("submitted");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PageInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<number | null>(null);
+  const [pendingDecision, setPendingDecision] = useState<PendingDecision | null>(null);
 
-  const loadEstimates = useCallback(async (selectedFilter: EstimateStatus | "all") => {
-    setError(null);
-    try {
-      const url =
-        selectedFilter === "all"
-          ? `${ESTIMATE_SERVICE_URL}/api/estimates`
-          : `${ESTIMATE_SERVICE_URL}/api/estimates?status=${selectedFilter}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
-      setEstimates(await res.json());
-    } catch (err) {
-      console.error("Failed to load estimates:", err);
-      setError("Couldn't load estimates. Is estimate-service running on port 3002?");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loadEstimates = useCallback(
+    async (selectedFilter: EstimateStatus | "all", requestedPage: number) => {
+      setError(null);
+      try {
+        const payload = await api.get<EstimateWithNames[]>(
+          `/api/estimates${query({
+            status: selectedFilter === "all" ? null : selectedFilter,
+            page: requestedPage,
+            limit: 25,
+          })}`,
+        );
+        setEstimates(rows(payload));
+        setPagination(pageInfo(payload));
+      } catch (err) {
+        setError(errorMessage(err, "Could not load estimates."));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     setLoading(true);
-    loadEstimates(filter);
-  }, [filter, loadEstimates]);
+    loadEstimates(filter, page);
+  }, [filter, page, loadEstimates]);
 
-  async function handleStatusChange(estimate: EstimateWithNames, newStatus: "approved" | "rejected") {
-    const customerName = formatName(estimate.client_first_name, estimate.client_last_name, "this customer");
-    const confirmed = window.confirm(
-      newStatus === "approved"
-        ? `Approve this estimate for ${customerName}? They'll be notified it's ready to view.`
-        : `Reject this estimate for ${customerName}?`
-    );
-    if (!confirmed) return;
+  // Changing the filter should always land on the first page of the new list.
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
+
+  function handleStatusChange(estimate: EstimateWithNames, newStatus: "approved" | "rejected") {
+    // window.confirm/alert replaced with a real dialog and toasts: they could
+    // not explain the consequence, and alert() blocks the whole tab.
+    setPendingDecision({ estimate, status: newStatus });
+  }
+
+  async function confirmDecision() {
+    if (!pendingDecision) return;
+    const { estimate, status: newStatus } = pendingDecision;
 
     setActioningId(estimate.estimate_id);
     try {
-      const res = await fetch(`${ESTIMATE_SERVICE_URL}/api/estimates/${estimate.estimate_id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      await api.patch(`/api/estimates/${estimate.estimate_id}/status`, { status: newStatus });
 
-      // Remove it from the current list if it no longer matches the active filter
-      // (e.g. approving an item while viewing "Needs Review"), otherwise update it in place.
+      // Drop it from the list when it no longer matches the active filter
+      // (approving while viewing "Needs Review"), otherwise update in place.
       setEstimates((prev) =>
         filter !== "all" && filter !== newStatus
-          ? prev.filter((e) => e.estimate_id !== estimate.estimate_id)
-          : prev.map((e) => (e.estimate_id === estimate.estimate_id ? { ...e, status: newStatus } : e))
+          ? prev.filter((entry) => entry.estimate_id !== estimate.estimate_id)
+          : prev.map((entry) =>
+              entry.estimate_id === estimate.estimate_id ? { ...entry, status: newStatus } : entry,
+            ),
       );
-      alert(newStatus === "approved" ? "Estimate approved successfully!" : "Estimate rejected successfully!");
+
+      toast.success(
+        newStatus === "approved" ? "Estimate approved" : "Estimate rejected",
+        newStatus === "approved"
+          ? "The customer has been notified and the materials have been drawn from stock."
+          : "The inspector has been notified so they can revise it.",
+      );
+      setPendingDecision(null);
     } catch (err) {
-      console.error(`Failed to ${newStatus === "approved" ? "approve" : "reject"} estimate:`, err);
-      alert("Something went wrong updating this estimate. Please try again.");
+      toast.error("Could not update the estimate", errorMessage(err));
     } finally {
       setActioningId(null);
     }
   }
+
+  const decisionCustomer = pendingDecision
+    ? formatName(
+        pendingDecision.estimate.client_first_name,
+        pendingDecision.estimate.client_last_name,
+        "this customer",
+      )
+    : "";
 
   return (
     <main className="estimates-page">
@@ -118,11 +153,27 @@ export default function EstimatesPage() {
       </div>
 
       {loading ? (
-        <p className="estimates-status">Loading estimates…</p>
+        <SkeletonRows rows={3} height={132} />
       ) : error ? (
-        <p className="estimates-status error">{error}</p>
+        <Banner
+          title="Could not load estimates"
+          detail={error}
+          onRetry={() => loadEstimates(filter, page)}
+        />
       ) : estimates.length === 0 ? (
-        <p className="estimates-empty">No estimates here right now.</p>
+        <EmptyState
+          title={filter === "submitted" ? "Nothing waiting for review" : "No estimates here"}
+          message={
+            filter === "submitted"
+              ? "When an inspector submits an estimate it will appear here for approval."
+              : "Try a different filter, or create an estimate from an order."
+          }
+          action={
+            <Link className="ui-button ui-button--primary" href="/admin/cost-estimate/select">
+              Create an estimate
+            </Link>
+          }
+        />
       ) : (
         <div className="estimate-list">
           {estimates.map((estimate) => {
@@ -181,6 +232,25 @@ export default function EstimatesPage() {
           })}
         </div>
       )}
+
+      {pagination && !loading && !error ? (
+        <Pagination info={pagination} onPageChange={setPage} label="estimates" busy={loading} />
+      ) : null}
+
+      <ConfirmDialog
+        open={pendingDecision !== null}
+        onCancel={() => setPendingDecision(null)}
+        onConfirm={confirmDecision}
+        busy={actioningId !== null}
+        destructive={pendingDecision?.status === "rejected"}
+        title={pendingDecision?.status === "approved" ? "Approve this estimate?" : "Reject this estimate?"}
+        description={
+          pendingDecision?.status === "approved"
+            ? `${decisionCustomer} will be notified that the estimate is ready to review, and the materials it was priced with will be drawn from stock.`
+            : `${decisionCustomer} will not see this estimate, and the inspector who wrote it will be asked to revise it.`
+        }
+        confirmLabel={pendingDecision?.status === "approved" ? "Approve" : "Reject"}
+      />
     </main>
   );
 }

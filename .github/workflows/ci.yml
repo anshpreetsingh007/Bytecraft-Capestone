@@ -1,0 +1,202 @@
+# =============================================================================
+# Continuous integration
+# -----------------------------------------------------------------------------
+# There was no pipeline at all, so nothing stopped a change that did not compile
+# from reaching main. This runs on every push and pull request.
+#
+# The jobs are split so a failure says what broke rather than just "CI failed":
+#   generated  the vendored shared kit and the k8s ConfigMap match their sources
+#   frontend   the Next.js app lints, typechecks and builds
+#   services   all seven microservices typecheck and build
+#   tests      the shared-kit test suite
+#   database   the schema and migrations actually apply to a real Postgres
+# =============================================================================
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch cancels the run already in flight.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  generated:
+    name: Generated files are in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # microservices/shared is copied into each service because every service
+      # has its own Docker build context. Editing a copy instead of the source
+      # would silently diverge, so CI fails if they do not match.
+      - name: Shared kit is vendored from its source
+        run: npm run check:shared
+
+      # The k8s ConfigMap is generated from the SQL files. It used to be a
+      # hand-copied duplicate that drifted from the migrations.
+      - name: Postgres ConfigMap matches the SQL files
+        run: npm run check:k8s-schema
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+        env:
+          # next build runs page collection, which does not need real secrets
+          # but does need the variables to exist.
+          NODE_ENV: production
+
+  services:
+    name: Service - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      # Report every broken service in one run rather than stopping at the
+      # first.
+      fail-fast: false
+      matrix:
+        service:
+          - ai-chatbot-service
+          - auth-service
+          - estimate-service
+          - inventory-service
+          - notification-service
+          - report-service
+          - submission-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: microservices/${{ matrix.service }}/package-lock.json
+
+      - name: Install
+        working-directory: microservices/${{ matrix.service }}
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: microservices/${{ matrix.service }}
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Build
+        working-directory: microservices/${{ matrix.service }}
+        run: npm run build
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # The shared kit has no node_modules of its own; its tests compile
+      # against estimate-service's.
+      - name: Install service dependencies used by the test build
+        working-directory: microservices/estimate-service
+        run: npm ci
+
+      - name: Run the test suite
+        run: npm test
+
+  database:
+    name: Schema and migrations
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: markit_roofing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      PGPASSWORD: postgres
+      PSQL: psql -h localhost -U postgres -d markit_roofing -v ON_ERROR_STOP=1 -q
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply the base schema
+        run: $PSQL -f database/markit_roofing.sql
+
+      - name: Apply the sample data
+        run: $PSQL -f database/sample_data.sql
+
+      - name: Apply the migrations
+        run: |
+          $PSQL -f database/migrations/001_cost_estimate_dimensions.sql
+          $PSQL -f database/migrations/002_platform_hardening.sql
+
+      # Migrations get run more than once in practice -- on a developer machine
+      # that is already partly migrated, or by a redeploy. Re-running has to be
+      # a no-op rather than an error.
+      - name: Migrations are idempotent
+        run: |
+          $PSQL -f database/migrations/001_cost_estimate_dimensions.sql
+          $PSQL -f database/migrations/002_platform_hardening.sql
+
+      - name: Constraints behave as intended
+        run: |
+          # The notification type the app emits must be accepted. This exact
+          # insert used to fail with a 23514 that was swallowed by a catch, so
+          # the "estimate needs approval" alert never appeared.
+          $PSQL -c "INSERT INTO notification (recipient_type, recipient_id, type, title)
+                    VALUES ('admin', 1, 'estimate_submitted', 'ci check');"
+
+          # An appointment has to be able to carry a time of day. scheduled_date
+          # was a DATE, so it could only ever say 'Tuesday'.
+          $PSQL -c "UPDATE inspection_request
+                    SET scheduled_date = '2026-09-01 14:30:00-06', duration_minutes = 90
+                    WHERE request_id = (SELECT min(request_id) FROM inspection_request);"
+
+          # Statuses are a closed set now.
+          if $PSQL -c "INSERT INTO orders (client_id, order_date, status)
+                       VALUES (1, CURRENT_DATE, 'not-a-real-status');" 2>/dev/null; then
+            echo "::error::orders.status accepted a value outside the allowed set"
+            exit 1
+          fi
+
+          # Every table that people ask questions about has an audit trail.
+          $PSQL -c "SELECT 1 FROM audit_log LIMIT 1;"
+          $PSQL -c "SELECT 1 FROM inventory_movement LIMIT 1;"
+          $PSQL -c "SELECT 1 FROM inspector_availability LIMIT 1;"

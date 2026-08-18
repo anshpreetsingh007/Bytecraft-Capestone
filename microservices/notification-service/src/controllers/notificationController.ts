@@ -1,176 +1,149 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import * as notificationService from '../services/notificationService';
-import { isValidRecipientType, isValidNotificationType, NOTIFICATION_TYPE_ERROR } from '../models/model';
+import {
+    NOTIFICATION_TYPES,
+    RECIPIENT_TYPES,
+    type NotificationType,
+    type RecipientType,
+} from '../models/model';
+import {
+    assertNotificationRecipient,
+    badRequest,
+    getActor,
+    idParam,
+    notFound,
+    optionalInt,
+    optionalString,
+    pagination,
+    requireBoolean,
+    requireEnum,
+    requireInt,
+    requireString,
+    sanitizeText,
+    toPage,
+    type Actor,
+} from '../shared';
 
-// create (single recipient)
-export async function create(req: Request, res: Response) {
-    try {
-        const { recipient_type, recipient_id, type, title, message, related_entity_type, related_entity_id } = req.body;
+/**
+ * Works out whose notifications the caller is asking about.
+ *
+ * The frontend passes recipientType/recipientId explicitly, so those are still
+ * accepted -- but they are checked against the signed-in user rather than
+ * trusted. Previously `GET /api/notifications?recipientType=client&recipientId=7`
+ * returned client #7's notifications to anybody who asked.
+ */
+function resolveRecipient(
+    actor: Actor,
+    rawType: unknown,
+    rawId: unknown,
+): { recipientType: RecipientType; recipientId: number } {
+    const recipientType =
+        rawType === undefined || rawType === ''
+            ? (actor.role as RecipientType | null)
+            : requireEnum(rawType, 'recipientType', RECIPIENT_TYPES);
 
-        if (!recipient_type || !recipient_id || !type || !title) {
-            res.status(400).json({ error: 'Missing required fields: recipient_type, recipient_id, type, title' });
-            return;
-        }
-        if (!isValidRecipientType(recipient_type)) {
-            res.status(400).json({ error: "Invalid recipient_type. Must be 'admin', 'client', or 'inspector'." });
-            return;
-        }
-        if (!isValidNotificationType(type)) {
-            res.status(400).json({ error: NOTIFICATION_TYPE_ERROR });
-            return;
-        }
+    const recipientId =
+        rawId === undefined || rawId === ''
+            ? actor.id
+            : requireInt(rawId, 'recipientId', { min: 1 });
 
-        const notification = await notificationService.createNotification({
-            recipient_type,
-            recipient_id,
-            type,
-            title,
-            message,
-            related_entity_type,
-            related_entity_id,
-        });
-
-        res.status(201).json(notification);
-    } catch (error) {
-        console.error('Error creating notification:', error);
-        res.status(500).json({ error: 'Failed to create notification' });
+    if (!recipientType || recipientId === null) {
+        throw badRequest('recipientType and recipientId are required');
     }
+
+    assertNotificationRecipient(actor, recipientType, recipientId);
+    return { recipientType, recipientId };
 }
 
-// broadcast to all admins
-export async function broadcastAdmins(req: Request, res: Response) {
-    try {
-        const { type, title, message, related_entity_type, related_entity_id } = req.body;
+export async function getAll(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const { recipientType, recipientId } = resolveRecipient(
+        actor,
+        req.query.recipientType,
+        req.query.recipientId,
+    );
 
-        if (!type || !title) {
-            res.status(400).json({ error: 'Missing required fields: type, title' });
-            return;
-        }
-        if (!isValidNotificationType(type)) {
-            res.status(400).json({ error: NOTIFICATION_TYPE_ERROR });
-            return;
-        }
+    const unreadOnly = req.query.unreadOnly === undefined ? false : requireBoolean(req.query.unreadOnly, 'unreadOnly');
+    const page = pagination(req, 20);
 
-        const notifications = await notificationService.broadcastToAdmins({
-            type,
-            title,
-            message,
-            related_entity_type,
-            related_entity_id,
-        });
+    const { rows, total } = await notificationService.listNotifications(
+        recipientType,
+        recipientId,
+        unreadOnly,
+        page,
+    );
 
-        res.status(201).json(notifications);
-    } catch (error) {
-        console.error('Error broadcasting notification to admins:', error);
-        res.status(500).json({ error: 'Failed to broadcast notification' });
-    }
+    res.json(toPage(rows, total, page));
 }
 
-// list notifications for a recipient
-// GET /api/notifications?recipientType=admin&recipientId=1&unreadOnly=true&limit=20
-export async function getAll(req: Request, res: Response) {
-    try {
-        const recipientType = req.query.recipientType as string;
-        const recipientId = parseInt(req.query.recipientId as string);
-        const unreadOnly = req.query.unreadOnly === 'true';
-        const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+export async function getUnreadCount(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const { recipientType, recipientId } = resolveRecipient(
+        actor,
+        req.query.recipientType,
+        req.query.recipientId,
+    );
 
-        if (!recipientType || !recipientId || isNaN(recipientId)) {
-            res.status(400).json({ error: 'Missing or invalid required query params: recipientType, recipientId' });
-            return;
-        }
-        if (!isValidRecipientType(recipientType)) {
-            res.status(400).json({ error: "Invalid recipientType. Must be 'admin', 'client', or 'inspector'." });
-            return;
-        }
-
-        const notifications = await notificationService.getNotifications(recipientType, recipientId, unreadOnly, limit);
-        res.json(notifications);
-    } catch (error) {
-        console.error('Error fetching notifications:', error);
-        res.status(500).json({ error: 'Failed to fetch notifications' });
-    }
+    const count = await notificationService.getUnreadCount(recipientType, recipientId);
+    res.json({ count });
 }
 
-// unread count
-// GET /api/notifications/unread-count?recipientType=admin&recipientId=1
-export async function getUnreadCount(req: Request, res: Response) {
-    try {
-        const recipientType = req.query.recipientType as string;
-        const recipientId = parseInt(req.query.recipientId as string);
+/** Internal only -- raised by other services, never by a browser. */
+export async function create(req: Request, res: Response): Promise<void> {
+    const notification = await notificationService.createNotification({
+        recipient_type: requireEnum(req.body.recipient_type, 'recipient_type', RECIPIENT_TYPES),
+        recipient_id: requireInt(req.body.recipient_id, 'recipient_id', { min: 1 }),
+        type: requireEnum<NotificationType>(req.body.type, 'type', NOTIFICATION_TYPES),
+        title: sanitizeText(requireString(req.body.title, 'title', { max: 150 })),
+        message: optionalString(req.body.message, 'message', { max: 2000 }),
+        related_entity_type: optionalString(req.body.related_entity_type, 'related_entity_type', { max: 30 }),
+        related_entity_id: optionalInt(req.body.related_entity_id, 'related_entity_id', { min: 1 }),
+    });
 
-        if (!recipientType || !recipientId || isNaN(recipientId)) {
-            res.status(400).json({ error: 'Missing or invalid required query params: recipientType, recipientId' });
-            return;
-        }
-        if (!isValidRecipientType(recipientType)) {
-            res.status(400).json({ error: "Invalid recipientType. Must be 'admin', 'client', or 'inspector'." });
-            return;
-        }
-
-        const count = await notificationService.getUnreadCount(recipientType, recipientId);
-        res.json({ count });
-    } catch (error) {
-        console.error('Error fetching unread count:', error);
-        res.status(500).json({ error: 'Failed to fetch unread count' });
-    }
+    res.status(201).json(notification);
 }
 
-// mark one as read
-export async function markAsRead(req: Request, res: Response) {
-    try {
-        const id = parseInt(req.params.id as string);
-        const updated = await notificationService.markAsRead(id);
+/** Internal only. */
+export async function broadcastAdmins(req: Request, res: Response): Promise<void> {
+    const notifications = await notificationService.broadcastToAdmins({
+        type: requireEnum<NotificationType>(req.body.type, 'type', NOTIFICATION_TYPES),
+        title: sanitizeText(requireString(req.body.title, 'title', { max: 150 })),
+        message: optionalString(req.body.message, 'message', { max: 2000 }),
+        related_entity_type: optionalString(req.body.related_entity_type, 'related_entity_type', { max: 30 }),
+        related_entity_id: optionalInt(req.body.related_entity_id, 'related_entity_id', { min: 1 }),
+    });
 
-        if (!updated) {
-            res.status(404).json({ error: 'Notification not found' });
-            return;
-        }
-
-        res.json(updated);
-    } catch (error) {
-        console.error('Error marking notification as read:', error);
-        res.status(500).json({ error: 'Failed to mark notification as read' });
-    }
+    res.status(201).json({ created: notifications.length, notifications });
 }
 
-// mark all as read
-// PATCH /api/notifications/read-all  body: { recipientType, recipientId }
-export async function markAllAsRead(req: Request, res: Response) {
-    try {
-        const { recipientType, recipientId } = req.body;
+export async function markAsRead(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const { recipientType, recipientId } = resolveRecipient(actor, undefined, undefined);
 
-        if (!recipientType || !recipientId) {
-            res.status(400).json({ error: 'Missing required fields: recipientType, recipientId' });
-            return;
-        }
-        if (!isValidRecipientType(recipientType)) {
-            res.status(400).json({ error: "Invalid recipientType. Must be 'admin', 'client', or 'inspector'." });
-            return;
-        }
+    const updated = await notificationService.markAsRead(idParam(req), recipientType, recipientId);
+    if (!updated) throw notFound('Notification not found');
 
-        const updatedCount = await notificationService.markAllAsRead(recipientType, recipientId);
-        res.json({ updatedCount });
-    } catch (error) {
-        console.error('Error marking all notifications as read:', error);
-        res.status(500).json({ error: 'Failed to mark all notifications as read' });
-    }
+    res.json(updated);
 }
 
-// delete / dismiss
-export async function remove(req: Request, res: Response) {
-    try {
-        const id = parseInt(req.params.id as string);
-        const deleted = await notificationService.deleteNotification(id);
+export async function markAllAsRead(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const { recipientType, recipientId } = resolveRecipient(
+        actor,
+        req.body?.recipientType,
+        req.body?.recipientId,
+    );
 
-        if (!deleted) {
-            res.status(404).json({ error: 'Notification not found' });
-            return;
-        }
+    const updatedCount = await notificationService.markAllAsRead(recipientType, recipientId);
+    res.json({ updatedCount });
+}
 
-        res.status(204).send();
-    } catch (error) {
-        console.error('Error deleting notification:', error);
-        res.status(500).json({ error: 'Failed to delete notification' });
-    }
+export async function remove(req: Request, res: Response): Promise<void> {
+    const actor = getActor(req);
+    const { recipientType, recipientId } = resolveRecipient(actor, undefined, undefined);
+
+    const deleted = await notificationService.deleteNotification(idParam(req), recipientType, recipientId);
+    if (!deleted) throw notFound('Notification not found');
+
+    res.status(204).send();
 }

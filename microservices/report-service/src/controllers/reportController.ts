@@ -1,61 +1,34 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import * as reportService from '../services/reportService';
+import { REPORT_PERIODS, type ReportPeriod } from '../services/reportService';
+import { badRequest, optionalDate, requireEnum } from '../shared';
 
-export async function getOverview(req: Request, res: Response) {
-    try {
-        const overview = await reportService.getOverview();
-        res.json(overview);
-    } catch (error) {
-        console.error('Error fetching report overview:', error);
-        res.status(500).json({ error: 'Failed to fetch report overview' });
-    }
+export async function getOverview(_req: Request, res: Response): Promise<void> {
+    res.json(await reportService.getOverview());
 }
 
-export async function getFinancialReport(req: Request, res: Response) {
-    try {
-        const period = (req.query.period as string) || 'month';
-        const start = req.query.start as string | undefined;
-        const end = req.query.end as string | undefined;
+export async function getFinancialReport(req: Request, res: Response): Promise<void> {
+    const period = requireEnum<ReportPeriod>(req.query.period ?? 'month', 'period', REPORT_PERIODS);
+    const start = optionalDate(req.query.start, 'start');
+    const end = optionalDate(req.query.end, 'end');
 
-        if (!reportService.isValidPeriod(period)) {
-            res.status(400).json({ error: "Invalid period. Must be 'month', 'quarter', or 'year'." });
-            return;
-        }
+    if (start && end && start > end) throw badRequest('start must be on or before end');
 
-        const data = await reportService.getFinancialReport(period, start, end);
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching financial report:', error);
-        res.status(500).json({ error: 'Failed to fetch financial report' });
-    }
+    res.json(await reportService.getFinancialReport(period, start, end));
 }
 
-export async function getInspectorReport(req: Request, res: Response) {
-    try {
-        const data = await reportService.getInspectorPerformance();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching inspector report:', error);
-        res.status(500).json({ error: 'Failed to fetch inspector report' });
-    }
+export async function getInspectorReport(_req: Request, res: Response): Promise<void> {
+    res.json(await reportService.getInspectorPerformance());
 }
 
-export async function getEstimateReport(req: Request, res: Response) {
-    try {
-        const data = await reportService.getEstimateReport();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching estimate report:', error);
-        res.status(500).json({ error: 'Failed to fetch estimate report' });
-    }
+export async function getEstimateReport(_req: Request, res: Response): Promise<void> {
+    res.json(await reportService.getEstimateReport());
 }
 
-export async function getInvoiceReport(req: Request, res: Response) {
-    try {
-        const data = await reportService.getInvoiceReport();
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching invoice report:', error);
-        res.status(500).json({ error: 'Failed to fetch invoice report' });
-    }
+/**
+ * Replaces the old invoice aging report. There is no invoicing in the
+ * product, so this reports the job pipeline instead of money owed.
+ */
+export async function getJobsReport(_req: Request, res: Response): Promise<void> {
+    res.json(await reportService.getJobsReport());
 }

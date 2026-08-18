@@ -16,6 +16,7 @@ type FormErrors = {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  consent?: string;
   general?: string;
 };
 
@@ -28,6 +29,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -60,6 +62,13 @@ export default function SignUpPage() {
       newErrors.confirmPassword = "The passwords do not match. Please try again.";
     }
 
+    // Consent is recorded against the account with the version of the policy
+    // that was agreed to, which is what PIPEDA expects of a business holding
+    // customer names, addresses and phone numbers.
+    if (!acceptedTerms) {
+      newErrors.consent = "Please accept the terms and privacy policy to continue.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -77,6 +86,7 @@ export default function SignUpPage() {
       await signUp(email.trim(), password, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
+        acceptedTerms,
       });
       router.push("/redirecting");
     } catch (error: unknown) {
@@ -205,6 +215,38 @@ export default function SignUpPage() {
                 placeholder="Enter your password again"
                 error={errors.confirmPassword}
               />
+            </div>
+
+            <div className="auth-consent">
+              <label className="auth-consent-row">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(event) => {
+                    setAcceptedTerms(event.target.checked);
+                    clearFieldError("consent");
+                  }}
+                  aria-describedby={errors.consent ? "consent-error" : undefined}
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                    terms of service
+                  </Link>{" "}
+                  and the{" "}
+                  <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                    privacy policy
+                  </Link>
+                  , including Markit Roofing storing my contact and property details to carry out
+                  the work I request.
+                </span>
+              </label>
+
+              {errors.consent ? (
+                <p className="field-error" id="consent-error" role="alert">
+                  <span aria-hidden="true">⚠</span> {errors.consent}
+                </p>
+              ) : null}
             </div>
 
             <button type="submit" className="auth-submit" disabled={submitting} aria-busy={submitting}>

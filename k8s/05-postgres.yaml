@@ -26,6 +26,25 @@ spec:
           value: "markit_roofing"
         - name: PGDATA
           value: "/var/lib/postgresql/data/pgdata"
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "postgres", "-d", "markit_roofing"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "postgres", "-d", "markit_roofing"]
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 1Gi
         volumeMounts:
         - name: postgres-init-script
           mountPath: /docker-entrypoint-initdb.d
@@ -35,10 +54,19 @@ spec:
       volumes:
       - name: postgres-init-script
         configMap:
-          name: postgres-schema
+          # The ConfigMap in 06-postgres-schema.yaml is called
+          # postgres-init-script. This said "postgres-schema", so the volume
+          # never resolved and the pod sat in ContainerCreating.
+          name: postgres-init-script
+          # Postgres runs these once, on an empty data directory, in filename
+          # order -- so the migrations have to follow the base schema.
           items:
           - key: markit_roofing.sql
             path: 01-schema.sql
+          - key: 001_cost_estimate_dimensions.sql
+            path: 02-migration-001.sql
+          - key: 002_platform_hardening.sql
+            path: 03-migration-002.sql
       - name: postgres-data
         persistentVolumeClaim:
           claimName: postgres-pvc
