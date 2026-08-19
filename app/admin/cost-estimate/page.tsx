@@ -146,7 +146,7 @@ function CostEstimateContent() {
 
     async function fetchEstimate() {
       try {
-        const data = await api.get<any>(`/api/estimates/${estimateId}`, {
+        const data = await api.get<Record<string, unknown>>(`/api/estimates/${estimateId}`, {
           signal: controller.signal,
         });
 
@@ -159,7 +159,7 @@ function CostEstimateContent() {
         if (data.width_ft !== null && data.width_ft !== undefined) setWidth(String(data.width_ft));
         if (data.pitch_ft !== null && data.pitch_ft !== undefined) setHeight(String(data.pitch_ft));
 
-        if (data.inspector_id) setInspectorId(data.inspector_id);
+        if (data.inspector_id) setInspectorId(data.inspector_id as number);
 
         // materials is jsonb: [{ material_id, quantity, cost }, ...]
         if (Array.isArray(data.materials)) {

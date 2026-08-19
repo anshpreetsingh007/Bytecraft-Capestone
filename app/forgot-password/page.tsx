@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
 
           <h1 className="auth-form-title">Forgot password</h1>
           <p className="auth-form-subtitle">
-            Enter the email on your account and we'll send a link to reset it.
+            Enter the email on your account and we&apos;ll send a link to reset it.
           </p>
 
           {error && (

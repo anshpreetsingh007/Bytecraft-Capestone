@@ -186,7 +186,7 @@ export default function NotificationBell() {
               ) : listError ? (
                 <p className="notif-bell-empty notif-bell-error">{listError}</p>
               ) : notifications.length === 0 ? (
-                <p className="notif-bell-empty">You're all caught up.</p>
+                <p className="notif-bell-empty">You&apos;re all caught up.</p>
               ) : (
                 notifications.map((notification) => (
                   <button

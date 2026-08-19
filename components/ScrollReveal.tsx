@@ -75,7 +75,7 @@ export function ScrollReveal({
     none: "translate(0, 0)",
   };
 
-  const Component = Tag as any;
+  const Component = Tag as React.ElementType;
 
   return (
     <Component

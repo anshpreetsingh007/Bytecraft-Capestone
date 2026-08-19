@@ -205,7 +205,7 @@ export default function Header() {
               Sign out?
             </h2>
             <p className="text-sm text-ink-soft mb-6">
-              You'll need to sign in again to access your account.
+              You&apos;ll need to sign in again to access your account.
             </p>
             <div className="flex justify-end gap-3">
               <button

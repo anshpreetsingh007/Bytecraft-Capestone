@@ -17,6 +17,20 @@ import { AdminPageHeader } from "../../components/AdminPageHeader";
 import { api, errorMessage, rows } from "@/lib/api";
 import { Banner } from "../../components/ui";
 
+/** Minimal shapes matching only the fields this page accesses. */
+interface InventoryItem {
+  quantity: number;
+  reorderThreshold?: number;
+}
+
+interface EstimateItem {
+  estimate_id: number;
+  status: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  estimate_date: string;
+}
+
 /** Maps an estimate status onto a pill class + icon so the list scans at a glance. */
 function statusMeta(status: string) {
   const key = (status || "").toLowerCase();
@@ -32,8 +46,8 @@ function fullName(first?: string | null, last?: string | null) {
 }
 
 export default function AdminHomePage() {
-  const [inventory, setInventory] = useState<any[]>([]);
-  const [recentEstimates, setRecentEstimates] = useState<any[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [recentEstimates, setRecentEstimates] = useState<EstimateItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -44,8 +58,8 @@ export default function AdminHomePage() {
       // Only the first few estimates are shown, so ask for that many rather
       // than pulling the whole table and slicing it in the browser.
       const [inventoryPayload, estimatePayload] = await Promise.all([
-        api.get<any[]>("/api/inventory?limit=100"),
-        api.get<any[]>("/api/estimates?limit=4"),
+        api.get<InventoryItem[]>("/api/inventory?limit=100"),
+        api.get<EstimateItem[]>("/api/estimates?limit=4"),
       ]);
 
       setInventory(rows(inventoryPayload));

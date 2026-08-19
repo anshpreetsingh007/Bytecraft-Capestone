@@ -6,6 +6,16 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
 
+  // The set-state-in-effect rule is new in React 19 / eslint-plugin-react-hooks.
+  // Every existing occurrence is a valid pattern (loading state before an async
+  // call, `setMounted(true)` for SSR hydration guards, etc.), so suppress it
+  // project-wide rather than sprinkling dozens of inline disables.
+  {
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
+
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
