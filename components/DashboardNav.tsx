@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,6 +47,20 @@ export function DashboardNav({
     }, 250);
   }, []);
 
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   const pathname = usePathname();
   const router = useRouter();
   const { logOut } = useAuth();
@@ -81,11 +95,11 @@ export function DashboardNav({
             alt="SuperMarkit"
             width={28}
             height={28}
-            style={{ display: "block", flexShrink: 0 }}
+            style={{ display: "block", flexShrink: 0, width: "auto" }}
             priority
           />
           <span className="topnav-brand">
-            SUPERMARKIT
+            SuperMarkit
           </span>
         </div>
 
@@ -117,9 +131,6 @@ export function DashboardNav({
         </nav>
 
         {/* RIGHT SIDE */}
-        <span className="topnav-role topnav-role-right">
-          {roleLabel}
-        </span>
 
         <ThemeToggle />
 
@@ -178,7 +189,7 @@ export function DashboardNav({
                   style={{ display: "block", flexShrink: 0 }}
                 />
                 <span className="topnav-brand">
-                  SUPERMARKIT
+                  SuperMarkit
                 </span>
 
                 <span className="topnav-role">

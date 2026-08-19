@@ -24,7 +24,7 @@ const adminNavItems = [
   // was previously reachable only by typing the URL, which left submitted
   // estimates with no way of being actioned.
   { label: "Estimates", href: "/admin/estimates", icon: ClipboardCheck },
-  { label: "New Estimate", href: "/admin/cost-estimate", icon: Calculator },
+
   // Where a finished job gets signed off. Until a job report is reviewed, none
   // of that work reaches the financial reports.
   { label: "Job Reports", href: "/admin/job-reports", icon: ClipboardList },
