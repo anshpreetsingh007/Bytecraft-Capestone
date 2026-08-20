@@ -106,8 +106,18 @@
 
 /* ============ Table ============ */
 
+/* The table's content (email addresses, the role select + deactivate button)
+   does not wrap, so on narrow screens it can be wider than the viewport.
+   Scrolling it inside its own box keeps the rest of the page from being
+   dragged sideways with it. */
+.table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .admin-page table {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
 }
 
@@ -206,6 +216,11 @@
 
     .admin-page .search-input {
         width: 100%;
+    }
+
+    .adm .users-section,
+    .adm .assignment {
+        padding: 16px;
     }
 }
 

@@ -144,8 +144,11 @@ export default function InspectionRequestsPage() {
   }, [filter]);
 
   useEffect(() => {
+    // Includes deactivated inspectors, so rescheduling a request already
+    // assigned to someone since deactivated still shows that assignment
+    // instead of rendering the Inspector field as unset.
     api
-      .get<Inspector[]>("/api/inspectors")
+      .get<Inspector[]>("/api/inspectors?includeInactive=true")
       .then((payload) => setInspectors(rows(payload)))
       .catch((err) => toast.error("Could not load the inspector list", errorMessage(err)));
     // The toast helpers are stable for the lifetime of the provider.

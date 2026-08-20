@@ -194,6 +194,7 @@ export default function UserManagementPage() {
             }
           />
         ) : (
+          <div className="table-scroll">
           <table>
             <thead>
               <tr>
@@ -268,6 +269,7 @@ export default function UserManagementPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
 
         {pagination && !loading ? (

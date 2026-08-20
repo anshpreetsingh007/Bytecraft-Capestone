@@ -35,33 +35,41 @@ export function Modal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
+  // Callers routinely pass an inline `onClose` (e.g. `() => setOpen(false)`),
+  // which gets a new identity on every render of the parent. Reading it
+  // through a ref keeps `handleKeyDown` — and the effect below — stable
+  // across those renders, instead of tearing the dialog's focus/listener
+  // setup down and back up on every keystroke typed into a field it
+  // contains (which stole focus back to the first field each time).
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
-      if (event.key !== "Tab" || !dialogRef.current) return;
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onCloseRef.current();
+      return;
+    }
 
-      const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
-      if (focusable.length === 0) return;
+    if (event.key !== "Tab" || !dialogRef.current) return;
 
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+    const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+    if (focusable.length === 0) return;
 
-      // Wrap at both ends so Tab cannot escape into the page behind.
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    },
-    [onClose],
-  );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    // Wrap at both ends so Tab cannot escape into the page behind.
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) return undefined;

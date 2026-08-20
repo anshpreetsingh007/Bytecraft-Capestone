@@ -202,7 +202,12 @@ function CostEstimateContent() {
   useEffect(() => {
     async function fetchInspectors() {
       try {
-        const payload = await api.get<Inspector[]>("/api/inspectors");
+        // Includes deactivated inspectors: the default listing hides them,
+        // which is right for assigning new work, but an estimate already
+        // assigned to someone since deactivated needs them to still show up
+        // as an option here, or the Inspector field renders as if nothing
+        // were selected even though inspectorId is set correctly.
+        const payload = await api.get<Inspector[]>("/api/inspectors?includeInactive=true");
         setInspectors(rows(payload));
       } catch (err) {
         setError(errorMessage(err, "Could not load the inspector list."));
@@ -237,6 +242,32 @@ function CostEstimateContent() {
     }
     fetchOrder();
   }, [orderId, estimateId]);
+
+  // An estimate being edited can reference materials outside the first 100
+  // inventory rows (the list above is unfiltered and unsorted by relevance),
+  // or that were added to inventory after this estimate was priced. Without
+  // this, `selectedMaterials` below silently drops them — which does not
+  // just hide them from the list, it also removes them from the recalculated
+  // total, and from what gets saved on the next update.
+  useEffect(() => {
+    if (loadingInventory || selectedMaterialIds.length === 0) return;
+
+    const missingIds = selectedMaterialIds.filter((id) => !inventory.some((item) => item.id === id));
+    if (missingIds.length === 0) return;
+
+    let cancelled = false;
+    Promise.all(
+      missingIds.map((id) => api.get<InventoryItem>(`/api/inventory/${id}`).catch(() => null)),
+    ).then((results) => {
+      if (cancelled) return;
+      const found = results.filter((item): item is InventoryItem => item !== null);
+      if (found.length > 0) setInventory((prev) => [...prev, ...found]);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadingInventory, inventory, selectedMaterialIds]);
 
   const lengthNum = parseFloat(length) || 0;
   const widthNum = parseFloat(width) || 0;

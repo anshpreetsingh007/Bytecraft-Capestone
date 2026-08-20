@@ -9,6 +9,7 @@ import { useAuth } from "../../../Context/AuthContext";
 
 const NAME_ALLOWED = /[^a-zA-Z\s'-]/g;
 const PHONE_ALLOWED = /[^0-9]/g;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function handleNameInput(e: React.FormEvent<HTMLInputElement>) {
   const input = e.currentTarget;
@@ -48,15 +49,29 @@ export default function ContactForm() {
 
   function validate(formData: FormData): FormErrors {
     const errors: FormErrors = {};
-    if (!(formData.get("name") as string)?.trim()) {
+
+    const name = (formData.get("name") as string)?.trim();
+    if (!name) {
       errors.name = "Please enter your name.";
     }
-    if (!(formData.get("phone") as string)?.trim()) {
+
+    // Cleaned to digits-only as the user types, so length is a fair proxy
+    // for completeness — and it catches what the API would otherwise
+    // reject with a generic 400 after the round trip.
+    const phone = (formData.get("phone") as string)?.trim();
+    if (!phone) {
       errors.phone = "Please enter your phone number.";
+    } else if (phone.length < 10) {
+      errors.phone = "Please enter a full 10-digit phone number.";
     }
-    if (!(formData.get("email") as string)?.trim()) {
+
+    const email = (formData.get("email") as string)?.trim();
+    if (!email) {
       errors.email = "Please enter your email.";
+    } else if (!EMAIL_PATTERN.test(email)) {
+      errors.email = "That doesn't look like a valid email address.";
     }
+
     if (!(formData.get("address") as string)?.trim()) {
       errors.address = "Please enter your property address.";
     }
@@ -87,11 +102,16 @@ export default function ContactForm() {
     const address = (formData.get("address") as string) || "";
     const service = (formData.get("service") as string) || "";
     const message = (formData.get("message") as string) || "";
+    const email = (formData.get("email") as string) || "";
 
     // The address and phone have their own columns now, so only the parts
-    // with nowhere else to go are folded into `details`.
+    // with nowhere else to go are folded into `details`. The request itself
+    // is tied to the signed-in account's email, but the field is editable —
+    // e.g. to give a different contact address for this job — so an edit
+    // here needs to reach the office rather than being silently dropped.
     const details = [
       service && `Service requested: ${service}`,
+      email && email !== currentUser?.email && `Contact email for this request: ${email}`,
       message && `Details: ${message}`,
     ]
       .filter(Boolean)

@@ -134,11 +134,22 @@ export default function InspectorReportsPage() {
   /**
    * Orders the inspector could still file against. Loaded lazily when the
    * form opens, because most visits to this page are just to read.
+   *
+   * Filed against `status=scheduled` only, which is right for a new report —
+   * but a report being edited is filed against its own order, and that order
+   * has almost always moved past "scheduled" by then (that's usually *why*
+   * there's a report). Without `pinned`, the Job dropdown's value wouldn't
+   * match any of its options and would render as if nothing were selected.
    */
-  const loadOrders = useCallback(async () => {
+  const loadOrders = useCallback(async (pinned?: OrderOption) => {
     try {
       const payload = await api.get<OrderOption[]>("/api/orders?status=scheduled&limit=100");
-      setOrders(rows(payload));
+      const fetched = rows(payload);
+      const orders =
+        pinned && !fetched.some((order) => order.order_id === pinned.order_id)
+          ? [pinned, ...fetched]
+          : fetched;
+      setOrders(orders);
     } catch (err) {
       setFormError(errorMessage(err, "Could not load the list of jobs."));
     }
@@ -166,7 +177,12 @@ export default function InspectorReportsPage() {
     });
     setFormError(null);
     setFormOpen(true);
-    loadOrders();
+    loadOrders({
+      order_id: report.order_id,
+      client_first_name: report.client_first_name,
+      client_last_name: report.client_last_name,
+      request_details: null,
+    });
   }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
