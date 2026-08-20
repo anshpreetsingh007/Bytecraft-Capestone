@@ -119,8 +119,10 @@ export default function CustomerJobsPage() {
               title="No inspections yet"
               message="Request a free inspection and we'll come and take a look at your roof."
               action={
-                <Link className="ui-button ui-button--primary" href="/customer/request-inspection">
-                  Request an inspection
+                // The free-quote form on the contact page is the one that
+                // actually files a request.
+                <Link className="ui-button ui-button--primary" href="/customer/contact">
+                  Request a free inspection
                 </Link>
               }
             />

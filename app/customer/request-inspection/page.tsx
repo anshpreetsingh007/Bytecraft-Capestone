@@ -1,89 +1,17 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import "./request-inspection.css";
-
+/**
+ * Retired: this page was a dead form.
+ *
+ * It rendered seven inputs and a "Submit Inspection Request" button with no
+ * onSubmit handler, no state and no API call -- so clicking submit did a native
+ * form GET, reloaded the page, and silently threw away everything the customer
+ * had typed. Nothing was ever saved, and no request ever reached the office.
+ *
+ * The free-quote form on the contact page does the same job properly: it posts
+ * to /api/inspection-requests under the signed-in customer's account. Anyone
+ * who still has this URL lands there instead.
+ */
 export default function RequestInspectionPage() {
-  return (
-    <main className="request-page">
-
-      <div className="request-card">
-
-        <h1>Request Inspection</h1>
-
-        <p className="subtitle">
-          Fill out the form below to schedule a roofing inspection.
-        </p>
-
-        <form>
-
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              placeholder="Enter your full name"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input
-              type="tel"
-              placeholder="Enter your phone number"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Property Address</label>
-            <input
-              type="text"
-              placeholder="Enter the property address"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Roof Type</label>
-
-            <select>
-              <option>Asphalt Shingles</option>
-              <option>Metal Roofing</option>
-              <option>Flat Roof</option>
-              <option>Tile Roof</option>
-              <option>Other</option>
-            </select>
-
-          </div>
-
-          <div className="form-group">
-            <label>Preferred Inspection Date</label>
-            <input type="date" />
-          </div>
-
-          <div className="form-group">
-            <label>Describe the Issue</label>
-
-            <textarea
-              rows={5}
-              placeholder="Describe any leaks, damage, or concerns..."
-            ></textarea>
-
-          </div>
-
-          <button type="submit">
-            Submit Inspection Request
-          </button>
-
-        </form>
-
-      </div>
-
-    </main>
-  );
+  redirect("/customer/contact");
 }
