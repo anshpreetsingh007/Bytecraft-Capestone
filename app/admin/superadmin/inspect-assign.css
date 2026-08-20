@@ -175,6 +175,45 @@
     margin-left: 10px;
 }
 
+/* admin-theme.css paints every button on this page with the orange accent
+   gradient plus a glow:
+
+     .adm .admin-page button:not(.sidebar-toggle) { background: var(--adm-g-accent) ... }
+
+   That is 0,3,1 specificity and it sets background-image, not just a colour --
+   so "Deactivate" came out as the loudest thing on the card when it is the
+   destructive, secondary action. These selectors match that shape and go one
+   class higher so they win regardless of stylesheet order, and they clear the
+   gradient and the glow rather than only the background colour. */
+
+.adm .admin-page button.ui-button--secondary:not(.sidebar-toggle) {
+    background: var(--color-surface);
+    background-image: none;
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    box-shadow: none;
+}
+
+.adm .admin-page button.ui-button--secondary:not(.sidebar-toggle):hover:not(:disabled) {
+    background: var(--color-surface-2);
+    background-image: none;
+    transform: none;
+    filter: none;
+}
+
+.adm .admin-page button.ui-button--danger:not(.sidebar-toggle) {
+    background: var(--color-danger);
+    background-image: none;
+    color: var(--color-on-danger);
+    box-shadow: none;
+}
+
+.adm .admin-page button.ui-button--danger:not(.sidebar-toggle):hover:not(:disabled) {
+    background: var(--color-danger-hover);
+    background-image: none;
+    filter: none;
+}
+
 /* The sidebar toggle is an icon button and must stay transparent — the rule
    above would otherwise give it an orange block background. */
 .admin-page .sidebar-toggle,
@@ -258,4 +297,146 @@
     color: var(--color-muted);
     font-size: 0.8rem;
     font-style: italic;
+}
+
+/* ============ Mobile: table becomes cards ============
+
+   Five columns of name, email, role, status and a role picker plus a button
+   cannot fit a phone. The table had a 560px minimum and no scroll container,
+   so on a ~380px screen the last columns were simply cut off the side of the
+   panel and the whole page scrolled sideways.
+
+   Below 720px each row is re-laid out as a card, with the column headings
+   moved onto each cell as a label. The header row is hidden because those
+   labels replace it. */
+
+@media (max-width: 720px) {
+    .admin-page .table-scroll {
+        overflow-x: visible;
+    }
+
+    .admin-page table {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    /* Taking table elements out of table layout removes their row/column
+       semantics, which is the intent here -- on a phone this is a list of
+       people, not a grid to compare across. */
+    .admin-page thead {
+        display: none;
+    }
+
+    .admin-page tbody,
+    .admin-page tbody tr,
+    .admin-page td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-page tbody tr {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+        padding: 4px 14px;
+        margin-bottom: 12px;
+    }
+
+    .admin-page tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    /* The desktop hover tint reads as a stuck selection on touch. */
+    .admin-page tbody tr:hover {
+        background: var(--color-surface);
+    }
+
+    .admin-page td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .admin-page td:last-child {
+        border-bottom: none;
+    }
+
+    .admin-page td::before {
+        content: attr(data-label);
+        flex: none;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+    }
+
+    /* The name leads the card, so it gets its own line and no label. */
+    .admin-page td.cell-name {
+        display: block;
+        font-size: 1.02rem;
+        font-weight: 700;
+        padding-top: 14px;
+    }
+
+    .admin-page td.cell-name::before {
+        content: none;
+    }
+
+    /* Long addresses wrap rather than forcing the card wider than the screen. */
+    .admin-page td.cell-email {
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    /* Role picker and Deactivate stack full width so both are easy to hit. */
+    .admin-page td.cell-actions {
+        display: block;
+        padding-bottom: 14px;
+    }
+
+    .admin-page td.cell-actions::before {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .admin-page .user-actions {
+        flex-wrap: nowrap;
+    }
+
+    .admin-page .user-actions label,
+    .admin-page .user-actions select {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .admin-page .user-actions select,
+    .admin-page .user-actions .ui-button {
+        min-height: 44px;
+    }
+
+    .admin-page .no-actions {
+        display: block;
+        text-align: left;
+    }
+
+    /* Heading and search box side by side leaves ~140px for the input. */
+    .admin-page .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        /* .adm-section-head contributes 34px top / 16px bottom, which stacked
+           with the 20px here left a conspicuous hole above the first card. */
+        margin: 0 0 16px;
+    }
+
+    .admin-page .section-header label {
+        display: block;
+    }
 }

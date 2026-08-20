@@ -6,7 +6,7 @@
  * insert raised 23514 and the catch swallowed it. Migration 002 widens the
  * constraint; the shared service client now also retries and logs loudly.
  */
-import { callService, callServiceBestEffort } from '../shared';
+import { callService, callServiceBestEffort, ServiceCallError, conflict } from '../shared';
 import type { EstimateMaterial } from '../models/model';
 
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3005';
@@ -109,15 +109,22 @@ export async function consumeMaterials(
 ): Promise<{ applied: number } | null> {
     if (materials.length === 0) return { applied: 0 };
 
-    return callService<{ applied: number }>(`${INVENTORY_SERVICE_URL}/api/inventory/consume`, {
-        callerName: CALLER,
-        body: {
-            reference_type: 'cost_estimate',
-            reference_id: estimateId,
-            lines: materials.map((material) => ({
-                item_id: material.material_id,
-                quantity: material.quantity,
-            })),
-        },
-    });
+    try {
+        return await callService<{ applied: number }>(`${INVENTORY_SERVICE_URL}/api/inventory/consume`, {
+            callerName: CALLER,
+            body: {
+                reference_type: 'cost_estimate',
+                reference_id: estimateId,
+                lines: materials.map((material) => ({
+                    item_id: material.material_id,
+                    quantity: material.quantity,
+                })),
+            },
+        });
+    } catch (error) {
+        if (error instanceof ServiceCallError && error.status === 409) {
+            throw conflict('Not enough materials in stock to approve this estimate.');
+        }
+        throw error;
+    }
 }

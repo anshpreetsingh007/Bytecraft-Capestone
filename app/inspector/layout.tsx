@@ -1,7 +1,7 @@
 "use client";
 import "../inspector/styles/inspector.css"
 
-import { ClipboardList, LayoutDashboard } from "lucide-react";
+import { ClipboardList, LayoutDashboard, Calculator } from "lucide-react";
 
 import { DashboardNav, type NavItem } from "../../components/DashboardNav";
 import { RoleGuard } from "../../components/RoleGuard";
@@ -11,6 +11,7 @@ import { RoleGuard } from "../../components/RoleGuard";
 const inspectorNavItems: NavItem[] = [
   { label: "My Jobs", href: "/inspector/dashboard", icon: LayoutDashboard },
   { label: "Job Reports", href: "/inspector/reports", icon: ClipboardList },
+  { label: "Cost Estimate", href: "/inspector/cost-estimate", icon: Calculator },
 ];
 
 export default function InspectorLayout({

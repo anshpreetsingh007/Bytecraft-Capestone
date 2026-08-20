@@ -158,7 +158,9 @@ export async function create(req: Request, res: Response): Promise<void> {
     const created = await estimateService.createEstimate({
         order_id: requireInt(req.body.order_id, 'order_id', { min: 1 }),
         inspector_id: inspectorId,
-        admin_id: actor.role === 'admin' || actor.role === 'super_admin' ? actor.id : null,
+        // See the note in updateStatus: admin_id references the admin table,
+        // not super_admin, so only a plain admin actor may be attributed here.
+        admin_id: actor.role === 'admin' ? actor.id : null,
         details: sanitizeText(requireString(req.body.details, 'details', { max: 5000 })),
         estimate_date: req.body.estimate_date
             ? requireDate(req.body.estimate_date, 'estimate_date')
@@ -238,7 +240,11 @@ export async function updateStatus(req: Request, res: Response): Promise<void> {
     const id = idParam(req);
     const status = requireEnum<EstimateStatus>(req.body.status, 'status', ESTIMATE_STATUSES);
 
-    const updated = await estimateService.updateEstimateStatus(id, status, actor.id);
+    // admin_id has a foreign key to the admin table. A super_admin's id lives
+    // in a separate super_admin table, so writing it here would violate that
+    // constraint -- attribute the decision only when the actor is a plain admin.
+    const adminId = actor.role === 'admin' ? actor.id : null;
+    const updated = await estimateService.updateEstimateStatus(id, status, adminId);
 
     await recordAudit(
         pool,

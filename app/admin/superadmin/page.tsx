@@ -213,21 +213,21 @@ export default function UserManagementPage() {
 
                 return (
                   <tr key={user.firebaseUid}>
-                    <td>
+                    <td data-label="Name" className="cell-name">
                       {user.firstName} {user.lastName}
                       {isSelf ? <span className="self-tag"> (you)</span> : null}
                     </td>
-                    <td>{user.email}</td>
-                    <td>
+                    <td data-label="Email" className="cell-email">{user.email}</td>
+                    <td data-label="Role">
                       <span style={{ textTransform: "capitalize" }}>{user.role.replace("_", " ")}</span>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <StatusPill
                         status={user.isActive ? "active" : "deactivated"}
                         tone={user.isActive ? "success" : "neutral"}
                       />
                     </td>
-                    <td>
+                    <td data-label="Actions" className="cell-actions">
                       {locked ? (
                         // Changing your own role, or a super admin's, is
                         // refused by the server too -- this is just so the

@@ -158,7 +158,10 @@ export async function review(req: Request, res: Response): Promise<void> {
     const actor = getActor(req);
     const id = idParam(req);
 
-    const reviewed = await jobReportService.reviewJobReport(id, actor.id);
+    // report.admin_id has a foreign key to the admin table, not super_admin
+    // (a separate table) -- only attribute the sign-off when the actor is a
+    // plain admin, otherwise the FK is violated for a super_admin reviewer.
+    const reviewed = await jobReportService.reviewJobReport(id, actor.role === 'admin' ? actor.id : null);
 
     await recordAudit(
         pool,

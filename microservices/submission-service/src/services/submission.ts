@@ -271,9 +271,13 @@ export async function updateRequestStatus(
     }
 
     const result = await pool.query(
+        // $1 is bound to a text column via SET and compared against a string
+        // literal inside the CASE; Postgres can't unify those two contexts
+        // into one inferred type for the same placeholder ("inconsistent
+        // types deduced for parameter $1") unless it's cast explicitly.
         `UPDATE inspection_request
-         SET status = $1,
-             cancelled_reason = CASE WHEN $1 = 'cancelled' THEN $2 ELSE cancelled_reason END
+         SET status = $1::varchar,
+             cancelled_reason = CASE WHEN $1::varchar = 'cancelled' THEN $2 ELSE cancelled_reason END
          WHERE request_id = $3 AND deleted_at IS NULL
          RETURNING *`,
         [status, reason, id],
